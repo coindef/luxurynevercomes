@@ -1,17 +1,21 @@
 import type { Product } from './types'
 
-/** 分类丝绒渐变（拍卖图录展签底色），emoji 兜底时使用 */
+/**
+ * 分类丝绒渐变（拍卖图录展签底色），emoji 兜底时使用。
+ * 全中性：靠明度差区分分类，不靠色相——全站唯一的彩色是治愈绿，展签不参与配色。
+ * （上一版每个分类一个颜色，是「黑金殿堂」时期的遗留，与冷调单色体系冲突。）
+ */
 export const CATEGORY_GRADIENTS: Record<string, string> = {
-  包袋皮具: 'bg-gradient-to-br from-stone-800 to-amber-950',
-  腕表珠宝: 'bg-gradient-to-br from-slate-900 to-indigo-950',
-  尊贵座驾: 'bg-gradient-to-br from-neutral-900 to-zinc-800',
-  游艇航空: 'bg-gradient-to-br from-slate-900 to-cyan-950',
-  不动产: 'bg-gradient-to-br from-emerald-950 to-teal-900',
-  科技算力: 'bg-gradient-to-br from-gray-950 to-blue-950',
-  运动竞技: 'bg-gradient-to-br from-stone-900 to-green-950',
-  酒窖餐桌: 'bg-gradient-to-br from-rose-950 to-red-950',
+  包袋皮具: 'bg-gradient-to-br from-neutral-800 to-neutral-950',
+  腕表珠宝: 'bg-gradient-to-br from-zinc-700 to-zinc-950',
+  尊贵座驾: 'bg-gradient-to-br from-neutral-900 to-black',
+  游艇航空: 'bg-gradient-to-br from-slate-700 to-slate-950',
+  不动产: 'bg-gradient-to-br from-stone-700 to-stone-950',
+  科技算力: 'bg-gradient-to-br from-gray-800 to-black',
+  运动竞技: 'bg-gradient-to-br from-stone-800 to-neutral-950',
+  酒窖餐桌: 'bg-gradient-to-br from-zinc-800 to-neutral-950',
   高定衣橱: 'bg-gradient-to-br from-zinc-900 to-stone-800',
-  艺术收藏: 'bg-gradient-to-br from-amber-950 to-yellow-900',
+  艺术收藏: 'bg-gradient-to-br from-neutral-700 to-zinc-950',
 }
 
 export const CATEGORIES = [

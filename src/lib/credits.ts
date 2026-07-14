@@ -1,64 +1,33 @@
-/** CC 授权图片署名（生成），Unsplash/CC0 图源免署名不列出 */
+/** 图片署名。CC0 与免署名 Unsplash 图不逐条列出，见 UNSPLASH_NOTE 总述。 */
 export interface ImageCredit {
+  /** 商品 id；编辑配图（ed-*）没有对应商品，靠 label 显示中文名 */
   productId: string
   title: string
   creator: string
   license: string
   sourceUrl: string
+  /** 非商品图（编辑配图）的中文标题，商品图留空则回退到商品名 */
+  label?: string
 }
 
+/** 未逐条署名的图片总述（Unsplash 免署名图 + CC0 图源）。 */
+export const UNSPLASH_NOTE =
+  '其余商品图与场景图来自 Unsplash（免署名授权）及 CC0 公共领域图源，均经逐张目检，画面内无可读品牌标识。'
+
 export const IMAGE_CREDITS: ImageCredit[] = [
-  { productId: 'lx-heritage-trunk', title: 'Blue Suitcase', creator: 'Drew Coffman', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/39898825@N02/4603358068' },
-  { productId: 'lx-ostrich-tote', title: '“ Jūšt Çåmė In! Nę₩ Overpriced! Baggage From Adrienne Vittadini\'s Ostrich Collection. ¥Ìkėš¡!™ ”••• #Blessed #5ThElement #Overpriced!', creator: 'Picture Perfect Lifestyle', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/58810697@N02/8579431149' },
+  { productId: 'ed-atelier', title: '工匠的手在暗光里调校一枚机芯', creator: 'Tahlia Doyle', license: 'Unsplash', sourceUrl: 'https://unsplash.com/photos/bfk68pL0EJ0', label: '工匠的手在暗光里调校一枚机芯' },
+  { productId: 'ed-atelier-2', title: '工坊暗墙上挂了一排手工具，各归各位', creator: 'Minh Đức', license: 'Unsplash', sourceUrl: 'https://unsplash.com/photos/2gu0SU7_kr4', label: '工坊暗墙上挂了一排手工具，各归各位' },
+  { productId: 'ed-vault', title: '合着的银行金库门，厚得听不见外面', creator: 'Alex Duffy', license: 'Unsplash', sourceUrl: 'https://unsplash.com/photos/1AucbckEJWk', label: '合着的银行金库门，厚得听不见外面' },
+  { productId: 'ed-vitrine', title: '空无一人的石厅，展柜比藏品更安静', creator: 'Simon Ray', license: 'Unsplash', sourceUrl: 'https://unsplash.com/photos/16tANB-VhsY', label: '空无一人的石厅，展柜比藏品更安静' },
+  { productId: 'lx-croc-cardcase', title: 'a black wallet sitting on top of a metal rail', creator: 'CHUTTERSNAP', license: 'Unsplash', sourceUrl: 'https://unsplash.com/photos/W9kn44uJIDk' },
+  { productId: 'lx-d-flawless', title: 'a diamond ring on a black surface', creator: 'Khizar Rathore', license: 'Unsplash', sourceUrl: 'https://unsplash.com/photos/99Kn46xpr-Y' },
+  { productId: 'lx-tourbillon-minute', title: 'a close up of a watch on a black surface', creator: 'Kent Lam', license: 'Unsplash', sourceUrl: 'https://unsplash.com/photos/0G33SkbFgb8' },
+  { productId: 'lx-zero-clutch', title: 'A brown leather clutch sits on a wooden surface', creator: 'Ocult Store', license: 'Unsplash', sourceUrl: 'https://unsplash.com/photos/K78mXNm0zdM' },
   { productId: 'lx-emerald-garden', title: 'Emerald & Diamond Tiara', creator: 'euthman', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/78147607@N00/4739771202' },
-  { productId: 'lx-d-flawless', title: 'Diamond Ring', creator: 'Jeffrey Beall', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/31437555@N00/8476801743' },
   { productId: 'lx-royal-sapphire', title: 'Sapphire ring', creator: 'Stanislav Doronenko', license: 'CC BY', sourceUrl: 'https://commons.wikimedia.org/w/index.php?curid=5499291' },
-  { productId: 'lx-tourbillon-minute', title: 'Pocket watch', creator: 'vidalia_11', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/56832361@N00/3203909371' },
-  { productId: 'lx-vintage-racer', title: 'Porsche GT-1 vintage race car', creator: 'xddorox', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/26745132@N00/7659056000' },
   { productId: 'lx-v12-coupe', title: 'File:\' 13 - Italian sport cars - Alfa Romeo 4C - air scoops and door handle.jpg', creator: 'edvvc', license: 'CC BY-SA', sourceUrl: 'https://commons.wikimedia.org/w/index.php?curid=28407331' },
-  { productId: 'lx-superyacht-76', title: 'Superyacht M/Y Amaryllis berthed at Marina Bay, Gibraltar', creator: 'Mosh70', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/77769742@N02/8206065127' },
-  { productId: 'lx-light-jet', title: 'Rear view of private jet', creator: 'string_bass_dave', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/16069488@N00/2858149737' },
-  { productId: 'lx-catamaran-42', title: 'Catamaran sailing at Clontarf-1&', creator: 'Sheba Also 18 Million Views', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/34534185@N00/4522348515' },
-  { productId: 'lx-river-flat', title: 'Skyline Boston', creator: 'ReneS', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/63504485@N00/1594828030' },
-  { productId: 'lx-alpine-chalet', title: 'Ski Park Les Planards', creator: 'ines s.', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/25422862@N02/4367644987' },
-  { productId: 'lx-moon-acre', title: 'Moon Surface Texture', creator: 'Linkie Lueville {lindsay}', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/50087945@N00/4292634060' },
-  { productId: 'lx-gpu-cluster', title: 'Awaiting servers', creator: 'bugeaters', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/45778851@N00/3025911233' },
-  { productId: 'lx-fusion-share', title: 'A SPARC of Fusion Energy', creator: 'jurvetson', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/44124348109@N01/50402096131' },
-  { productId: 'lx-leo-satellite', title: 'Artist\'s rendering of NASA\'s Aqua Satellite Orbiting Earth', creator: 'Atmospheric Infrared Sounder', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/90896682@N06/8263869886' },
-  { productId: 'lx-flagship-gpu', title: 'Sapphire ATI Radeon HD 4550 GPU', creator: 'William Hook', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/83542829@N00/3570060270' },
-  { productId: 'lx-arab-racehorse', title: 'Arabian horse (freestock, read description)', creator: 'freestock-by-melissasundman', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/105677693@N05/10409894046' },
-  { productId: 'lx-links-membership', title: 'St Lucia Golf Links golf course', creator: 'Brisbane City Council', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/50553864@N06/6894941226' },
   { productId: 'lx-single-cask-60', title: 'Wine barrels', creator: 'Christian Haugen', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/34073237@N04/6027018922' },
-  { productId: 'lx-bordeaux-vertical', title: 'Bordeaux Wines at Fareham Wine Cellar', creator: 'Fareham Wine', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/62243473@N05/9416218798' },
-  { productId: 'lx-en-primeur', title: 'Wine barrels', creator: 'Christian Haugen', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/34073237@N04/6026460141' },
-  { productId: 'lx-caviar-quota', title: 'Caviar', creator: 'gtessier19', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/77945429@N04/7577327856' },
-  { productId: 'lx-kyoto-chakai', title: 'PICT0031, JimG944, Japanese Tea Ceremony, Uji City, Japan', creator: 'jimg944', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/21203533@N00/3001713700' },
-  { productId: 'lx-glacier-cubes', title: 'Closeup of the Ice Island from Petermann Glacier', creator: 'NASA Goddard Photo and Video', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/24662369@N07/7638834528' },
-  { productId: 'lx-couture-gown', title: '2010-Fashion-08', creator: 'University of Salford', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/32104790@N02/4640937687' },
-  { productId: 'lx-baby-cashmere', title: 'Grey Cashmere Coat', creator: 'chwynyn', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/34801476@N00/296743651' },
-  { productId: 'lx-vicuna-scarf', title: 'Swatch for cashmere scarf', creator: 'milele', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/48744022@N00/3217747163' },
-  { productId: 'lx-lily-corner', title: 'Reflections of Clouds on the Water-Lily Pond', creator: 'ralph and jenny', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/92269745@N00/4436734220' },
-  { productId: 'lx-auction-cover', title: 'Abstract Painting - Olivia', creator: 'Pictures by Ann', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/12560758@N07/11219479826' },
-  { productId: 'lx-concert-grand', title: 'New grand piano', creator: 'shawnzrossi', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/19517696@N00/9329697' },
-  { productId: 'lx-croc-birkin', title: 'Leather', creator: 'Kinchan1', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/43515091@N08/5354514660' },
-  { productId: 'lx-zero-clutch', title: 'YSL Magenta Sac Chain Evening Bag', creator: 'queenbeeofbeverlyhills', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/62997622@N03/6150190791' },
-  { productId: 'lx-british-gt', title: 'Classic green car', creator: 'Matthew Paul Argall', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/79157069@N03/26122281776' },
-  { productId: 'lx-silk-blimp', title: 'Hot Air Balloon Fest Uniontown, NJ', creator: 'dfbphotos', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/55938699@N07/6013968831' },
-  { productId: 'lx-twin-heli', title: 'RAF Rescue Helicopter (Sunset)', creator: 'peterallenn', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/85385851@N08/9723498373' },
-  { productId: 'lx-suborbital-seat', title: 'Earth from Space', creator: 'NASA Goddard Photo and Video', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/24662369@N07/6049973495' },
-  { productId: 'lx-pacific-island', title: 'Kure Atoll aerial 1971', creator: 'Jigreenberg at English Wikipedia', license: 'CC BY', sourceUrl: 'https://commons.wikimedia.org/w/index.php?curid=47068702' },
-  { productId: 'lx-sky-penthouse', title: 'Night view of bangalore', creator: 'kalyan02', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/35631458@N02/5475487437' },
   { productId: 'lx-loire-chateau', title: 'Chateau Chambord', creator: 'flamouroux', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/23909906@N05/7989572147' },
-  { productId: 'lx-butler-tenure', title: 'Classy service', creator: 'gobanshee1', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/79326374@N00/5607918128' },
-  { productId: 'lx-quantum-hour', title: 'Measuring a qubit leaves no room for error', creator: 'FMNLab', license: 'CC BY', sourceUrl: 'https://commons.wikimedia.org/w/index.php?curid=90764556' },
-  { productId: 'lx-f1-paddock', title: 'Lola Formula Race Car', creator: 'smaedli', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/75264768@N00/20481558106' },
-  { productId: 'lx-stadium-box', title: 'Night begins to fall over Cardiff City Stadium', creator: 'joncandy', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/37195744@N03/3812995356' },
   { productId: 'lx-cremona-violin', title: 'Violin, Figaro House, Vienna', creator: 'cphoffman42', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/23088289@N02/3325997340' },
   { productId: 'lx-south-sea', title: 'Pearl Necklace', creator: 'TenthMusePhotography', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/26429593@N08/2474201376' },
-  { productId: 'lx-humanoid-butler', title: 'SARCOS Primus humanoid robot', creator: 'jiuguangw', license: 'CC BY-SA', sourceUrl: 'https://www.flickr.com/photos/32366606@N00/6265559256' },
-  { productId: 'lx-redcarpet-look', title: 'Cannes Red Carpet', creator: 'jamiejohndavies', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/8374005@N02/515799719' },
-  { productId: 'lx-wrap-it-all', title: 'Holiday City Mini Mall', creator: 'LancerE', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/34132829@N07/3758668533' },
-  { productId: 'lx-savile-suit', title: 'show me the way to go home, I\'m tired and I want to go to bed', creator: 'Metro Centric', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/16782093@N03/3066440218' },
-  { productId: 'lx-silk-carre', title: 'Casol square silk scarf as head scarf', creator: 'Mickael Casol', license: 'CC BY', sourceUrl: 'https://commons.wikimedia.org/w/index.php?curid=4484834' },
-  { productId: 'lx-asteroid-name', title: 'Canyon Diablo meteorite with a whistle-hole', creator: 'subarcticmike', license: 'CC BY', sourceUrl: 'https://www.flickr.com/photos/31856336@N03/12419204905' },
 ]

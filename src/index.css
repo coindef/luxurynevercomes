@@ -1,21 +1,55 @@
 @import "tailwindcss";
 
+/* 别扫 .claude/：impeccable 检测器的源码里以字符串字面量形式列举了各种反模式类名，
+   Tailwind 会把它们当成项目真实用到的类而编进产物（于是检测器检测到了它自己） */
+@source not "../.claude";
+
 @theme {
   --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
-  /* 静奢纸面 tokens（爱马仕式浅色编辑排版）
-     注：token 名沿用旧语义位（ink=页面底、ivory=主文字），值已翻转为浅色系 */
-  --color-ink: #faf6ef;        /* 底色暖纸白 */
-  --color-panel: #ffffff;      /* 卡片面（少用，尽量无卡片） */
-  --color-hairline: #e6dfd2;   /* 发丝分隔线 */
-  --color-ivory: #1d1b17;      /* 主文字近墨黑 */
-  --color-fog: #8d8577;        /* 次级文字暖灰 */
-  --color-gold: #9a7b4f;       /* 古铜（细节色，克制使用） */
-  --color-goldlit: #7c6138;    /* 古铜 hover 加深 */
-  --color-jade: #1f6b4a;       /* 治愈绿：私人银行对账单绿 */
+
+  /* 冷调单色（Cold Luxury）：真纸白 + 纯墨黑 + 唯一的绿。
+     全站没有第二个颜色——绿只在「省钱/安抚」侧出现，色彩本身就是笑点落地的信号。
+     注：token 名沿用旧语义位（ink = 页面底，ivory = 主文字），别被名字骗了。 */
+  --color-ink: #ffffff;        /* 页面底：真纸白，不是奶油白 */
+  --color-panel: #fafafa;      /* 极淡的面（尽量不用，留白优先） */
+  --color-hairline: #e5e5e5;   /* 冷发丝线 */
+  --color-ivory: #111111;      /* 主文字：纯墨黑（白底 18.9:1） */
+  --color-fog: #6b6b6b;        /* 次级文字：中性灰。白底 5.33:1，过 WCAG AA。
+                                  别为了「优雅」调浅——本站小字多在 9-11px，
+                                  浅灰配近白底是最常见的可读性事故，且禁止再叠 /60 /70 透明度 */
+  --color-jade: #1f6b4a;       /* 私人银行绿：全站唯一彩色（白底 6.44:1） */
+
+  /* 缓动：指数级 ease-out，「昂贵地慢」。禁止弹跳/回弹曲线 */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* z-index 语义层级：禁止再写裸数字 */
+@layer base {
+  :root {
+    --z-sticky: 30;    /* 吸顶导航、常驻徽章 */
+    --z-bar: 40;       /* 吸底操作栏、TabBar */
+    --z-overlay: 50;   /* 模态、toast */
+  }
+}
+
+/* 键盘可见焦点：无障碍硬性要求，不是可选项 */
+:focus-visible {
+  outline: 2px solid var(--color-ivory);
+  outline-offset: 3px;
+}
+
+/* 标题断行更匀，正文少孤字 */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 html {
-  background: #f3eee5;
+  background: #f2f2f2;
 }
 
 body {
@@ -30,7 +64,6 @@ body {
   margin: 0 auto;
   min-height: 100dvh;
   background: var(--color-ink);
-  box-shadow: 0 0 40px rgba(60, 45, 20, 0.08);
   position: relative;
   color: var(--color-ivory);
 }
@@ -38,22 +71,21 @@ body {
 @media (min-width: 1024px) {
   #root {
     max-width: none;
-    box-shadow: none;
   }
 }
 
-/* 标题与品名：中文衬线栈 */
+/* 标题与品名：中文衬线（报刊正文体的编辑感） */
 .font-lux {
   font-family: "Songti SC", "Noto Serif SC", STSong, SimSun, serif;
 }
 
-/* 价格数字：全站视觉主角 */
+/* 价格数字：全站视觉主角。Didone 的高反差衬线，逗号越多越贵 */
 .font-price {
-  font-family: Didot, "Playfair Display", Georgia, "Songti SC", serif;
+  font-family: Didot, "Bodoni 72", Baskerville, Georgia, "Songti SC", serif;
   font-variant-numeric: tabular-nums;
 }
 
-/* 全大写拉丁字距 */
+/* 全大写拉丁字距（已大幅收敛使用，全站仅剩品牌字标一处） */
 .tracking-maison {
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -66,43 +98,53 @@ body {
 }
 
 .float-up {
-  animation: slow-fade 0.6s ease-out both;
+  animation: slow-fade 0.6s var(--ease-out-expo) both;
 }
 
-/* 主按钮：墨黑实心，hover 微亮——静奢没有金光扫过 */
+/* 主 CTA：墨黑实心。按下有物理回馈，但不弹 */
 .gold-cta {
   position: relative;
-  background: #1d1b17;
-  color: #faf6ef;
-  transition: background-color 0.4s ease;
+  background: #111111;
+  color: #ffffff;
+  transition:
+    background-color 0.4s var(--ease-out-quart),
+    transform 0.15s var(--ease-out-quart);
 }
 
 .gold-cta:hover {
-  background: #3a352c;
+  background: #3d3d3d;
+}
+
+.gold-cta:active {
+  transform: translateY(1px);
 }
 
 /* 编辑式下划线链接 */
 .quiet-link {
   border-bottom: 1px solid currentColor;
   padding-bottom: 2px;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s var(--ease-out-quart);
 }
 
 .quiet-link:hover {
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
+.quiet-link:active {
+  opacity: 0.4;
+}
+
+/* 无过冲的浮现：静奢不弹跳。ease-out-expo，落得稳 */
 @keyframes pop-in {
-  0% { transform: scale(0); }
-  70% { transform: scale(1.12); }
-  100% { transform: scale(1); }
+  0% { opacity: 0; transform: scale(0.96); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 .pop-in {
-  animation: pop-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: pop-in 0.5s var(--ease-out-expo) both;
 }
 
-/* 支付成功：香槟金彩带，落得慢 */
+/* 支付成功：银箔彩带，落得慢 */
 @keyframes confetti-fall {
   0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
   100% { transform: translateY(70vh) rotate(300deg); opacity: 0; }
@@ -146,4 +188,16 @@ body {
 
 .truck-move {
   animation: truck-move 3.2s ease-in-out infinite;
+}
+
+/* 动效一律尊重减弱动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .float-up,
+  .pop-in,
+  .confetti,
+  .whisper,
+  .emoji-float,
+  .truck-move {
+    animation: none;
+  }
 }

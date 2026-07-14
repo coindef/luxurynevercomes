@@ -18,8 +18,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={show}>
       {children}
       {msg && (
-        <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 float-up">
-          <div className="max-w-[340px] bg-[#1d1b17]/95 px-5 py-2.5 text-center text-xs leading-relaxed text-[#faf6ef] shadow-xl">
+        <div className="float-up fixed bottom-24 left-1/2 z-50 -translate-x-1/2">
+          <div className="max-w-[340px] bg-[#111111]/95 px-5 py-3 text-center text-xs leading-relaxed text-[#f5f5f5]">
             {msg}
           </div>
         </div>

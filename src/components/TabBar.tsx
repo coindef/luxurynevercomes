@@ -20,14 +20,14 @@ export default function TabBar() {
             to={t.to}
             className={({ isActive }) =>
               `relative flex flex-col items-center gap-0.5 py-2.5 text-[10px] tracking-widest ${
-                isActive ? 'font-semibold text-gold' : 'text-fog'
+                isActive ? 'font-semibold text-ivory' : 'text-fog'
               }`
             }
           >
             <span className="relative text-lg leading-none">
               {t.emoji}
               {t.to === '/cart' && cartCount > 0 && (
-                <span className="absolute -right-3 -top-1.5 min-w-4 border border-gold bg-ink px-1 text-center text-[9px] font-bold leading-4 text-gold pop-in">
+                <span className="pop-in absolute -right-3 -top-1.5 min-w-4 bg-ivory px-1 text-center text-[9px] font-bold leading-4 text-ink">
                   {cartCount > 99 ? '99+' : cartCount}
                 </span>
               )}

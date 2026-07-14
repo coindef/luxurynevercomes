@@ -4,6 +4,7 @@ import { CONVERSIONS, PRIVACY_FOOTER, memberLevel } from '../lib/copy'
 import { yuan } from '../lib/format'
 import { useCountUp } from '../lib/hooks'
 import { useStore } from '../lib/store'
+import EditorialImage from '../components/EditorialImage'
 
 export default function Me() {
   const { orders, saved } = useStore()
@@ -38,103 +39,115 @@ export default function Me() {
   }
 
   return (
-    <div className="pb-20 lg:mx-auto lg:max-w-2xl">
-      {/* 贵宾卡 */}
-      <header className="border-b border-hairline px-5 pb-9 pt-9">
+    <div className="pb-28 lg:mx-auto lg:max-w-3xl">
+      {/* 贵宾 */}
+      <header className="px-6 pt-16 lg:pt-20">
         <div className="flex items-center gap-4">
-          <span className="flex h-14 w-14 items-center justify-center border border-gold/50 text-2xl">🎩</span>
+          <span className="text-2xl">🎩</span>
           <div className="min-w-0">
-            <p className="font-lux text-base text-ivory">尊敬的贵宾</p>
-            <p className="mt-1 w-fit border border-gold/60 px-2 py-0.5 text-[9px] tracking-wider text-gold">
-              {memberLevel(orders.length)} · 已下 {orders.length} 单
+            <p className="font-lux text-2xl text-ivory lg:text-4xl">尊敬的贵宾</p>
+            <p className="mt-3 text-[10px] tracking-wider text-fog">
+              {memberLevel(orders.length)}，已下 {orders.length} 单
             </p>
           </div>
         </div>
       </header>
 
-      {/* 首付账本（治愈绿：全站唯一收起玩笑的地方） */}
-      <section className="mx-4 -mt-5 border border-jade/30 bg-jade/5 p-6 text-center">
-        <p className="tracking-maison text-[9px] text-jade/80">首付账本 · 累计守住</p>
-        <p className="font-price mt-3 text-3xl font-bold text-jade">{yuan(counted)}</p>
-        <p className="mt-2.5 text-[10px] leading-relaxed text-jade/70">
+      {/* 首付账本（治愈绿：全站唯一收起玩笑的地方，也是全站唯一的颜色） */}
+      <section className="mt-24 px-6 lg:mt-40">
+        <h2 className="font-lux text-2xl text-ivory lg:text-4xl">首付账本</h2>
+        <p className="mt-2 text-[11px] text-fog">累计为你守住</p>
+        <p className="font-price mt-8 text-4xl font-bold text-jade lg:text-6xl">{yuan(counted)}</p>
+        <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
           这些钱严格来说从来没有过。但守住的踏实，和数完三行逗号的快乐，是真的。
         </p>
         {saved > 0 && (
           <button
             onClick={() => setConvIdx((convIdx + 1) % convCount)}
-            className="mt-3.5 border border-jade/40 px-4 py-1.5 text-[10px] text-jade"
+            className="quiet-link mt-8 inline-block text-[11px] text-jade"
           >
             {conv ? (
               <>≈ {convN.toLocaleString('zh-CN')} {conv.unit}{conv.suffix ?? ''}</>
             ) : (
               <>≈ 你安然无恙的很多年</>
             )}
-            <span className="ml-1.5 opacity-60">换算 ⟳</span>
+            <span className="ml-2 opacity-60">换算 ⟳</span>
           </button>
         )}
       </section>
 
       {/* 本月小结 */}
-      <section className="mx-4 mt-4 border border-hairline bg-panel p-4">
-        <h2 className="font-lux text-sm text-ivory">本月小结</h2>
+      <section className="mt-24 px-6 lg:mt-40">
+        <h2 className="font-lux text-lg text-ivory lg:text-2xl">本月小结</h2>
         {monthOrders.length > 0 ? (
-          <p className="mt-2 text-[11px] leading-relaxed text-fog">
-            本月你心动了 <span className="font-price font-bold text-ivory">{monthOrders.length}</span> 次，守住{' '}
-            <span className="font-price font-bold text-jade">{yuan(monthSaved)}</span>。
+          <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
+            本月你心动了 <span className="font-price text-ivory">{monthOrders.length}</span> 次，守住{' '}
+            <span className="font-price text-jade">{yuan(monthSaved)}</span>。
             <br />
             富了个寂寞——寂寞是假的，开过眼是真的。
           </p>
         ) : (
-          <p className="mt-2 text-[11px] text-fog">本月还没心动过。也挺好，殿堂常开，随时来。</p>
+          <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">本月还没心动过。也挺好，殿堂常开，随时来。</p>
         )}
         {topUrge && (
-          <p className="mt-2.5 border border-hairline px-3 py-2 text-[10px] leading-relaxed text-fog">
+          <p className="mt-6 max-w-md border-l border-hairline pl-5 text-[10px] leading-loose text-fog">
             你最常因为「{topUrge}」心动。只是记着，没有别的意思。
           </p>
         )}
       </section>
 
+      {/* 金库：这里是全站唯一真实的东西 */}
+      <EditorialImage
+        src="/img/ed-vault.jpg"
+        alt="合着的圆形钢制金库门，锁栓排成一圈"
+        caption="您守住的钱存放于此。此处为比喻——但钱是真的没花出去。"
+      />
+
       {/* 入口 */}
-      <section className="mx-4 mt-4 border border-hairline bg-panel">
-        <Link to="/orders" className="flex items-center justify-between px-4 py-3.5 text-xs text-ivory/90">
+      <nav className="mt-24 lg:mt-40">
+        <Link
+          to="/orders"
+          className="flex items-center justify-between border-t border-hairline px-6 py-6 text-xs text-ivory"
+        >
           <span>🎩 管家动态</span>
           <span className="text-[10px] text-fog">{orders.length} 单，全部在途 ›</span>
         </Link>
-        <div className="border-t border-hairline" />
-        <Link to="/about" className="flex items-center justify-between px-4 py-3.5 text-xs text-ivory/90">
-          <span>🏛️ 关于本店 · MAISON ZÉRO</span>
+        <Link
+          to="/about"
+          className="flex items-center justify-between border-t border-hairline px-6 py-6 text-xs text-ivory"
+        >
+          <span>🏛️ 关于本店</span>
           <span className="text-[10px] text-fog">›</span>
         </Link>
-        <div className="border-t border-hairline" />
         <button
           onClick={() => setConfirmClear(true)}
-          className="flex w-full items-center justify-between px-4 py-3.5 text-xs text-ivory/90"
+          className="flex w-full items-center justify-between border-y border-hairline px-6 py-6 text-xs text-ivory"
         >
           <span>🕯️ 散尽家财</span>
           <span className="text-[10px] text-fog">›</span>
         </button>
-      </section>
+      </nav>
 
-      <p className="px-8 py-6 text-center text-[8px] leading-relaxed tracking-wider text-fog/60">{PRIVACY_FOOTER}</p>
+      <p className="px-6 pt-16 text-[9px] leading-loose tracking-wider text-fog">{PRIVACY_FOOTER}</p>
 
       {/* 温柔的二次确认 */}
       {confirmClear && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-10">
-          <div className="w-full max-w-72 border border-gold/50 bg-panel p-6 text-center pop-in">
+          <div className="pop-in w-full max-w-72 bg-ink p-9">
             <p className="text-3xl">🕯️</p>
-            <p className="font-lux mt-3 text-sm text-ivory">要散尽家财了吗？</p>
-            <p className="mt-2 text-[10px] leading-relaxed text-fog">
+            <p className="font-lux mt-6 text-base text-ivory">要散尽家财了吗？</p>
+            <p className="mt-3 text-[11px] leading-loose text-fog">
               虚拟的散了就散了，守住的踏实删不掉，也带不走你的。
             </p>
-            <div className="mt-5 flex gap-2">
+            <div className="mt-10 flex items-center gap-8">
+              <button onClick={clearAll} className="gold-cta px-8 py-2.5 text-[11px] tracking-widest">
+                散尽
+              </button>
               <button
                 onClick={() => setConfirmClear(false)}
-                className="flex-1 border border-hairline py-2 text-[10px] tracking-widest text-fog"
+                className="quiet-link text-[11px] tracking-widest text-fog transition-opacity hover:text-ivory"
               >
                 再留一会儿
-              </button>
-              <button onClick={clearAll} className="flex-1 border border-gold py-2 text-[10px] tracking-widest text-gold">
-                散尽
               </button>
             </div>
           </div>

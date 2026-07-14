@@ -57,41 +57,39 @@ export default function Cart() {
   return (
     <div className="pb-36 lg:mx-auto lg:max-w-2xl">
       <header className="sticky top-0 z-30 border-b border-hairline bg-ink/95 px-4 py-3.5 backdrop-blur">
-        <h1 className="font-lux text-base text-ivory">
-          珍藏夹 <span className="tracking-maison ml-1 text-[9px] font-normal text-gold">La Collection</span>
-        </h1>
+        <h1 className="font-lux text-base text-ivory">珍藏夹</h1>
       </header>
 
       {/* 配货进度 */}
-      <div className="mx-4 mt-4 border border-hairline bg-panel p-3.5">
+      <div className="mx-4 mt-10 border border-hairline bg-panel p-5 lg:mt-14">
         <p className="text-[10px] leading-relaxed text-fog">
           {gap > 0 ? (
             <>
-              配货进度：再选购 <span className="font-price font-semibold text-gold">{yuan(gap)}</span>{' '}
+              配货进度：再选购 <span className="font-price font-semibold text-ivory">{yuan(gap)}</span>{' '}
               的丝巾或摆件，即可解锁主袋认购资格。
-              <span className="mt-0.5 block text-[9px] text-fog/70">本店配货同样 ¥0.00，请配个痛快。</span>
+              <span className="mt-1 block text-[9px] text-fog">本店配货同样 ¥0.00，请配个痛快。</span>
             </>
           ) : (
-            <span className="font-semibold text-jade">配货达成 · 主袋认购资格已解锁 · 附赠帆布托特袋一只（与主商品一同不发货）</span>
+            <span className="font-semibold text-jade">配货达成，主袋认购资格已解锁，附赠帆布托特袋一只（与主商品一同不发货）</span>
           )}
         </p>
-        <div className="mt-2.5 h-px w-full bg-hairline">
+        <div className="mt-4 h-px w-full bg-hairline">
           <div
-            className={`h-px transition-all duration-700 ${progress >= 1 ? 'bg-jade' : 'bg-gold'}`}
+            className={`h-px transition-all duration-700 ${progress >= 1 ? 'bg-jade' : 'bg-ivory'}`}
             style={{ width: `${progress * 100}%` }}
           />
         </div>
       </div>
 
       {/* 藏品清单 */}
-      <div className="mx-4 mt-4 space-y-3">
+      <div className="mx-4 mt-10 space-y-4 lg:mt-14">
         {rows.map(({ item, product }) => (
-          <div key={item.key} className="border border-hairline bg-panel p-3">
+          <div key={item.key} className="border border-hairline bg-panel p-4">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => toggle(item.key)}
                 className={`flex h-5 w-5 shrink-0 items-center justify-center border text-[10px] ${
-                  unchecked.has(item.key) ? 'border-hairline text-transparent' : 'border-gold text-gold'
+                  unchecked.has(item.key) ? 'border-hairline text-transparent' : 'border-ivory text-ivory'
                 }`}
               >
                 ✓
@@ -101,9 +99,9 @@ export default function Cart() {
               </Link>
               <div className="min-w-0 flex-1">
                 <p className="font-lux truncate text-xs text-ivory">{product!.name}</p>
-                <p className="mt-0.5 text-[9px] text-fog">白手套管家亲送 · 永不达</p>
-                <div className="mt-1.5 flex items-center justify-between">
-                  <span className="font-price text-sm font-semibold text-gold">{yuan(product!.price)}</span>
+                <p className="mt-1 text-[9px] text-fog">白手套管家亲送，永不达</p>
+                <div className="mt-2.5 flex items-center justify-between">
+                  <span className="font-price text-sm font-semibold text-ivory">{yuan(product!.price)}</span>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => (item.qty <= 1 ? removeFromCart(item.key) : setQty(item.key, item.qty - 1))}
@@ -123,10 +121,12 @@ export default function Cart() {
               </div>
             </div>
             {item.customization && Object.keys(item.customization).length > 0 && (
-              <div className="mt-2.5 border-t border-hairline pt-2">
-                <p className="text-[8px] tracking-widest text-gold">BESPOKE · 定制档案 {Object.keys(item.customization).length} 项</p>
+              <div className="mt-3.5 border-t border-hairline pt-3">
+                <p className="text-[8px] text-fog">
+                  <span className="tracking-widest">BESPOKE</span> 定制档案 {Object.keys(item.customization).length} 项
+                </p>
                 {Object.entries(item.customization).map(([k, v]) => (
-                  <p key={k} className="mt-0.5 truncate text-[9px] text-fog">
+                  <p key={k} className="mt-1 truncate text-[9px] text-fog">
                     {k.split('·')[0].trim()} — {v}
                   </p>
                 ))}
@@ -136,13 +136,13 @@ export default function Cart() {
         ))}
       </div>
 
-      <p className="py-5 text-center text-[9px] tracking-widest text-fog/70">多买多守，全买全守</p>
+      <p className="mx-4 mt-14 pb-8 text-[9px] tracking-widest text-fog lg:mt-20">多买多守，全买全守</p>
 
       {/* 结算栏 */}
       <div className="fixed bottom-12 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-4 py-3 lg:bottom-0 lg:max-w-2xl">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-price truncate text-base font-semibold text-gold">{yuan(subtotal)}</p>
+            <p className="font-price truncate text-base font-semibold text-ivory">{yuan(subtotal)}</p>
             <p className="text-[9px] font-semibold text-jade">这一单，守住 {yuan(subtotal)}</p>
           </div>
           <button

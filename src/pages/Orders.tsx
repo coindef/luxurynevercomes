@@ -21,6 +21,7 @@ function daysSince(ts: number): number {
   return Math.floor((Date.now() - ts) / 86400_000)
 }
 
+/** 物流剧场：一条安静的竖线，不用圆点，不用徽章 */
 function Timeline({ order }: { order: Order }) {
   const now = Date.now()
   const hasBespoke = order.items.some((i) => i.customization && Object.keys(i.customization).length > 0)
@@ -33,60 +34,45 @@ function Timeline({ order }: { order: Order }) {
   const next = nodes[unlocked.length]
 
   return (
-    <div className="mt-3">
-      {next && (
-        <div className="flex gap-2.5 opacity-40">
-          <div className="flex flex-col items-center">
-            <span className="mt-1 h-1.5 w-1.5 border border-fog" />
-            <span className="w-px flex-1 bg-hairline" />
-          </div>
-          <p className="pb-3 text-[9px] text-fog">下一封管家手记正在誊写……（剧透：仍不会来）</p>
-        </div>
-      )}
+    <div className="mt-10 border-l border-hairline pl-6">
+      {next && <p className="pb-8 text-[10px] leading-loose text-fog">下一封管家手记正在誊写……（剧透：仍不会来）</p>}
       {[...unlocked].reverse().map((n, i) => (
-        <div key={n.offsetMs} className="flex gap-2.5">
-          <div className="flex flex-col items-center">
-            <span className={`mt-1 h-1.5 w-1.5 ${i === 0 ? 'bg-jade' : 'bg-hairline'}`} />
-            {i < unlocked.length - 1 && <span className="w-px flex-1 bg-hairline" />}
-          </div>
-          <div className="pb-3.5">
-            <p className={`text-[11px] leading-relaxed ${i === 0 ? 'font-lux text-ivory' : 'text-fog'}`}>
-              【{n.label}】{n.text}
-            </p>
-            <p className="font-price mt-0.5 text-[8px] text-fog/70">
-              {new Date(order.createdAt + n.offsetMs).toLocaleString('zh-CN', {
-                month: 'numeric',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </p>
-          </div>
+        <div key={n.offsetMs} className="pb-8 last:pb-0">
+          <p className={`text-[11px] leading-loose ${i === 0 ? 'font-lux text-ivory' : 'text-fog'}`}>
+            【{n.label}】{n.text}
+          </p>
+          <p className="font-price mt-2 text-[9px] text-fog">
+            {new Date(order.createdAt + n.offsetMs).toLocaleString('zh-CN', {
+              month: 'numeric',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </p>
         </div>
       ))}
     </div>
   )
 }
 
-/** 寂寞正品鉴定证书 */
+/** 寂寞正品鉴定证书（全站少数被允许的深色时刻：深色面用固定 hex，银箔不用金箔） */
 function Certificate({ order, onClose }: { order: Order; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-8" onClick={onClose}>
-      <div className="w-full max-w-80 border border-[#c8a96e] bg-gradient-to-b from-[#1c1a16] to-[#0d0c0a] p-6 text-center pop-in">
-        <p className="tracking-maison text-[9px] text-[#c8a96e]">Certificat d'Authenticité</p>
-        <p className="font-lux mt-3 text-base text-[#f4efe6]">寂寞正品鉴定证书</p>
-        <div className="mx-auto my-4 h-px w-16 bg-[#c8a96e]/60" />
-        <p className="text-[10px] leading-loose text-[#8a857c]">
+      <div className="pop-in w-full max-w-80 bg-[#141414] p-9">
+        <p className="font-lux text-base text-[#e8e8e8]">寂寞正品鉴定证书</p>
+        <div className="my-6 h-px w-16 bg-[#c9c9c9]/50" />
+        <p className="text-[10px] leading-loose text-[#8f8f8f]">
           兹证明本单寂寞为正品，全球限量一份。
           <br />
-          持有人：<span className="text-[#f4efe6]">您</span>
+          持有人：<span className="text-[#e8e8e8]">您</span>
           <br />
           编号：<span className="font-price">{orderNo(order.createdAt)}</span>
           <br />
-          鉴定机构：富了个寂寞 · 白手套鉴定所
+          鉴定机构：富了个寂寞，白手套鉴定所
         </p>
-        <p className="mt-4 text-[8px] tracking-widest text-[#8a857c]/70">此证书与您守住的钱一样：是真的</p>
-        <button onClick={onClose} className="mt-5 border border-[#c8a96e]/60 px-8 py-1.5 text-[10px] tracking-widest text-[#c8a96e]">
+        <p className="mt-6 text-[8px] leading-relaxed tracking-widest text-[#8f8f8f]">此证书与您守住的钱一样：是真的</p>
+        <button onClick={onClose} className="quiet-link mt-8 inline-block text-[10px] tracking-widest text-[#c9c9c9]">
           收下
         </button>
       </div>
@@ -107,7 +93,7 @@ function ConfirmButton({ order }: { order: Order }) {
       <button
         {...longPress}
         onClick={() => toast('确认不了的。长按试试，有惊喜——惊喜也不发货，但可以看。')}
-        className="flex-1 border border-hairline py-2 text-[10px] tracking-widest text-fog/60"
+        className="quiet-link text-[11px] tracking-widest text-fog transition-opacity hover:text-ivory"
       >
         确认收货
       </button>
@@ -125,68 +111,66 @@ function OrderCard({ order }: { order: Order }) {
   const revisit = revisitLine(days)
 
   return (
-    <div className="mx-4 mt-4 border border-hairline bg-panel p-3.5">
+    <article className="border-t border-hairline px-6 py-10">
       <button onClick={() => setExpanded(!expanded)} className="w-full text-left">
-        <div className="flex items-center justify-between">
-          <span className="font-price text-[9px] text-fog">{orderNo(order.createdAt)}</span>
-          <span className={`text-[10px] tracking-wider ${arrived ? 'text-jade' : 'text-gold'}`}>
+        <div className="flex items-baseline justify-between gap-4">
+          <span className="font-price text-[10px] text-fog">{orderNo(order.createdAt)}</span>
+          <span className={`text-[10px] tracking-wider ${arrived ? 'text-jade' : 'text-fog'}`}>
             {arrived ? '已入驻心里的陈列室' : '白手套护送中'}{' '}
-            {!arrived && <span className="inline-block truck-move">🕊️</span>}
+            {!arrived && <span className="truck-move inline-block">🕊️</span>}
           </span>
         </div>
-        <div className="mt-2.5 flex items-center gap-2 overflow-hidden">
+
+        <div className="mt-6 flex items-center gap-3 overflow-hidden">
           {order.items.slice(0, 4).map((it) => (
             <ProductImage
               key={it.product.id + JSON.stringify(it.customization ?? {})}
               product={it.product}
-              className="h-11 w-11 shrink-0"
-              emojiClass="text-xl"
+              className="h-16 w-16 shrink-0"
+              emojiClass="text-2xl"
             />
           ))}
           {order.items.length > 4 && <span className="text-[10px] text-fog">+{order.items.length - 4}</span>}
-          <span className="ml-auto shrink-0 text-[10px] text-fog">
-            共 {order.items.reduce((s, i) => s + i.qty, 0)} 件 · 守住{' '}
-            <span className="font-price font-semibold text-jade">{yuan(order.total)}</span>
-          </span>
         </div>
-        <p className="mt-2.5 text-[9px] text-fog">
-          这单已陪你 {days} 天{order.urge && ` · 因为「${order.urge}」`}
-          <span className="float-right text-fog/60">{expanded ? '收起 ▴' : '管家手记 ▾'}</span>
+
+        <p className="mt-6 text-[11px] leading-loose text-fog">
+          共 {order.items.reduce((s, i) => s + i.qty, 0)} 件，守住{' '}
+          <span className="font-price text-ivory">{yuan(order.total)}</span>
+        </p>
+        <p className="mt-2 text-[10px] leading-loose text-fog">
+          这单已陪你 {days} 天{order.urge && `，因为「${order.urge}」`}
+          <span className="ml-3 text-fog">{expanded ? '收起 ▴' : '管家手记 ▾'}</span>
         </p>
       </button>
 
       {expanded && (
-        <div className="float-up mt-3 border-t border-hairline pt-3">
-          {revisit && (
-            <div className="border border-jade/30 bg-jade/5 px-3 py-2.5 text-[10px] leading-relaxed text-jade">
-              {revisit}
-            </div>
-          )}
+        <div className="float-up mt-10">
+          {revisit && <p className="text-[11px] leading-loose text-jade">{revisit}</p>}
 
           {/* 定制档案 */}
           {order.items.some((i) => i.customization) && (
-            <div className="mt-3 border border-gold/25 px-3 py-2.5">
-              <p className="text-[8px] tracking-widest text-gold">BESPOKE · 定制档案（已永久归档。与商品不同，档案是真的）</p>
+            <div className="mt-10">
+              <p className="text-[10px] leading-loose text-fog">定制档案（已永久归档。与商品不同，档案是真的）</p>
               {order.items
                 .filter((i) => i.customization)
                 .map((i) => (
-                  <p key={i.product.id} className="mt-1 text-[9px] leading-relaxed text-fog">
-                    {i.product.emoji} {Object.values(i.customization!).join(' · ')}
+                  <p key={i.product.id} className="mt-2 text-[11px] leading-loose text-ivory">
+                    {i.product.emoji} {Object.values(i.customization!).join('，')}
                   </p>
                 ))}
             </div>
           )}
 
-          {/* 管家卡片 */}
-          <div className="mt-3 flex items-center gap-3 border border-hairline px-3 py-2.5">
-            <span className="flex h-9 w-9 items-center justify-center border border-gold/40 text-lg">🎩</span>
+          {/* 管家 */}
+          <div className="mt-10 flex items-center gap-4">
+            <span className="text-lg">🎩</span>
             <div className="flex-1">
-              <p className="font-lux text-[11px] text-ivory">管家 · 阿尔弗雷德</p>
-              <p className="text-[9px] text-fog">正在挑选与您门铃相称的手套</p>
+              <p className="font-lux text-[12px] text-ivory">管家 · 阿尔弗雷德</p>
+              <p className="mt-1 text-[10px] text-fog">正在挑选与您门铃相称的手套</p>
             </div>
             <button
               onClick={() => toast('管家正在熨手套，未接听。他让您放心：没有消息，就是没有消息。')}
-              className="border border-hairline px-3 py-1 text-[9px] tracking-wider text-fog"
+              className="quiet-link text-[11px] tracking-wider text-fog transition-opacity hover:text-ivory"
             >
               致电
             </button>
@@ -194,18 +178,20 @@ function OrderCard({ order }: { order: Order }) {
 
           <Timeline order={order} />
 
-          {replies.map((r, i) => (
-            <div key={i} className="float-up mb-1.5 flex justify-end">
-              <span className="max-w-[85%] border border-gold/30 bg-ink px-3 py-1.5 text-[10px] leading-relaxed text-gold/90">
-                {r}
-              </span>
+          {replies.length > 0 && (
+            <div className="mt-10 border-l border-hairline pl-6">
+              {replies.map((r, i) => (
+                <p key={i} className="float-up mt-3 text-[11px] leading-loose text-ivory first:mt-0">
+                  {r}
+                </p>
+              ))}
             </div>
-          ))}
+          )}
 
-          <div className="mt-2.5 flex gap-2">
+          <div className="mt-12 flex items-center gap-10">
             <button
               onClick={() => setReplies((prev) => [...prev, pick(BUTLER_REPLIES)])}
-              className="flex-1 border border-gold/60 py-2 text-[10px] tracking-widest text-gold"
+              className="quiet-link text-[11px] tracking-widest text-ivory"
             >
               摇铃唤管家
             </button>
@@ -213,7 +199,7 @@ function OrderCard({ order }: { order: Order }) {
           </div>
         </div>
       )}
-    </div>
+    </article>
   )
 }
 
@@ -222,10 +208,10 @@ export default function Orders() {
 
   if (orders.length === 0) {
     return (
-      <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-4 px-10 pb-20 text-center">
+      <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-6 px-10 pb-20 text-center">
         <span className="text-5xl">🎩</span>
-        <p className="font-lux text-sm leading-relaxed text-fog">{EMPTY_ORDERS}</p>
-        <Link to="/" className="gold-cta mt-1 px-10 py-2.5 text-sm tracking-widest">
+        <p className="font-lux text-sm leading-loose text-fog">{EMPTY_ORDERS}</p>
+        <Link to="/" className="gold-cta mt-2 px-10 py-3 text-xs tracking-[0.2em]">
           去逛逛 ›
         </Link>
       </div>
@@ -233,16 +219,16 @@ export default function Orders() {
   }
 
   return (
-    <div className="pb-20 lg:mx-auto lg:max-w-2xl">
-      <header className="sticky top-0 z-30 border-b border-hairline bg-ink/95 px-4 py-3.5 backdrop-blur lg:top-[57px]">
-        <h1 className="font-lux text-base text-ivory">
-          管家动态 <span className="tracking-maison ml-1 text-[9px] font-normal text-gold">En Route · Forever</span>
-        </h1>
+    <div className="pb-28 lg:mx-auto lg:max-w-3xl">
+      <header className="px-6 pb-12 pt-16 lg:pt-20">
+        <h1 className="font-lux text-2xl text-ivory lg:text-4xl">管家动态</h1>
       </header>
+
       {orders.map((o) => (
         <OrderCard key={o.id} order={o} />
       ))}
-      <p className="px-8 py-6 text-center text-[8px] leading-relaxed tracking-wider text-fog/60">{PRIVACY_FOOTER}</p>
+
+      <p className="px-6 pt-16 text-[9px] leading-loose tracking-wider text-fog">{PRIVACY_FOOTER}</p>
     </div>
   )
 }
