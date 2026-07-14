@@ -105,7 +105,7 @@ function SuccessView({ order }: { order: Order }) {
   const hasBespoke = order.items.some((i) => i.customization && Object.keys(i.customization).length > 0)
 
   return (
-    <div className="relative min-h-dvh pb-24">
+    <div className="relative min-h-dvh pb-24 lg:mx-auto lg:max-w-xl">
       <Confetti />
       <div className="px-6 pt-16 text-center">
         <div className="pop-in mx-auto flex h-16 w-16 items-center justify-center border border-gold text-2xl text-jade">
@@ -222,7 +222,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="pb-28">
+    <div className="pb-28 lg:mx-auto lg:max-w-2xl">
       <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-hairline bg-ink/95 px-4 py-3.5 backdrop-blur">
         <button onClick={() => navigate(-1)} className="text-lg text-fog">‹</button>
         <h1 className="font-lux text-base text-ivory">确认订单</h1>
@@ -338,7 +338,7 @@ export default function Checkout() {
       </section>
 
       {/* 支付栏 */}
-      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-4 py-3">
+      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-4 py-3 lg:max-w-2xl">
         <button
           onClick={pay}
           className="gold-cta w-full border border-gold bg-gradient-to-r from-[#2a2418] to-[#1c1a14] py-3 text-center text-sm font-semibold tracking-widest text-goldlit"

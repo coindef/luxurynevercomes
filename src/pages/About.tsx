@@ -7,7 +7,7 @@ export default function About() {
   const navigate = useNavigate()
 
   return (
-    <div className="pb-10">
+    <div className="pb-10 lg:mx-auto lg:max-w-2xl">
       <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-hairline bg-ink/95 px-4 py-3.5 backdrop-blur">
         <button onClick={() => navigate(-1)} className="text-lg text-fog">‹</button>
         <h1 className="font-lux text-base text-ivory">关于本店</h1>

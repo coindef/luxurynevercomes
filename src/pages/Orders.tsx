@@ -233,8 +233,8 @@ export default function Orders() {
   }
 
   return (
-    <div className="pb-20">
-      <header className="sticky top-0 z-30 border-b border-hairline bg-ink/95 px-4 py-3.5 backdrop-blur">
+    <div className="pb-20 lg:mx-auto lg:max-w-2xl">
+      <header className="sticky top-0 z-30 border-b border-hairline bg-ink/95 px-4 py-3.5 backdrop-blur lg:top-[57px]">
         <h1 className="font-lux text-base text-ivory">
           管家动态 <span className="tracking-maison ml-1 text-[9px] font-normal text-gold">En Route · Forever</span>
         </h1>

@@ -12,7 +12,7 @@ export default function TabBar() {
   const { cartCount } = useStore()
 
   return (
-    <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink/95 backdrop-blur">
+    <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink/95 backdrop-blur lg:hidden">
       <div className="grid grid-cols-4">
         {TABS.map((t) => (
           <NavLink

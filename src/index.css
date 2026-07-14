@@ -23,7 +23,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 手机宽度容器，桌面居中 */
+/* 移动端：手机宽度容器；桌面端（lg+）：全宽网页版 */
 #root {
   max-width: 480px;
   margin: 0 auto;
@@ -32,6 +32,13 @@ body {
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.6);
   position: relative;
   color: var(--color-ivory);
+}
+
+@media (min-width: 1024px) {
+  #root {
+    max-width: none;
+    box-shadow: none;
+  }
 }
 
 /* 标题与品名：中文衬线栈 */

@@ -38,7 +38,7 @@ export default function Me() {
   }
 
   return (
-    <div className="pb-20">
+    <div className="pb-20 lg:mx-auto lg:max-w-2xl">
       {/* 贵宾卡 */}
       <header className="border-b border-hairline px-5 pb-9 pt-9">
         <div className="flex items-center gap-4">

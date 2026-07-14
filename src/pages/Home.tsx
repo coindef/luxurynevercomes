@@ -75,7 +75,7 @@ function Marquee() {
   const line = useRotating(lines, 3400)
 
   return (
-    <div className="mx-4 mt-3 flex items-center gap-2 border-y border-hairline px-1 py-2 text-[10px] text-fog">
+    <div className="mx-4 mt-3 flex items-center gap-2 border-y border-hairline px-1 py-2 text-[10px] text-fog lg:mx-auto lg:max-w-6xl lg:justify-center">
       <span className="text-gold">◆</span>
       <span key={line} className="float-up truncate">{line}</span>
     </div>
@@ -87,24 +87,24 @@ function SalonPrive() {
   const countdown = useSeckillCountdown()
 
   return (
-    <section className="mt-5">
-      <div className="mx-4 flex items-baseline justify-between">
-        <h2 className="font-lux text-base text-ivory">
+    <section className="mt-5 lg:mx-auto lg:mt-10 lg:max-w-6xl lg:px-6">
+      <div className="mx-4 flex items-baseline justify-between lg:mx-0">
+        <h2 className="font-lux text-base text-ivory lg:text-xl">
           今日私享 <span className="tracking-maison ml-1 text-[9px] text-gold">Salon Privé</span>
         </h2>
         <span className="text-[9px] text-fog">
           预约通道 <span className="font-price text-gold">{countdown}</span> 后关闭
         </span>
       </div>
-      <p className="mx-4 mt-0.5 text-[9px] text-fog">每次刷新，我们都会重新为您保留。</p>
-      <div className="mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [-webkit-overflow-scrolling:touch]">
+      <p className="mx-4 mt-0.5 text-[9px] text-fog lg:mx-0">每次刷新，我们都会重新为您保留。</p>
+      <div className="mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [-webkit-overflow-scrolling:touch] lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0">
         {SALON_PRODUCTS.map((p) => (
           <Link
             key={p.id}
             to={`/product/${p.id}`}
-            className="w-[82%] shrink-0 snap-center border border-hairline bg-panel transition-colors hover:border-gold/40"
+            className="w-[82%] shrink-0 snap-center border border-hairline bg-panel transition-colors hover:border-gold/40 lg:w-auto"
           >
-            <ProductImage product={p} className="h-56 w-full" emojiClass="text-8xl" plaque />
+            <ProductImage product={p} className="h-56 w-full lg:h-64" emojiClass="text-8xl" plaque />
             <div className="flex items-baseline justify-between gap-2 p-3.5">
               <div className="min-w-0">
                 <p className="font-lux truncate text-sm text-ivory">{p.name}</p>
@@ -159,28 +159,30 @@ export default function Home() {
     <div className="pb-20">
       {showWelcome && <BlackCardModal onClose={closeWelcome} />}
 
-      {/* 品牌区 */}
-      <header className="border-b border-hairline px-4 pb-4 pt-7">
-        <div className="flex items-baseline justify-between">
-          <h1 className="font-lux text-2xl tracking-wide text-ivory">富了个寂寞</h1>
-          <span className="tracking-maison text-[9px] text-gold">Luxury Never Comes</span>
+      {/* 品牌区（桌面端为居中 hero） */}
+      <header className="border-b border-hairline px-4 pb-4 pt-7 lg:px-6 lg:pb-10 lg:pt-14">
+        <div className="lg:mx-auto lg:max-w-2xl lg:text-center">
+          <div className="flex items-baseline justify-between lg:justify-center lg:gap-4">
+            <h1 className="font-lux text-2xl tracking-wide text-ivory lg:text-5xl">富了个寂寞</h1>
+            <span className="tracking-maison text-[9px] text-gold lg:hidden">Luxury Never Comes</span>
+          </div>
+          <p className="font-lux mt-1.5 text-xs text-ivory/80 lg:mt-4 lg:text-base">{SLOGAN}</p>
+          <p className="mt-1 text-[9px] leading-relaxed text-fog lg:mt-2 lg:text-[11px]">{SUB_SLOGAN}</p>
+          <button
+            onClick={() => toast('搜了也不会发货。不过您搜的这个，确实很有品位。')}
+            className="mt-4 flex w-full items-center gap-2 border border-hairline bg-panel px-4 py-2.5 text-left text-xs text-fog transition-colors hover:border-gold/40 lg:mx-auto lg:mt-6 lg:max-w-xl"
+          >
+            <span className="text-gold">⌕</span>
+            <span key={placeholder} className="float-up">{placeholder}</span>
+          </button>
         </div>
-        <p className="font-lux mt-1.5 text-xs text-ivory/80">{SLOGAN}</p>
-        <p className="mt-1 text-[9px] leading-relaxed text-fog">{SUB_SLOGAN}</p>
-        <button
-          onClick={() => toast('搜了也不会发货。不过您搜的这个，确实很有品位。')}
-          className="mt-4 flex w-full items-center gap-2 border border-hairline bg-panel px-4 py-2.5 text-left text-xs text-fog transition-colors hover:border-gold/40"
-        >
-          <span className="text-gold">⌕</span>
-          <span key={placeholder} className="float-up">{placeholder}</span>
-        </button>
       </header>
 
       <Marquee />
       <SalonPrive />
 
       {/* 分类 */}
-      <section className="mx-4 mt-5 grid grid-cols-5 gap-y-3 border-y border-hairline py-4">
+      <section className="mx-4 mt-5 grid grid-cols-5 gap-y-3 border-y border-hairline py-4 lg:mx-auto lg:mt-10 lg:max-w-6xl lg:grid-cols-10 lg:py-6">
         {CATEGORIES.map((c) => (
           <button
             key={c.name}
@@ -204,7 +206,7 @@ export default function Home() {
       {/* 工坊定制氛围入口 */}
       <Link
         to={`/product/${SALON_PRODUCTS[0]?.id ?? ''}`}
-        className="mx-4 mt-4 block border border-gold/30 bg-gradient-to-r from-panel to-ink px-4 py-3"
+        className="mx-4 mt-4 block border border-gold/30 bg-gradient-to-r from-panel to-ink px-4 py-3 lg:mx-auto lg:mt-8 lg:max-w-6xl lg:px-6 lg:py-4 lg:text-center"
       >
         <p className="tracking-maison text-[8px] text-gold">Bespoke · Atelier</p>
         <p className="font-lux mt-1 text-xs leading-relaxed text-ivory/90">
@@ -213,7 +215,7 @@ export default function Home() {
       </Link>
 
       {/* 藏品陈列 */}
-      <section className="mx-4 mt-5">
+      <section className="mx-4 mt-5 lg:mx-auto lg:mt-10 lg:max-w-6xl lg:px-6">
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="font-lux text-base text-ivory">
             {category ?? '藏品陈列'}
@@ -225,7 +227,7 @@ export default function Home() {
             </button>
           )}
         </div>
-        <div className="columns-2 gap-3">
+        <div className="columns-2 gap-3 lg:columns-4 lg:gap-5">
           {shown.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
@@ -242,7 +244,7 @@ export default function Home() {
       {saved > 0 && (
         <Link
           to="/me"
-          className="fixed bottom-20 right-[max(12px,calc(50%-228px))] z-30 border border-jade/60 bg-ink/95 px-3 py-2 text-[10px] font-semibold text-jade shadow-xl"
+          className="fixed bottom-20 right-[max(12px,calc(50%-228px))] z-30 border border-jade/60 bg-ink/95 px-3 py-2 text-[10px] font-semibold text-jade shadow-xl lg:hidden"
         >
           已为你守住 {yuan(saved)}
         </Link>

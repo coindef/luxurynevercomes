@@ -55,7 +55,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="pb-36">
+    <div className="pb-36 lg:mx-auto lg:max-w-2xl">
       <header className="sticky top-0 z-30 border-b border-hairline bg-ink/95 px-4 py-3.5 backdrop-blur">
         <h1 className="font-lux text-base text-ivory">
           珍藏夹 <span className="tracking-maison ml-1 text-[9px] font-normal text-gold">La Collection</span>
@@ -139,7 +139,7 @@ export default function Cart() {
       <p className="py-5 text-center text-[9px] tracking-widest text-fog/70">多买多守，全买全守</p>
 
       {/* 结算栏 */}
-      <div className="fixed bottom-12 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-4 py-3">
+      <div className="fixed bottom-12 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-4 py-3 lg:bottom-0 lg:max-w-2xl">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="font-price truncate text-base font-semibold text-gold">{yuan(subtotal)}</p>

@@ -151,10 +151,11 @@ export default function ProductDetail() {
   const hasCustom = Object.keys(cleanCustom).length > 0
 
   return (
-    <div className="pb-24">
+    <div className="pb-24 lg:mx-auto lg:max-w-6xl lg:px-6 lg:pb-28 lg:pt-10">
+      <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-10">
       {/* 大图区 */}
-      <div className="relative">
-        <ProductImage product={product} className="h-80 w-full" emojiClass="emoji-float text-[96px]" plaque />
+      <div className="relative lg:sticky lg:top-24">
+        <ProductImage product={product} className="h-80 w-full lg:h-[560px]" emojiClass="emoji-float text-[96px]" plaque />
         <button
           onClick={() => navigate(-1)}
           className="absolute left-3 top-3 z-10 flex h-8 w-8 items-center justify-center border border-hairline bg-black/50 text-ivory"
@@ -169,6 +170,7 @@ export default function ProductDetail() {
         </div>
       </div>
 
+      <div>
       {/* 价格区 */}
       <div className="border-b border-hairline bg-panel px-4 py-3.5">
         <div className="flex items-baseline justify-between">
@@ -229,17 +231,19 @@ export default function ProductDetail() {
       <p className="px-4 pb-4 text-center text-[8px] tracking-widest text-fog/60">
         以下无更多内容 —— 留白也是奢侈的一部分
       </p>
+      </div>
+      </div>
 
       <Whisper />
 
       {/* 吸底操作栏 */}
-      <div className="fixed bottom-0 left-1/2 z-40 flex w-full max-w-[480px] -translate-x-1/2 items-stretch gap-2 border-t border-hairline bg-ink px-3 py-2.5">
+      <div className="fixed bottom-0 left-1/2 z-40 flex w-full max-w-[480px] -translate-x-1/2 items-stretch gap-2 border-t border-hairline bg-ink px-3 py-2.5 lg:max-w-none lg:justify-end lg:gap-3 lg:px-[max(1.5rem,calc(50%-36rem))] lg:py-3">
         <button
           onClick={() => {
             addToCart(product.id, 1, hasCustom ? cleanCustom : undefined)
             toast(hasCustom ? '已连同定制档案纳入珍藏。' : '已纳入珍藏。柜姐为您留着，一直留着。')
           }}
-          className="flex-1 border border-gold/60 py-3 text-sm tracking-widest text-gold"
+          className="flex-1 border border-gold/60 py-3 text-sm tracking-widest text-gold lg:w-56 lg:flex-none"
         >
           加入珍藏
         </button>
@@ -248,7 +252,7 @@ export default function ProductDetail() {
             addToCart(product.id, 1, hasCustom ? cleanCustom : undefined)
             navigate('/checkout')
           }}
-          className="gold-cta flex-1 border border-gold bg-gradient-to-r from-[#2a2418] to-[#1c1a14] py-3 text-center text-sm font-semibold tracking-widest text-goldlit"
+          className="gold-cta flex-1 border border-gold bg-gradient-to-r from-[#2a2418] to-[#1c1a14] py-3 text-center text-sm font-semibold tracking-widest text-goldlit lg:w-56 lg:flex-none"
         >
           即刻纳入名下
         </button>

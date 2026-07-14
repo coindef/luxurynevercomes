@@ -3,6 +3,7 @@ import { BrowserRouter, Outlet, Route, Routes, useLocation } from 'react-router-
 import { StoreProvider } from './lib/store'
 import { ToastProvider } from './components/Toast'
 import ErrorBoundary from './components/ErrorBoundary'
+import SiteNav from './components/SiteNav'
 import TabBar from './components/TabBar'
 import Home from './pages/Home'
 import ProductDetail from './pages/ProductDetail'
@@ -38,6 +39,7 @@ export default function App() {
         <ToastProvider>
           <BrowserRouter>
             <ScrollToTop />
+            <SiteNav />
             <Routes>
               <Route element={<TabLayout />}>
                 <Route path="/" element={<Home />} />
