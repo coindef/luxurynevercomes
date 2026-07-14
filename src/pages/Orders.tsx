@@ -72,21 +72,21 @@ function Timeline({ order }: { order: Order }) {
 function Certificate({ order, onClose }: { order: Order; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-8" onClick={onClose}>
-      <div className="w-full max-w-80 border border-gold bg-gradient-to-b from-[#1c1a16] to-[#0d0c0a] p-6 text-center pop-in">
-        <p className="tracking-maison text-[9px] text-gold">Certificat d'Authenticité</p>
-        <p className="font-lux mt-3 text-base text-ivory">寂寞正品鉴定证书</p>
-        <div className="mx-auto my-4 h-px w-16 bg-gold/60" />
-        <p className="text-[10px] leading-loose text-fog">
+      <div className="w-full max-w-80 border border-[#c8a96e] bg-gradient-to-b from-[#1c1a16] to-[#0d0c0a] p-6 text-center pop-in">
+        <p className="tracking-maison text-[9px] text-[#c8a96e]">Certificat d'Authenticité</p>
+        <p className="font-lux mt-3 text-base text-[#f4efe6]">寂寞正品鉴定证书</p>
+        <div className="mx-auto my-4 h-px w-16 bg-[#c8a96e]/60" />
+        <p className="text-[10px] leading-loose text-[#8a857c]">
           兹证明本单寂寞为正品，全球限量一份。
           <br />
-          持有人：<span className="text-ivory">您</span>
+          持有人：<span className="text-[#f4efe6]">您</span>
           <br />
           编号：<span className="font-price">{orderNo(order.createdAt)}</span>
           <br />
           鉴定机构：富了个寂寞 · 白手套鉴定所
         </p>
-        <p className="mt-4 text-[8px] tracking-widest text-fog/60">此证书与您守住的钱一样：是真的</p>
-        <button onClick={onClose} className="mt-5 border border-gold/60 px-8 py-1.5 text-[10px] tracking-widest text-gold">
+        <p className="mt-4 text-[8px] tracking-widest text-[#8a857c]/70">此证书与您守住的钱一样：是真的</p>
+        <button onClick={onClose} className="mt-5 border border-[#c8a96e]/60 px-8 py-1.5 text-[10px] tracking-widest text-[#c8a96e]">
           收下
         </button>
       </div>
@@ -158,7 +158,7 @@ function OrderCard({ order }: { order: Order }) {
       {expanded && (
         <div className="float-up mt-3 border-t border-hairline pt-3">
           {revisit && (
-            <div className="border border-jade/40 bg-[#11201a] px-3 py-2.5 text-[10px] leading-relaxed text-jade">
+            <div className="border border-jade/30 bg-jade/5 px-3 py-2.5 text-[10px] leading-relaxed text-jade">
               {revisit}
             </div>
           )}
@@ -225,7 +225,7 @@ export default function Orders() {
       <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-4 px-10 pb-20 text-center">
         <span className="text-5xl">🎩</span>
         <p className="font-lux text-sm leading-relaxed text-fog">{EMPTY_ORDERS}</p>
-        <Link to="/" className="gold-cta mt-1 border border-gold px-8 py-2 text-sm tracking-widest text-gold">
+        <Link to="/" className="gold-cta mt-1 px-10 py-2.5 text-sm tracking-widest">
           去逛逛 ›
         </Link>
       </div>

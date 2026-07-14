@@ -47,7 +47,7 @@ export default function Cart() {
       <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-4 px-10 pb-20 text-center">
         <span className="text-5xl">🗝️</span>
         <p className="font-lux text-sm leading-relaxed text-fog">{EMPTY_CART}</p>
-        <Link to="/" className="gold-cta mt-1 border border-gold px-8 py-2 text-sm tracking-widest text-gold">
+        <Link to="/" className="gold-cta mt-1 px-10 py-2.5 text-sm tracking-widest">
           去逛逛 ›
         </Link>
       </div>
@@ -78,7 +78,7 @@ export default function Cart() {
         <div className="mt-2.5 h-px w-full bg-hairline">
           <div
             className={`h-px transition-all duration-700 ${progress >= 1 ? 'bg-jade' : 'bg-gold'}`}
-            style={{ width: `${progress * 100}%`, boxShadow: '0 0 6px currentColor' }}
+            style={{ width: `${progress * 100}%` }}
           />
         </div>
       </div>
@@ -153,7 +153,7 @@ export default function Cart() {
               }
               navigate('/checkout', { state: { keys: checkedRows.map((r) => r.item.key) } })
             }}
-            className="gold-cta shrink-0 border border-gold px-8 py-2.5 text-sm tracking-widest text-goldlit"
+            className="gold-cta shrink-0 px-10 py-2.5 text-sm tracking-widest"
           >
             去结算 ({checkedRows.reduce((s, r) => s + r.item.qty, 0)})
           </button>

@@ -30,7 +30,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
           </p>
           <button
             onClick={() => location.reload()}
-            className="gold-cta mt-1 border border-gold px-8 py-2 text-sm tracking-widest text-gold"
+            className="gold-cta mt-1 px-10 py-2.5 text-sm tracking-widest"
           >
             重新入场
           </button>

@@ -2,19 +2,20 @@
 
 @theme {
   --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
-  /* 黑金殿堂 tokens */
-  --color-ink: #121110;        /* 底色墨黑 */
-  --color-panel: #1a1917;      /* 卡片面 */
-  --color-hairline: #2e2c28;   /* 发丝线 */
-  --color-ivory: #f4efe6;      /* 主文字象牙白 */
-  --color-fog: #8a857c;        /* 次级文字暖灰 */
-  --color-gold: #c8a96e;       /* 香槟金（橱窗） */
-  --color-goldlit: #e4cb90;    /* 金 hover 提亮 */
-  --color-jade: #3dbe8b;       /* 治愈绿（真心），深色底提亮版 */
+  /* 静奢纸面 tokens（爱马仕式浅色编辑排版）
+     注：token 名沿用旧语义位（ink=页面底、ivory=主文字），值已翻转为浅色系 */
+  --color-ink: #faf6ef;        /* 底色暖纸白 */
+  --color-panel: #ffffff;      /* 卡片面（少用，尽量无卡片） */
+  --color-hairline: #e6dfd2;   /* 发丝分隔线 */
+  --color-ivory: #1d1b17;      /* 主文字近墨黑 */
+  --color-fog: #8d8577;        /* 次级文字暖灰 */
+  --color-gold: #9a7b4f;       /* 古铜（细节色，克制使用） */
+  --color-goldlit: #7c6138;    /* 古铜 hover 加深 */
+  --color-jade: #1f6b4a;       /* 治愈绿：私人银行对账单绿 */
 }
 
 html {
-  background: #0c0b0a;
+  background: #f3eee5;
 }
 
 body {
@@ -29,7 +30,7 @@ body {
   margin: 0 auto;
   min-height: 100dvh;
   background: var(--color-ink);
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 40px rgba(60, 45, 20, 0.08);
   position: relative;
   color: var(--color-ivory);
 }
@@ -68,25 +69,27 @@ body {
   animation: slow-fade 0.6s ease-out both;
 }
 
-/* 主 CTA 上缓慢流过的金光 */
-@keyframes gold-sweep {
-  0% { transform: translateX(-150%) skewX(-20deg); }
-  100% { transform: translateX(350%) skewX(-20deg); }
-}
-
+/* 主按钮：墨黑实心，hover 微亮——静奢没有金光扫过 */
 .gold-cta {
   position: relative;
-  overflow: hidden;
+  background: #1d1b17;
+  color: #faf6ef;
+  transition: background-color 0.4s ease;
 }
 
-.gold-cta::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 30%;
-  background: linear-gradient(90deg, transparent, rgba(228, 203, 144, 0.22), transparent);
-  animation: gold-sweep 3.2s ease-in-out infinite;
+.gold-cta:hover {
+  background: #3a352c;
+}
+
+/* 编辑式下划线链接 */
+.quiet-link {
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  transition: opacity 0.4s ease;
+}
+
+.quiet-link:hover {
+  opacity: 0.6;
 }
 
 @keyframes pop-in {

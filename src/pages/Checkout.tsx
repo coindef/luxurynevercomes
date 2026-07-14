@@ -152,7 +152,7 @@ function SuccessView({ order }: { order: Order }) {
       )}
 
       {/* 安抚语（治愈绿） */}
-      <div className="mx-6 mt-4 border border-jade/40 bg-[#11201a] p-4 text-center">
+      <div className="mx-6 mt-4 border border-jade/30 bg-jade/5 p-4 text-center">
         {order.urge && <p className="mb-1.5 text-[9px] tracking-wider text-jade/70">因为「{order.urge}」的这一单</p>}
         <p className="font-lux text-xs leading-relaxed text-jade">{soothing}</p>
       </div>
@@ -166,7 +166,7 @@ function SuccessView({ order }: { order: Order }) {
         </Link>
         <Link
           to="/"
-          className="gold-cta flex-1 border border-gold py-2.5 text-center text-xs font-semibold tracking-widest text-goldlit"
+          className="gold-cta flex-1 py-3 text-center text-xs font-semibold tracking-widest"
         >
           再富一次
         </Link>
@@ -259,7 +259,7 @@ export default function Checkout() {
               }`}
             >
               <span>
-                🤍 {d.name} <span className="text-fog">· {d.note}</span>
+                🖤 {d.name} <span className="text-fog">· {d.note}</span>
               </span>
               <span className="font-price font-semibold text-gold">{d.fee}</span>
             </button>
@@ -341,10 +341,10 @@ export default function Checkout() {
       <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-4 py-3 lg:max-w-2xl">
         <button
           onClick={pay}
-          className="gold-cta w-full border border-gold bg-gradient-to-r from-[#2a2418] to-[#1c1a14] py-3 text-center text-sm font-semibold tracking-widest text-goldlit"
+          className="gold-cta w-full py-3.5 text-center text-sm font-semibold tracking-widest"
         >
           支付 ¥0.00
-          <span className="ml-2 text-[10px] font-normal text-jade">这一下，守住 {yuan(subtotal)}</span>
+          <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">这一下，守住 {yuan(subtotal)}</span>
         </button>
       </div>
 
@@ -353,8 +353,8 @@ export default function Checkout() {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70">
           <div className="w-full max-w-[480px] border-t border-gold/40 bg-panel p-9 text-center float-up">
             <p className="tracking-maison text-[9px] text-gold">Vérification</p>
-            <div className="mx-auto my-6 flex h-20 w-20 items-center justify-center border border-gold/50 text-3xl">
-              🤍
+            <div className="mx-auto my-6 flex h-20 w-20 items-center justify-center border border-hairline text-3xl">
+              🖤
             </div>
             <p className="text-[10px] text-fog">白手套正在核验您的身份——随便按，都对。</p>
           </div>

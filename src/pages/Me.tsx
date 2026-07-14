@@ -53,7 +53,7 @@ export default function Me() {
       </header>
 
       {/* 首付账本（治愈绿：全站唯一收起玩笑的地方） */}
-      <section className="mx-4 -mt-5 border border-jade/50 bg-gradient-to-b from-[#122820] to-[#0e1f19] p-5 text-center">
+      <section className="mx-4 -mt-5 border border-jade/30 bg-jade/5 p-6 text-center">
         <p className="tracking-maison text-[9px] text-jade/80">首付账本 · 累计守住</p>
         <p className="font-price mt-3 text-3xl font-bold text-jade">{yuan(counted)}</p>
         <p className="mt-2.5 text-[10px] leading-relaxed text-jade/70">

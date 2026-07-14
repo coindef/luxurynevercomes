@@ -29,7 +29,7 @@ function Whisper() {
   if (!item) return null
   return (
     <div className="pointer-events-none fixed bottom-32 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 px-4">
-      <div key={item.id} className="whisper w-fit border border-hairline bg-black/70 px-3 py-1 text-[9px] tracking-wider text-fog">
+      <div key={item.id} className="whisper w-fit bg-[#1d1b17]/80 px-3 py-1 text-[9px] tracking-wider text-[#f4efe6]/85">
         {item.text}
       </div>
     </div>
@@ -79,11 +79,11 @@ function BespokeSection({
                       toast(`已登记：${c.name.split('·')[0].trim()}。工坊已知悉，工坊一如既往地平静。`)
                     }}
                     className={`border px-2.5 py-1.5 text-left text-[10px] leading-relaxed transition-colors ${
-                      selected ? 'border-gold bg-ink text-gold' : 'border-hairline text-fog hover:border-gold/40'
+                      selected ? 'border-ivory bg-ivory/[0.04] text-ivory' : 'border-hairline text-fog hover:border-ivory/40'
                     }`}
                   >
                     {c.name}
-                    <span className={`ml-1.5 text-[8px] ${selected ? 'text-goldlit' : 'text-fog/70'}`}>
+                    <span className={`ml-1.5 text-[8px] ${selected ? 'text-gold' : 'text-fog/70'}`}>
                       {c.surcharge > 0 ? `+${yuan(c.surcharge)}` : BESPOKE.baseTag}
                     </span>
                   </button>
@@ -101,7 +101,7 @@ function BespokeSection({
                     if (t) toast(`「${t}」已交付镌刻部。老师傅看了一眼，说这几个字有故事。`)
                   }}
                   placeholder={g.placeholder}
-                  className="min-w-0 flex-1 border border-hairline bg-ink px-3 py-2 text-xs text-ivory placeholder:text-fog/60 focus:border-gold/60 focus:outline-none"
+                  className="min-w-0 flex-1 border-b border-hairline bg-transparent px-1 py-2 text-xs text-ivory placeholder:text-fog/60 focus:border-ivory focus:outline-none"
                 />
                 <span className="shrink-0 text-[8px] text-fog">
                   {(value[g.label] ?? '').length}/12 · +{yuan(g.choices?.[0]?.surcharge ?? 0)}
@@ -158,15 +158,15 @@ export default function ProductDetail() {
         <ProductImage product={product} className="h-80 w-full lg:h-[560px]" emojiClass="emoji-float text-[96px]" plaque />
         <button
           onClick={() => navigate(-1)}
-          className="absolute left-3 top-3 z-10 flex h-8 w-8 items-center justify-center border border-hairline bg-black/50 text-ivory"
+          className="absolute left-3 top-3 z-10 flex h-8 w-8 items-center justify-center bg-black/35 text-white backdrop-blur-sm"
         >
           ‹
         </button>
         {/* 轮播小圆点：每张图一模一样（彩蛋） */}
         <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5" title="每张图都一样，反正也发不出去">
-          <span className="h-1 w-4 bg-gold" />
-          <span className="h-1 w-1 bg-ivory/40" />
-          <span className="h-1 w-1 bg-ivory/40" />
+          <span className="h-1 w-4 bg-white" />
+          <span className="h-1 w-1 bg-white/50" />
+          <span className="h-1 w-1 bg-white/50" />
         </div>
       </div>
 
@@ -175,7 +175,7 @@ export default function ProductDetail() {
       <div className="border-b border-hairline bg-panel px-4 py-3.5">
         <div className="flex items-baseline justify-between">
           <div className="flex items-baseline gap-2">
-            <span className="font-price text-2xl font-semibold text-gold">{yuan(product.price)}</span>
+            <span className="font-price text-2xl font-semibold text-ivory">{yuan(product.price)}</span>
             {product.originalPrice && (
               <span className="font-price text-xs text-fog line-through">{yuan(product.originalPrice)}</span>
             )}
@@ -243,7 +243,7 @@ export default function ProductDetail() {
             addToCart(product.id, 1, hasCustom ? cleanCustom : undefined)
             toast(hasCustom ? '已连同定制档案纳入珍藏。' : '已纳入珍藏。柜姐为您留着，一直留着。')
           }}
-          className="flex-1 border border-gold/60 py-3 text-sm tracking-widest text-gold lg:w-56 lg:flex-none"
+          className="flex-1 border border-ivory py-3 text-sm tracking-widest text-ivory transition-colors hover:bg-ivory/5 lg:w-56 lg:flex-none"
         >
           加入珍藏
         </button>
@@ -252,7 +252,7 @@ export default function ProductDetail() {
             addToCart(product.id, 1, hasCustom ? cleanCustom : undefined)
             navigate('/checkout')
           }}
-          className="gold-cta flex-1 border border-gold bg-gradient-to-r from-[#2a2418] to-[#1c1a14] py-3 text-center text-sm font-semibold tracking-widest text-goldlit lg:w-56 lg:flex-none"
+          className="gold-cta flex-1 py-3 text-center text-sm font-semibold tracking-widest lg:w-56 lg:flex-none"
         >
           即刻纳入名下
         </button>

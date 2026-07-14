@@ -21,11 +21,11 @@ export default function ProductImage({
     <div
       className={`relative flex items-center justify-center overflow-hidden ${product.gradient} ${className}`}
     >
-      <div className="pointer-events-none absolute inset-1.5 border border-gold/30" />
+      <div className="pointer-events-none absolute inset-1.5 border border-[#e4cb90]/30" />
       <div className="flex flex-col items-center gap-1.5">
         <span className={`${emojiClass} drop-shadow-md`}>{product.emoji}</span>
         {plaque && fallback && (
-          <span className="font-lux px-3 text-center text-[9px] leading-relaxed text-ivory/60">
+          <span className="font-lux px-3 text-center text-[9px] leading-relaxed text-[#f4efe6]/70">
             {product.name} · LOT №{product.id.replace(/\D/g, '') || '0'}
           </span>
         )}
