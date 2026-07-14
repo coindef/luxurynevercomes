@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom'
+import { IMAGE_CREDITS } from '../lib/credits'
+import { getProduct } from '../lib/products'
 import { PRIVACY_FOOTER } from '../lib/copy'
 
 export default function About() {
@@ -37,11 +39,26 @@ export default function About() {
       </section>
 
       <section className="mx-4 mt-4 border border-hairline bg-panel p-5">
-        <h2 className="font-lux text-sm text-ivory">商品图</h2>
+        <h2 className="font-lux text-sm text-ivory">图片来源</h2>
         <p className="mt-2 text-[10px] leading-loose text-fog">
-          商品图将采用真实无品牌照片（Unsplash / Openverse CC 授权），上线前逐张核验授权并在本页署名。
-          图片未就位时，展示「拍卖图录展签」占位——连占位符都有排面。
+          商品图为真实无品牌照片，经 Openverse 检索并逐张核验授权：CC0 图源免署名；
+          以下 CC BY / CC BY-SA 授权图片特此署名。未配图的藏品展示「拍卖图录展签」——连占位符都有排面。
         </p>
+        <ul className="mt-3 max-h-72 space-y-1.5 overflow-y-auto pr-1">
+          {IMAGE_CREDITS.map((c) => {
+            const p = getProduct(c.productId)
+            return (
+              <li key={c.productId} className="border-b border-hairline pb-1.5 text-[9px] leading-relaxed text-fog">
+                <span className="text-ivory/80">{p?.name ?? c.productId}</span>
+                {' — '}
+                <a href={c.sourceUrl} target="_blank" rel="noreferrer" className="text-gold underline decoration-gold/30">
+                  “{c.title.length > 30 ? `${c.title.slice(0, 30)}…` : c.title}”
+                </a>
+                ，{c.creator}，{c.license}
+              </li>
+            )
+          })}
+        </ul>
       </section>
 
       <p className="px-8 py-6 text-center text-[8px] leading-relaxed tracking-wider text-fog/60">{PRIVACY_FOOTER}</p>

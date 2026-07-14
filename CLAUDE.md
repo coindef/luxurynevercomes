@@ -1,45 +1,58 @@
 # CLAUDE.md
 
-「买了个寂寞 · ParcelNeverComes」——模拟购物治愈消费冲动的纯前端 SPA。
-用户可浏览/加购/支付 ¥0.00，商品永不发货，金额存入"省钱账本"。
+「富了个寂寞 · LuxuryNeverComes」——模拟认购奢侈品治愈「买不起」的纯前端 SPA。
+「买了个寂寞 · ParcelNeverComes」的奢侈品姊妹站（同架构不同气质）。
 
 ## 常用命令
 
 ```bash
-npm run dev        # 开发服务器 (5173)
+npm run dev        # 开发服务器
 npm run build      # tsc -b && vite build，上线前必须通过
 npm run lint       # oxlint
 ```
 
 ## 架构要点
 
-- **技术栈**：Vite + React 19 + TS + Tailwind v4（`@tailwindcss/vite` 插件，无 tailwind.config）+ React Router 7
-- **无后端**：所有状态在 `src/lib/store.tsx`（Context + localStorage）。
-  数据版本号 `jimo.v` 在 store.tsx 模块顶部——改动持久化数据结构时递增它，旧数据会被安全清理
-- **商品数据**：`products.ts`（核心 30 个，手工维护）+ `extraProducts.ts`（扩容商品，脚本生成，
-  不含 image/gradient 字段——由 products.ts 合并时按 `/img/<id>.jpg` 和分类渐变统一补齐）
-- **商品图**：`public/img/<商品id>.jpg`。`ProductImage` 组件负责加载失败回退 emoji 渐变色块，
-  所以缺图不算错误。CC 授权图片的署名必须同步维护 `src/lib/credits.ts`（渲染进 /about 页）
-- **物流剧场**：`copy.ts` 的 `TRACKING_SCRIPT`，9 级节点按订单 `createdAt` + offset 真实时间解锁
+- **技术栈**：Vite + React 19 + TS + Tailwind v4（颜色 token 在 `src/index.css` 的 `@theme` 定义：
+  ink/panel/hairline/ivory/fog/gold/goldlit/jade，组件里直接用 `text-gold` `bg-panel` 等）
+- **状态**：`src/lib/store.tsx`（Context + localStorage，键名空间 `flgj.*`，版本号 `flgj.v`）。
+  购物车是**行 key 模型**：`lineKey = productId + 规范化定制串`，同商品不同定制各占一行——
+  改动增删改购物车时必须用 `item.key`，不要用 productId
+- **定制体系**：选项数据在 `src/lib/bespoke.ts`（`CATEGORY_CUSTOM`，按分类分配）；
+  类型在 types.ts（`CustomGroup`：choice 带展示性 surcharge / text 限 12 字）。
+  定制数据流：详情页选择 → CartItem.customization → OrderItem.customization →
+  小票 `ReceiptBespoke`（加价与减免互相抵消）→ 订单定制档案 → 物流剧场插入工坊节点
+- **管家剧本**：`copy.ts` 的 `TRACKING_SCRIPT`（9 级按真实时间解锁）；
+  有定制时 Orders 页 Timeline 会在 36h 处插入 `BESPOKE_TRACKING_TEXT` 节点
+- **商品**：`products.ts` 65 件（脚本生成后手工维护），`SALON_PRODUCTS` 取每分类最贵一件
+- **商品图**：`public/img/lx-<slug>.jpg`；`ProductImage` 失败回退「拍卖图录展签」
+  （分类丝绒渐变 + 细金线框 + emoji，`plaque` 属性附图录小字），所以缺图不是错误
+- **署名**：CC BY/BY-SA 图片必须同步 `src/lib/credits.ts`（渲染进 /about）
 
-## 文案红线（重要）
+## 文案与视觉红线（重要）
 
-- 调性 = deadpan 冷幽默 + 治愈。**自嘲处境，绝不嘲讽用户**（不说"剁手党没救了"这类话）
-- "不发货/寂寞"梗最多占商品描述的 1/3，其余用生活观察式幽默，避免梗疲劳
-- 双色语义：**红橙 = 电商仪式（促销侧，动效可以浮夸）；绿色 = 真心（省钱/安抚侧，动效克制）**。
-  不要把绿色用在促销元素上，反之亦然
+- 调性 = deadpan 冷幽默 + 治愈。**自嘲"买不起"，绝不嘲讽用户，也不仇富**
+- **商品名严禁出现真实品牌名**（爱马仕/劳力士/LV/NVIDIA……），一律品类描述式命名；
+  图片里不能有可读的品牌 logo
+- 双色语义：**金色是橱窗（促销侧），绿色是真心（省钱/安抚侧）**，全站不出现第四种彩色；
+  治愈绿与姊妹站共享，是品牌 DNA
+- 价格一律 `yuan()` 全位数千分位展开（¥120,000,000.00），**严禁缩写成"1.2 亿"**——
+  逗号的长度就是多巴胺；¥0.00 与过亿价格用同一字体（`font-price`），对比即喜剧
+- 动效"昂贵地慢"：慢淡入、金光缓扫，禁止弹跳/呼吸灯/快闪
+- deadpan 反承诺放最小字号（法务小字层级），这是本店签名
 - 参考文案风格见 `copy.ts` 与 DESIGN.md 文案总表
 
 ## 新增商品流程
 
-1. 图片：优先 Openverse API 搜 CC0/CC-BY（`curl -sG "https://api.openverse.org/v1/images/" --data-urlencode "q=..."`），
-   下载到 public/img/ 后 `sips -Z 700` 压缩，**必须用 Read 工具目检图片主体与商品匹配、无水印**
-2. 数据：核心商品加在 products.ts，批量扩容走 extraProducts.ts
-3. CC-BY/BY-SA 图片补 credits.ts 署名
-4. id 唯一且全小写（扩容商品带分类前缀，如 `sp-yogamat`）
+1. `products.ts` 加 `p(...)`（id 用 `lx-` 前缀全小写 slug，价格符合奢侈品行情，
+   originalPrice 为 1.2-1.8 倍——奢侈品折扣本身是笑点，别打狠折）
+2. 该分类若无定制选项组，去 `bespoke.ts` 补一组（拟真为骨、荒诞为魂）
+3. 配图走 Openverse（cc0/by/by-sa）→ `sips -Z 700` 压缩 → Read 目检（无品牌字、主体清晰）
+   → CC BY 补 credits.ts；找不到合格图就不放图，展签兜底
+4. DESIGN.md 是设计唯一事实源，改文案体系时同步
 
 ## 其他
 
-- 手机宽度容器（#root max-width 480px 居中），新页面记得给吸底元素留 padding-bottom
-- 详情页/结算页不显示 TabBar（有自己的吸底操作栏），路由在 App.tsx 分两组
-- DESIGN.md 是产品设计的唯一事实源（页面结构/招牌时刻/文案总表/V2 清单）
+- 手机宽度容器（#root 480px 居中），吸底元素留 padding-bottom
+- 详情/结算页无 TabBar（自带吸底操作栏），路由分组见 App.tsx
+- 姊妹站仓库：github.com/coindef/parcelnevercomes（改共享概念时注意两站一致性）
