@@ -4,6 +4,7 @@ import { useStore } from '../lib/store'
 
 const LINKS = [
   { to: '/', label: 'Salon' },
+  { to: '/collection', label: 'Collection' },
   { to: '/maisons', label: 'Houses' },
   { to: '/cart', label: 'Reserve' },
   { to: '/orders', label: 'Butler' },

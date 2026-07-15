@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CATEGORIES, PRODUCTS, catLabel, getProduct } from '../lib/products'
+import { PRODUCTS, getProduct } from '../lib/products'
 import { MARQUEE_CITIES, SEARCH_PLACEHOLDERS, SLOGAN, SUB_SLOGAN, pick } from '../lib/copy'
 import { MAISONS } from '../lib/maisons'
 import { yuan } from '../lib/format'
@@ -12,7 +12,6 @@ import ProductImage from '../components/ProductImage'
 import EditorialImage from '../components/EditorialImage'
 
 const WELCOME_KEY = 'flgj.welcomed'
-const PAGE_SIZE = 24
 
 /** Salon showcase: the dearest photographed piece per category, so the strip is all real photos. */
 const SHOWCASE_IDS = [
@@ -22,6 +21,22 @@ const SHOWCASE_IDS = [
   'lx-emerald-garden',
   'lx-vintage-racer',
   'lx-bridal-couture',
+]
+
+/** Collection preview: twelve photographed pieces spanning categories (the full grid lives at /collection). */
+const FEATURED_IDS = [
+  'lx-croc-birkin',
+  'lx-d-flawless',
+  'lx-v12-coupe',
+  'lx-gigayacht-110',
+  'lx-skyflat-duplex',
+  'lx-gpu-cluster',
+  'lx-triple-crown-colt',
+  'lx-single-cask-70',
+  'lx-imperial-dragon-robe',
+  'lx-postimpressionist-study',
+  'lx-croc-cardcase',
+  'lx-royal-sapphire',
 ]
 
 /** Black-card ritual (the only dark moment on the site; fixed hex, silver not gold foil). */
@@ -151,28 +166,10 @@ export default function Home() {
   const { saved } = useStore()
   const toast = useToast()
   const placeholder = useRotating(SEARCH_PLACEHOLDERS, 3600)
-  const [category, setCategory] = useState<string | null>(null)
   const [showWelcome, setShowWelcome] = useState(false)
-  const [visible, setVisible] = useState(PAGE_SIZE)
-  const sentinelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!localStorage.getItem(WELCOME_KEY)) setShowWelcome(true)
-  }, [])
-
-  useEffect(() => {
-    setVisible(PAGE_SIZE)
-  }, [category])
-
-  useEffect(() => {
-    const el = sentinelRef.current
-    if (!el) return
-    const ob = new IntersectionObserver(
-      (entries) => entries[0].isIntersecting && setVisible((v) => v + PAGE_SIZE),
-      { rootMargin: '400px' },
-    )
-    ob.observe(el)
-    return () => ob.disconnect()
   }, [])
 
   const closeWelcome = () => {
@@ -180,8 +177,7 @@ export default function Home() {
     setShowWelcome(false)
   }
 
-  const list = category ? PRODUCTS.filter((p) => p.category === category) : PRODUCTS
-  const shown = list.slice(0, visible)
+  const featured = FEATURED_IDS.map(getProduct).filter(Boolean)
 
   return (
     <div className="pb-28">
@@ -241,48 +237,28 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* The Collection */}
+      {/* The Collection: a small featured preview; the full 1,009-piece grid lives at /collection */}
       <section className="mt-24 lg:mt-40">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="font-lux text-2xl text-ivory lg:text-4xl">{category ? catLabel(category) : 'The Collection'}</h2>
-          <p className="mt-4 text-[11px] text-fog">Everything you can't afford, affordable here.</p>
+        <div className="mx-auto flex max-w-6xl items-baseline justify-between px-6">
+          <h2 className="font-lux text-2xl text-ivory lg:text-4xl">The Collection</h2>
+          <Link to="/collection" className="quiet-link text-[11px] tracking-[0.2em] text-ivory">
+            View all {PRODUCTS.length.toLocaleString('en-US')}
+          </Link>
         </div>
-
-        {/* Category filter: plain text links, horizontally scrollable (no wrap on mobile) */}
-        <nav className="mt-10 border-y border-hairline">
-          <div className="mx-auto flex max-w-6xl gap-x-8 overflow-x-auto px-6 py-4 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <button
-              onClick={() => setCategory(null)}
-              className={`shrink-0 text-[11px] tracking-[0.2em] transition-colors ${
-                category === null ? 'text-ivory' : 'text-fog hover:text-ivory'
-              }`}
-            >
-              All
-            </button>
-            {CATEGORIES.map((c) => (
-              <button
-                key={c.name}
-                onClick={() => setCategory(category === c.name ? null : c.name)}
-                className={`shrink-0 whitespace-nowrap text-[11px] tracking-[0.2em] transition-colors ${
-                  category === c.name ? 'text-ivory' : 'text-fog hover:text-ivory'
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-        </nav>
+        <p className="mx-auto mt-4 max-w-md px-6 text-[11px] text-fog">A dozen to begin with. Everything you can't afford, affordable here.</p>
 
         <div className="mx-auto mt-12 max-w-6xl px-6 lg:mt-16">
           <div className="columns-2 gap-5 lg:columns-3 lg:gap-14">
-            {shown.map((p) => (
-              <ProductCard key={p.id} product={p} />
+            {featured.map((p) => (
+              <ProductCard key={p!.id} product={p!} />
             ))}
           </div>
-          <div ref={sentinelRef} />
-          {visible >= list.length && (
-            <p className="py-16 text-[10px] tracking-[0.2em] text-fog">You've reached the bottom. The bottom is gold too.</p>
-          )}
+          <Link
+            to="/collection"
+            className="quiet-link mt-8 inline-block text-[11px] tracking-[0.2em] text-ivory"
+          >
+            View the full collection
+          </Link>
         </div>
       </section>
 
