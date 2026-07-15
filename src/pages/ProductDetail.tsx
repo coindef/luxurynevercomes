@@ -128,7 +128,7 @@ export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const product = getProduct(id ?? '')
-  const { addToCart } = useStore()
+  const { addToCart, saved } = useStore()
   const toast = useToast()
   const countdown = useSeckillCountdown()
   const reviews = useMemo(() => [...REVIEWS].sort(() => 0.5 - Math.random()).slice(0, 2), [])
@@ -148,6 +148,13 @@ export default function ProductDetail() {
   const groups = CATEGORY_CUSTOM[product.category] ?? []
   const cleanCustom = Object.fromEntries(Object.entries(custom).filter(([, v]) => v))
   const hasCustom = Object.keys(cleanCustom).length > 0
+
+  // 配货门控：需累计守住达门槛才解锁认购资格（saved 即配货台账）
+  const quota = product.quota ?? 0
+  const needsQuota = quota > 0
+  const quotaMet = !needsQuota || saved >= quota
+  const quotaLeft = Math.max(0, quota - saved)
+  const quotaPct = needsQuota ? Math.min(100, Math.round((saved / quota) * 100)) : 100
 
   return (
     <div className="pb-28 lg:mx-auto lg:max-w-6xl lg:px-6 lg:pb-32 lg:pt-12">
@@ -197,6 +204,35 @@ export default function ProductDetail() {
               <p>预约通道 {countdown} 后关闭</p>
               <p>{product.sales}</p>
             </div>
+
+            {/* 配货门槛：热门款需先有购买记录才有认购资格 */}
+            {needsQuota && (
+              <div className="mt-10 border-t border-hairline pt-6">
+                <p className="font-lux text-xs text-ivory">此款仅向配货达标的贵宾开放</p>
+                <p className="mt-2 text-[10px] leading-loose text-fog">
+                  热门款不接受直接认购，须先累计配货额度——也就是先认购些别的。
+                  {quotaMet ? '您已达标，可即刻纳入名下。' : '别急，配货和一切一样，都是 ¥0.00。'}
+                </p>
+                <div className="mt-5 flex items-baseline justify-between text-[10px]">
+                  <span className="text-fog">
+                    已配 <span className="font-price text-jade">{yuan(saved)}</span>
+                  </span>
+                  <span className="text-fog">
+                    门槛 <span className="font-price text-ivory">{yuan(quota)}</span>
+                  </span>
+                </div>
+                {/* 极细进度线：绿是「正在积累」的正向信号，非粗底填充条 */}
+                <div className="mt-2 h-px w-full bg-hairline">
+                  <div className="h-px bg-jade transition-[width] duration-700" style={{ width: `${quotaPct}%` }} />
+                </div>
+                {!quotaMet && (
+                  <p className="mt-3 text-[9px] leading-relaxed text-fog">
+                    还差 <span className="font-price text-ivory">{yuan(quotaLeft)}</span> 配货额度。
+                    每认购一件，都会记入您的配货档案（和首付账本是同一本）。
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* 工坊定制 */}
@@ -241,15 +277,27 @@ export default function ProductDetail() {
         >
           加入珍藏
         </button>
-        <button
-          onClick={() => {
-            addToCart(product.id, 1, hasCustom ? cleanCustom : undefined)
-            navigate('/checkout')
-          }}
-          className="gold-cta flex-1 py-3.5 text-center text-xs font-semibold tracking-[0.2em] lg:w-56 lg:flex-none"
-        >
-          即刻纳入名下
-        </button>
+        {quotaMet ? (
+          <button
+            onClick={() => {
+              addToCart(product.id, 1, hasCustom ? cleanCustom : undefined)
+              navigate('/checkout')
+            }}
+            className="gold-cta flex-1 py-3.5 text-center text-xs font-semibold tracking-[0.2em] lg:w-56 lg:flex-none"
+          >
+            即刻纳入名下
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              toast('配货是唯一的门槛，也是最容易迈过的门槛——去认购点别的，都算数，都 ¥0.00。')
+              navigate('/')
+            }}
+            className="gold-cta flex-1 py-3.5 text-center text-xs font-semibold tracking-[0.2em] lg:w-56 lg:flex-none"
+          >
+            去配货
+          </button>
+        )}
       </div>
     </div>
   )
