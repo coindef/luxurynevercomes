@@ -1,37 +1,68 @@
-# 富了个寂寞 · LuxuryNeverComes
+<div align="center">
 
-> 今晚，钱不是问题——因为我们不收。**Finally affordable. Forever undelivered.**
+# LuxuryNeverComes
 
-一个治愈「买不起」的模拟奢侈品殿堂：尽情认购铂金包、陀飞轮、超跑、游艇、私人海岛、
-万卡算力集群——庄严地支付 ¥0.00，永不发货。多巴胺来自期待而非获得，对奢侈品，
-这个逻辑成立得最彻底。每一单的金额都会存入你的「首付账本」。
+### Tonight, money is no object. We don't take any.
 
-姊妹站：[买了个寂寞 · ParcelNeverComes](https://github.com/coindef/parcelnevercomes)（日用百货版）。
-灵感致敬 [FoodNeverComes](https://foodnevercomes.com)，同属"多巴胺网站"（dopamine sites）流派。
+*Finally affordable. Forever undelivered.*
 
-## ✨ 核心体验
+![The salon](docs/home.jpg)
 
-- 🖤 **黑卡开卡仪式**：首次进店获赠 CARTE NOIRE，额度无上限（反正结账时也用不上）
-- 🏛️ **SALON PRIVÉ 今日私享**：一屏一物大留白，预约通道永远还剩 59 分钟
-- ✂️ **工坊定制 BESPOKE**：鳄鱼皮色号、您出生当晚的星图星空顶、量子纠缠直连（那半也不发货）、
-  刻字与命名——加价划线展示，实付永远 ¥0.00；定制档案随订单永久归档（与商品不同，档案是真的）
-- 🕊️ **白手套管家护送**：9 级手记按真实时间逐日解锁——管家在阿尔卑斯山替您多看了半小时雪，
-  机长在等一个配得上这批货的天气；可无限摇铃唤管家
-- 📜 **寂寞正品鉴定证书**：长按永远置灰的"确认收货"，掉落黑金电子证书
-- 📖 **首付账本**：累计守住金额（`¥380,000,000.00`，逗号全展开），折算"≈ 190 套一线城市首付 /
-  ≈ 你安然无恙的很多年"
+</div>
 
-## 🗂 商品：10 大分类 65 件
+A healing storefront for everything you can't afford. Subscribe to crocodile bags, tourbillons,
+hypercars, superyachts, private islands, ten-thousand-GPU clusters. Pay a solemn **¥0.00**, and
+nothing ever ships. The dopamine lives in the wanting, not the having, and for luxury that logic
+holds best of all. Every order's price is quietly banked in your **Downpayment Ledger**.
 
-经典奢侈品（包袋/腕表/座驾/游艇/不动产/艺术/酒窖/高定）之外，还有新贵奢侈：
+Sister site: [ParcelNeverComes](https://github.com/coindef/parcelnevercomes) (everyday goods).
+In the tradition of dopamine sites like [FoodNeverComes](https://foodnevercomes.com).
 
-- **科技算力** 🛰️：万卡算力集群（¥3.8 亿）、量子机时（"您的任务既算完了也没算完"）、
-  卫星冠名、人形管家机器人、核聚变份额（"永远还有五十年，全人类一起等，您不寂寞"）
-- **运动竞技** ⛳：F1 围场通票、大满贯包厢、百年林克斯球会终身会籍
+---
 
-所有商品名均为品类描述，**不含任何真实品牌名**，与任何真实奢侈品牌无关联。
+## The experience
 
-## 🚀 快速开始
+- **Black-card ritual** — your first visit hands you a *Carte Noire*, limit none, valid forever
+  (not that checkout will need it).
+- **The Houses** — browse **22 fictional maisons**, each with a name, a temperament, and a one-line
+  history. None of them are real; none will ship you anything.
+- **Today's Salon** — one object per screen, generous whitespace, a booking window forever stuck at
+  fifty-nine minutes.
+- **Bespoke atelier** — pick crocodile leathers, a starlight roof of your birth sky, a quantum-paint
+  that decides its colour only when observed. Surcharges shown, then struck through: payable ¥0.00.
+- **Quota (配货)** — the most coveted pieces refuse a direct order. You must first subscribe to *other*
+  things to build up allocation. The joke: the allocation is also ¥0.00. You spend nothing, repeatedly,
+  to earn the right to spend nothing on the bag.
+- **White-glove butler tracking** — nine dispatch notes unlock by real elapsed time. The butler pauses
+  at an Alpine pass to watch the snow for you; the captain waits for weather worthy of the cargo.
+- **Certificate of Genuine Solitude** — long-press the forever-greyed "confirm receipt" for a dark
+  keepsake certificate.
+- **Downpayment Ledger** — your total *kept safe* (`¥380,000,000.00`, every comma spelled out),
+  converted into "≈ 190 first-tier downpayments" or "≈ many years of you, unharmed."
+
+<div align="center">
+
+![The Houses](docs/houses.jpg)
+
+</div>
+
+## The catalogue
+
+**1,009 pieces across 10 categories**, each named by description, **never by a real brand**, with
+prices calibrated to the real world (a 76-metre superyacht at ¥680,000,000; a ten-thousand-GPU cluster
+at ¥2,180,000,000; a card holder at ¥8,800). Beyond the classics (bags, watches, motorcars, yachts,
+real estate, art, cellar, couture) there is new-money luxury too:
+
+- **Compute & Tech** — ten-thousand-GPU clusters, an hour of quantum time ("your task is both done and
+  not done"), satellite naming rights, humanoid butlers, a share of a fusion plant ("always fifty years
+  away, and all of humanity waits with you").
+- **Sport** — a full-season paddock pass, a Grand Slam final box, a lifetime links membership ("the
+  waitlist starts at forty years; we waive it, you're not getting in anyway").
+
+Pieces without a real, logo-free photograph fall back to an **auction-catalogue velvet plaque** — even
+the placeholder has poise.
+
+## Quick start
 
 ```bash
 npm install
@@ -39,47 +70,46 @@ npm run dev        # http://localhost:5173
 ```
 
 ```bash
-npm run build      # 类型检查 + 生产构建 → dist/
-npm run preview    # 本地预览生产构建
+npm run build      # type-check + production build → dist/
+npm run preview    # preview the production build
 npm run lint       # oxlint
 ```
 
-## 📦 部署
+Any static host, no backend required. Vercel imports as-is ([vercel.json](vercel.json) sets the SPA
+fallback and image caching); Netlify uses [public/_redirects](public/_redirects); elsewhere, route all
+paths back to `index.html`.
 
-任意静态托管，无需后端：Vercel 导入即可（[vercel.json](vercel.json) 已配 SPA 回退与图片长缓存）；
-Netlify 用 [public/_redirects](public/_redirects)；其他托管需将所有路径回退到 `index.html`。
+## Design — Cold Luxury
 
-## 🎨 视觉：冷调单色（Cold Luxury）
+True paper white `#FFFFFF` + ink black `#111111` + cool hairline `#E5E5E5` + private-bank green
+`#1F6B4A`. **There is only one colour on the whole site, and it is the green**, appearing only on the
+saving-and-soothing side (payable ¥0.00, kept safe, the ledger). The rest is black and white; colour
+arrives only at the moment the joke lands.
 
-真纸白 `#FFFFFF` + 纯墨黑 `#111111` + 冷发丝线 `#E5E5E5` + 私人银行绿 `#1F6B4A`。
-**全站只有一个颜色，就是绿——而绿只在省钱/安抚侧出现**（实付 ¥0.00、已为你守住、账本）：
-整站黑白，只有笑点落地那一刻才有颜色。
+A cinematic full-bleed hero with the headline overlaid, borderless editorial product cards, left-aligned
+type, and a great deal of whitespace. **The luxury is in the restraint, not the ornament.** Prices are
+set in a Didone face with every digit and comma spelled out (the length of the commas is the dopamine);
+motion is "expensively slow." Full design doctrine in [DESIGN.md](DESIGN.md).
 
-电影感全幅 hero、无边框编辑式商品卡、编辑式左对齐、大量留白——**奢侈感来自克制而不是装饰**。
-价格用 Didot 体全位数千分位展开（逗号的长度本身就是多巴胺）；动效原则"昂贵地慢"。
+## Tech
 
-> 上一版是「暖纸白 + 古铜」，已废弃：那恰好是 LLM 生成奢侈品页面的默认配色，用了就等于隐形。
-> 而 Hermès 本身并不是米色的——白底、黑字、巨幅摄影。米色加黄铜是 AI 想象中的 Hermès。
+Vite · React 19 · TypeScript · Tailwind CSS v4 · React Router. State lives in the browser's
+`localStorage` (cart, orders, the ledger). No backend, no payment, no data collected: *your fortune
+exists only on this device; we can't see it, and neither can your relatives.*
 
-治愈绿（省钱/安抚侧）与姊妹站共享。完整设计文档见 [DESIGN.md](DESIGN.md)。
+## Not a real store
 
-## 🔒 数据与隐私
+An entertainment and mood-lifting toy, not a shop. Every product, price, review, atelier, and butler is
+fictional, with no affiliation to or endorsement from any real brand; all names are category
+descriptions. Nothing is charged, no address is taken, no personal data is collected.
 
-纯前端，无后端、不收款、不收集任何信息；购物车/订单/首付账本存于浏览器 localStorage
-（"您的富贵只存在这台设备上，我们看不到，亲戚也看不到"），带版本守卫，
-「我的 → 散尽家财」一键清空。
+## Licence
 
-## 🖼 图片授权
+Code under [MIT](LICENSE). Images per their individual sources: product photos are real, brand-free
+pictures, each inspected by eye, with attributions for CC BY / CC BY-SA and Unsplash images maintained in
+[src/lib/credits.ts](src/lib/credits.ts) and shown at `/about`.
 
-商品图为真实无品牌照片，经 [Openverse](https://openverse.org) 检索并逐张目检两轮：
-CC0 免署名；53 张 CC BY / CC BY-SA 的署名维护于 [src/lib/credits.ts](src/lib/credits.ts)
-并在站内 `/about` 公示。未配图的 7 件藏品展示「拍卖图录展签」占位——连占位符都有排面。
+## Thanks
 
-## 📄 许可
-
-代码 [MIT](LICENSE)；图片按各自来源授权（见上）；本站为娱乐与情绪自助工具，
-所有商品、工坊与管家均为虚构。
-
-## 🙏 致谢
-
-FoodNeverComes（概念先行者）、所有在深夜看着购物车里的游艇轻轻叹气的人。
+To FoodNeverComes, which went first, and to everyone who has ever looked at a yacht in their cart and
+sighed, softly, late at night.
