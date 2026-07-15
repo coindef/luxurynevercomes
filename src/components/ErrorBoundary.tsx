@@ -14,7 +14,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('[富了个寂寞]', error, info)
+    console.error('[LuxuryNeverComes]', error, info)
   }
 
   render() {
@@ -22,17 +22,17 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
       return (
         <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-10 text-center">
           <span className="text-5xl">🎩</span>
-          <p className="font-lux text-sm text-ivory">殿堂出了点状况</p>
+          <p className="font-lux text-sm text-ivory">The salon hit a snag</p>
           <p className="text-[11px] leading-relaxed text-fog">
-            管家正在处理，处理方式是深呼吸。
+            The butler is handling it, by taking a deep breath.
             <br />
-            您没有任何损失——本来也不收钱。
+            You have lost nothing. We were never charging anyway.
           </p>
           <button
             onClick={() => location.reload()}
             className="gold-cta mt-1 px-10 py-2.5 text-sm tracking-widest"
           >
-            重新入场
+            Re-enter
           </button>
         </div>
       )

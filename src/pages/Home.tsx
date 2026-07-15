@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CATEGORIES, PRODUCTS, SALON_PRODUCTS } from '../lib/products'
+import { CATEGORIES, PRODUCTS, SALON_PRODUCTS, catLabel } from '../lib/products'
 import { MARQUEE_CITIES, SEARCH_PLACEHOLDERS, SLOGAN, SUB_SLOGAN, pick } from '../lib/copy'
 import { yuan } from '../lib/format'
 import { useRotating, useSeckillCountdown } from '../lib/hooks'
@@ -13,7 +13,7 @@ import EditorialImage from '../components/EditorialImage'
 const WELCOME_KEY = 'flgj.welcomed'
 const PAGE_SIZE = 24
 
-/** 黑卡开卡仪式（全站唯一的深色时刻——黑卡本卡；深色面用固定 hex，银箔不用金箔） */
+/** Black-card ritual (the only dark moment on the site; fixed hex, silver not gold foil). */
 function BlackCardModal({ onClose }: { onClose: () => void }) {
   const [opened, setOpened] = useState(false)
 
@@ -24,13 +24,13 @@ function BlackCardModal({ onClose }: { onClose: () => void }) {
           <div className="float-up p-10">
             <p className="font-price text-5xl font-normal text-ivory">∞</p>
             <p className="font-lux mt-6 text-sm leading-loose text-ivory">
-              尊敬的贵宾：您的黑卡已激活。
+              Esteemed patron: your black card is active.
               <br />
-              额度：无上限。有效期：永久。
+              Limit: none. Valid: forever.
             </p>
-            <p className="mt-3 text-[10px] leading-relaxed text-fog">适用范围：本店。反正结账时也用不上。</p>
+            <p className="mt-3 text-[10px] leading-relaxed text-fog">Accepted here. Not that checkout will need it.</p>
             <button onClick={onClose} className="gold-cta mt-8 w-full py-3.5 text-xs tracking-[0.2em]">
-              收下，去看看
+              Take it, look around
             </button>
           </div>
         ) : (
@@ -39,9 +39,9 @@ function BlackCardModal({ onClose }: { onClose: () => void }) {
               <p className="text-[8px] uppercase tracking-[0.2em] text-[#c9c9c9]">Carte Noire</p>
               <p className="font-price mt-1 text-[11px] text-[#8f8f8f]">**** **** **** 0000</p>
             </div>
-            <p className="font-lux text-sm text-ivory">为您准备了一张黑卡</p>
+            <p className="font-lux text-sm text-ivory">A black card, prepared for you</p>
             <button onClick={() => setOpened(true)} className="gold-cta mt-6 w-full py-3.5 text-xs tracking-[0.2em]">
-              开卡
+              Activate
             </button>
           </div>
         )}
@@ -50,7 +50,7 @@ function BlackCardModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-/** 认购动态：一行悄声小字 */
+/** Subscription ticker: one quiet line. */
 function Marquee() {
   const lines = useMemo(
     () =>
@@ -58,7 +58,7 @@ function Marquee() {
         const m = pick(MARQUEE_CITIES)
         const p = pick([...PRODUCTS])
         const sec = 2 + Math.floor(Math.random() * 9)
-        return `${m.city}贵宾于${m.spot}认购了 ${p.name}，${sec} 秒前`
+        return `A patron in ${m.city} claimed ${p.name} at ${m.spot}, ${sec}s ago`
       }),
     [],
   )
@@ -73,16 +73,17 @@ function Marquee() {
   )
 }
 
-/** 今日私享 */
+/** Today's Salon. */
 function SalonPrive() {
   const countdown = useSeckillCountdown()
 
   return (
     <section className="mt-24 lg:mt-40">
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="font-lux text-2xl text-ivory lg:text-4xl">今日私享</h2>
+        <h2 className="font-lux text-2xl text-ivory lg:text-4xl">Today's Salon</h2>
         <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
-          预约通道 <span className="font-price text-ivory">{countdown}</span> 后关闭。每次刷新，我们都会重新为您保留。
+          The booking window closes in <span className="font-price text-ivory">{countdown}</span>. Every refresh, we
+          quietly reserve it for you again.
         </p>
       </div>
       <div className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-2 [-webkit-overflow-scrolling:touch] lg:mx-auto lg:mt-16 lg:grid lg:max-w-6xl lg:grid-cols-3 lg:gap-14 lg:overflow-visible">
@@ -99,7 +100,7 @@ function SalonPrive() {
             <div className="pt-5">
               <p className="font-lux text-[15px] leading-snug text-ivory">{p.name}</p>
               <p className="font-price mt-2 text-[13px] text-ivory">{yuan(p.price)}</p>
-              <p className="mt-2 text-[10px] leading-relaxed text-fog">候补名单已排至第 847 位，队伍不动</p>
+              <p className="mt-2 text-[10px] leading-relaxed text-fog">Waitlist at position 847. The queue does not move.</p>
             </div>
           </Link>
         ))}
@@ -148,11 +149,11 @@ export default function Home() {
     <div className="pb-28">
       {showWelcome && <BlackCardModal onClose={closeWelcome} />}
 
-      {/* 电影感 hero：一张图占满视野，文字退到图下方的编辑栏 */}
+      {/* Cinematic hero: one image fills the view, text steps down into an editorial bar */}
       <header>
         <img
           src="/img/lx-loire-chateau.jpg"
-          alt="河谷庄园"
+          alt="A château reflected in its moat"
           className="h-[68vh] w-full object-cover lg:h-[86vh]"
         />
         <div className="mx-auto max-w-6xl px-6">
@@ -161,7 +162,7 @@ export default function Home() {
           </h1>
           <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">{SUB_SLOGAN}</p>
           <button
-            onClick={() => toast('搜了也不会发货。不过您搜的这个，确实很有品位。')}
+            onClick={() => toast("Searching won't ship it either. Though your taste, clearly, is impeccable.")}
             className="quiet-link mt-8 block text-left text-[11px] text-fog transition-opacity hover:text-ivory"
           >
             <span key={placeholder} className="float-up">
@@ -174,39 +175,50 @@ export default function Home() {
 
       <SalonPrive />
 
-      {/* 工坊定制：一张手作照片 + 一句耳语 */}
+      {/* The Houses: entry to browse by fictional maison */}
+      <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
+        <h2 className="font-lux text-2xl text-ivory lg:text-4xl">The Houses</h2>
+        <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
+          Twenty-two maisons, none of them real. Browse by house, the way you would a boutique arcade.
+        </p>
+        <Link to="/maisons" className="quiet-link mt-6 inline-block text-[11px] tracking-[0.2em] text-ivory">
+          Enter the houses
+        </Link>
+      </section>
+
+      {/* Bespoke atelier: one handwork photo and a whisper */}
       <EditorialImage
         src="/img/ed-atelier.jpg"
-        alt="暗光里，工匠的手正在调校一枚机芯"
+        alt="An artisan's hands adjusting a movement in dim light"
         className="h-[46vh] lg:h-[64vh]"
       />
       <section className="mx-auto mt-14 max-w-6xl px-6 lg:mt-20">
         <p className="font-lux max-w-xl text-lg leading-loose text-ivory lg:text-2xl">
-          工坊定制现已开放：认真到毫米的专属之物，正在认真地不被制作。
+          The bespoke atelier is open: something made to the millimetre for you, being earnestly not made.
         </p>
         <Link
           to={`/product/${SALON_PRODUCTS[0]?.id ?? ''}`}
           className="quiet-link mt-6 inline-block text-[11px] tracking-[0.2em] text-ivory"
         >
-          预约工坊
+          Book the atelier
         </Link>
       </section>
 
-      {/* 空无一人的橱窗：留白即奢侈，这里连商品都没有 */}
+      {/* An empty vitrine: whitespace is the luxury, there is not even a product here */}
       <EditorialImage
         src="/img/ed-vitrine.jpg"
-        alt="空无一人的石厅，列柱之间没有任何展品"
-        caption="本店陈列厅。空的——毕竟什么都发不出去。"
+        alt="An empty stone hall, nothing displayed between the columns"
+        caption="Our showroom. Empty, since nothing ships anyway."
       />
 
-      {/* 藏品陈列 */}
+      {/* The Collection */}
       <section className="mt-24 lg:mt-40">
         <div className="mx-auto max-w-6xl px-6">
-          <h2 className="font-lux text-2xl text-ivory lg:text-4xl">{category ?? '藏品陈列'}</h2>
-          <p className="mt-4 text-[11px] text-fog">买不起的，都在这里买得起</p>
+          <h2 className="font-lux text-2xl text-ivory lg:text-4xl">{category ? catLabel(category) : 'The Collection'}</h2>
+          <p className="mt-4 text-[11px] text-fog">Everything you can't afford, affordable here.</p>
         </div>
 
-        {/* 分类：纯文字链，横向可滚（手机不换行堆叠） */}
+        {/* Category filter: plain text links, horizontally scrollable (no wrap on mobile) */}
         <nav className="mt-10 border-y border-hairline">
           <div className="mx-auto flex max-w-6xl gap-x-8 overflow-x-auto px-6 py-4 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
@@ -215,17 +227,17 @@ export default function Home() {
                 category === null ? 'text-ivory' : 'text-fog hover:text-ivory'
               }`}
             >
-              全部
+              All
             </button>
             {CATEGORIES.map((c) => (
               <button
                 key={c.name}
                 onClick={() => setCategory(category === c.name ? null : c.name)}
-                className={`shrink-0 text-[11px] tracking-[0.2em] transition-colors ${
+                className={`shrink-0 whitespace-nowrap text-[11px] tracking-[0.2em] transition-colors ${
                   category === c.name ? 'text-ivory' : 'text-fog hover:text-ivory'
                 }`}
               >
-                {c.name}
+                {c.label}
               </button>
             ))}
           </div>
@@ -239,18 +251,18 @@ export default function Home() {
           </div>
           <div ref={sentinelRef} />
           {visible >= list.length && (
-            <p className="py-16 text-[10px] tracking-[0.2em] text-fog">已经到底了——底也是金子做的</p>
+            <p className="py-16 text-[10px] tracking-[0.2em] text-fog">You've reached the bottom. The bottom is gold too.</p>
           )}
         </div>
       </section>
 
-      {/* 常驻账本徽章（移动端；治愈绿，全站唯一彩色） */}
+      {/* Persistent ledger badge (mobile; healing green, the only colour on the site) */}
       {saved > 0 && (
         <Link
           to="/me"
           className="fixed bottom-20 right-3 z-30 border border-jade/40 bg-ink px-3 py-2 text-[10px] font-semibold text-jade lg:hidden"
         >
-          已为你守住 {yuan(saved)}
+          Kept safe: {yuan(saved)}
         </Link>
       )}
     </div>

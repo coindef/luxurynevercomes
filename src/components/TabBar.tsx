@@ -2,10 +2,11 @@ import { NavLink } from 'react-router-dom'
 import { useStore } from '../lib/store'
 
 const TABS = [
-  { to: '/', label: '殿堂', emoji: '🏛️' },
-  { to: '/cart', label: '珍藏', emoji: '🗝️' },
-  { to: '/orders', label: '管家', emoji: '🤍' },
-  { to: '/me', label: '账本', emoji: '📖' },
+  { to: '/', label: 'Salon', emoji: '🏛️' },
+  { to: '/maisons', label: 'Houses', emoji: '🗝️' },
+  { to: '/cart', label: 'Reserve', emoji: '🛍️' },
+  { to: '/orders', label: 'Butler', emoji: '🤍' },
+  { to: '/me', label: 'Ledger', emoji: '📖' },
 ]
 
 export default function TabBar() {
@@ -13,7 +14,7 @@ export default function TabBar() {
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink/95 backdrop-blur lg:hidden">
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-5">
         {TABS.map((t) => (
           <NavLink
             key={t.to}

@@ -23,7 +23,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <p className="mt-1.5 line-clamp-1 text-[10px] leading-relaxed text-fog">{product.description}</p>
         <p className="font-price mt-2 text-[13px] text-ivory">{yuan(product.price)}</p>
         <p className="mt-1.5 text-[9px] leading-relaxed text-fog">
-          {product.quota ? '凭配货额度认购' : '全球配额 3 件'}，{product.sales}
+          {product.quota ? 'By quota only' : '3 worldwide'} · {product.sales}
         </p>
       </div>
     </Link>

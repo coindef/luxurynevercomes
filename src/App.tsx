@@ -6,6 +6,8 @@ import ErrorBoundary from './components/ErrorBoundary'
 import SiteNav from './components/SiteNav'
 import TabBar from './components/TabBar'
 import Home from './pages/Home'
+import Maisons from './pages/Maisons'
+import Maison from './pages/Maison'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
@@ -43,6 +45,8 @@ export default function App() {
             <Routes>
               <Route element={<TabLayout />}>
                 <Route path="/" element={<Home />} />
+                <Route path="/maisons" element={<Maisons />} />
+                <Route path="/maison/:id" element={<Maison />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/me" element={<Me />} />

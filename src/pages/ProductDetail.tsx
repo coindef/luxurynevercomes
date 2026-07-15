@@ -19,7 +19,7 @@ function Whisper() {
     const make = () => {
       n += 1
       const m = pick(MARQUEE_CITIES)
-      setItem({ id: n, text: `${m.city}贵宾已纳入名下，${1 + Math.floor(Math.random() * 9)} 秒前` })
+      setItem({ id: n, text: `${m.city} patron just claimed one, ${1 + Math.floor(Math.random() * 9)} seconds ago` })
     }
     make()
     const id = setInterval(make, 4200)
@@ -74,7 +74,7 @@ function BespokeSection({
                     key={c.name}
                     onClick={() => {
                       onChange({ ...value, [g.label]: c.name })
-                      toast(`已登记：${c.name.split('·')[0].trim()}。工坊已知悉，工坊一如既往地平静。`)
+                      toast(`Noted: ${c.name.split('·')[0].trim()}. The workshop has been informed. The workshop remains, as ever, calm.`)
                     }}
                     className={`border px-3 py-2 text-left text-[10px] leading-relaxed transition-colors ${
                       selected ? 'border-ivory text-ivory' : 'border-hairline text-fog hover:border-ivory/40'
@@ -96,13 +96,13 @@ function BespokeSection({
                   onChange={(e) => onChange({ ...value, [g.label]: e.target.value.slice(0, 12) })}
                   onBlur={() => {
                     const t = value[g.label]
-                    if (t) toast(`「${t}」已交付镌刻部。老师傅看了一眼，说这几个字有故事。`)
+                    if (t) toast(`"${t}" sent to the engraving department. The old master glanced at it and said these words have a story.`)
                   }}
                   placeholder={g.placeholder}
                   className="min-w-0 flex-1 border-b border-hairline bg-transparent px-1 py-2.5 text-xs text-ivory placeholder:text-fog focus:border-ivory focus:outline-none"
                 />
                 <span className="shrink-0 text-[8px] text-fog">
-                  {(value[g.label] ?? '').length}/12，+{yuan(g.choices?.[0]?.surcharge ?? 0)}
+                  {(value[g.label] ?? '').length}/12, +{yuan(g.choices?.[0]?.surcharge ?? 0)}
                 </span>
               </div>
               <p className="mt-2 text-[8px] leading-relaxed text-fog">{BESPOKE.textHelper}</p>
@@ -114,9 +114,9 @@ function BespokeSection({
       {/* 合计条：加价划掉，实付归零——归零那一刻是绿的 */}
       <div className="mt-10 flex items-baseline justify-between border-t border-hairline pt-5">
         <span className="text-[9px] text-fog">
-          定制加价合计 <span className="font-price text-fog line-through">+{yuan(surcharge)}</span>
+          Bespoke surcharge total <span className="font-price text-fog line-through">+{yuan(surcharge)}</span>
         </span>
-        <span className="font-price text-base font-semibold text-jade">实付 ¥0.00</span>
+        <span className="font-price text-base font-semibold text-jade">Payable ¥0.00</span>
       </div>
       {complete && <p className="font-lux float-up mt-3 text-[10px] leading-relaxed text-jade">{BESPOKE.completeLine}</p>}
       <p className="mt-5 text-[8px] leading-relaxed text-fog">{BESPOKE.footnote}</p>
@@ -137,9 +137,9 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-fog">
-        <p className="font-lux text-sm text-ivory">这件藏品比其他藏品更不存在。</p>
+        <p className="font-lux text-sm text-ivory">This piece is even less in existence than the others.</p>
         <Link to="/" className="quiet-link text-xs text-ivory">
-          回殿堂
+          Back to the hall
         </Link>
       </div>
     )
@@ -170,14 +170,14 @@ export default function ProductDetail() {
           <button
             onClick={() => navigate(-1)}
             className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center bg-black/35 text-white backdrop-blur-sm"
-            aria-label="返回"
+            aria-label="Back"
           >
             ‹
           </button>
           {/* 轮播小圆点：每张图一模一样（彩蛋） */}
           <div
             className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5"
-            title="每张图都一样，反正也发不出去"
+            title="Every image is identical. It never ships anyway."
           >
             <span className="h-1 w-4 bg-white" />
             <span className="h-1 w-1 bg-white/50" />
@@ -197,28 +197,28 @@ export default function ProductDetail() {
                 <span className="font-price text-xs text-fog line-through">{yuan(product.originalPrice)}</span>
               )}
             </div>
-            <p className="mt-2 text-[9px] text-fog">含税。税也是 ¥0.00。</p>
+            <p className="mt-2 text-[9px] text-fog">Tax included. The tax is also ¥0.00.</p>
 
             <div className="mt-8 space-y-1.5 text-[9px] leading-relaxed text-fog">
-              <p>全球配额 3 件，候补已排至第 847 位（队伍不动）</p>
-              <p>预约通道 {countdown} 后关闭</p>
+              <p>Global allocation: 3 pieces. Waitlist now at position 847 (the line does not move).</p>
+              <p>Reservation window closes in {countdown}</p>
               <p>{product.sales}</p>
             </div>
 
             {/* 配货门槛：热门款需先有购买记录才有认购资格 */}
             {needsQuota && (
               <div className="mt-10 border-t border-hairline pt-6">
-                <p className="font-lux text-xs text-ivory">此款仅向配货达标的贵宾开放</p>
+                <p className="font-lux text-xs text-ivory">Open only to patrons who have met their quota</p>
                 <p className="mt-2 text-[10px] leading-loose text-fog">
-                  热门款不接受直接认购，须先累计配货额度——也就是先认购些别的。
-                  {quotaMet ? '您已达标，可即刻纳入名下。' : '别急，配货和一切一样，都是 ¥0.00。'}
+                  Coveted pieces cannot be reserved directly. You must first accumulate quota, which means reserving a few other things first.
+                  {quotaMet ? ' You have met the threshold. Claim it now.' : ' No rush. Quota, like everything else, is ¥0.00.'}
                 </p>
                 <div className="mt-5 flex items-baseline justify-between text-[10px]">
                   <span className="text-fog">
-                    已配 <span className="font-price text-jade">{yuan(saved)}</span>
+                    Earned <span className="font-price text-jade">{yuan(saved)}</span>
                   </span>
                   <span className="text-fog">
-                    门槛 <span className="font-price text-ivory">{yuan(quota)}</span>
+                    Threshold <span className="font-price text-ivory">{yuan(quota)}</span>
                   </span>
                 </div>
                 {/* 极细进度线：绿是「正在积累」的正向信号，非粗底填充条 */}
@@ -227,8 +227,8 @@ export default function ProductDetail() {
                 </div>
                 {!quotaMet && (
                   <p className="mt-3 text-[9px] leading-relaxed text-fog">
-                    还差 <span className="font-price text-ivory">{yuan(quotaLeft)}</span> 配货额度。
-                    每认购一件，都会记入您的配货档案（和首付账本是同一本）。
+                    <span className="font-price text-ivory">{yuan(quotaLeft)}</span> of quota to go.
+                    Every reservation is recorded in your quota file (the same ledger as the down-payment book).
                   </p>
                 )}
               </div>
@@ -247,8 +247,8 @@ export default function ProductDetail() {
 
           {/* 贵宾好评 */}
           <div className="mt-12 px-6">
-            <h2 className="font-lux text-lg text-ivory">贵宾好评</h2>
-            <p className="mt-1.5 text-[10px] text-fog">10万+ 条</p>
+            <h2 className="font-lux text-lg text-ivory">Patron Reviews</h2>
+            <p className="mt-1.5 text-[10px] text-fog">100,000+ reviews</p>
             {reviews.map((r) => (
               <div key={r.text} className="mt-8">
                 <div className="flex items-center gap-2 text-[9px] text-fog">
@@ -260,7 +260,7 @@ export default function ProductDetail() {
             ))}
           </div>
 
-          <p className="mt-16 px-6 text-[8px] leading-relaxed text-fog">以下无更多内容 —— 留白也是奢侈的一部分</p>
+          <p className="mt-16 px-6 text-[8px] leading-relaxed text-fog">Nothing further below. White space is part of the luxury too.</p>
         </div>
       </div>
 
@@ -271,11 +271,11 @@ export default function ProductDetail() {
         <button
           onClick={() => {
             addToCart(product.id, 1, hasCustom ? cleanCustom : undefined)
-            toast(hasCustom ? '已连同定制档案纳入珍藏。' : '已纳入珍藏。柜姐为您留着，一直留着。')
+            toast(hasCustom ? 'Added to your reserve, bespoke file and all.' : 'Added to your reserve. The salon associate is keeping it for you, and will keep it, always.')
           }}
           className="flex-1 border border-ivory py-3.5 text-xs tracking-[0.2em] text-ivory transition-colors hover:bg-ivory/5 lg:w-56 lg:flex-none"
         >
-          加入珍藏
+          Add to Reserve
         </button>
         {quotaMet ? (
           <button
@@ -285,17 +285,17 @@ export default function ProductDetail() {
             }}
             className="gold-cta flex-1 py-3.5 text-center text-xs font-semibold tracking-[0.2em] lg:w-56 lg:flex-none"
           >
-            即刻纳入名下
+            Claim it now
           </button>
         ) : (
           <button
             onClick={() => {
-              toast('配货是唯一的门槛，也是最容易迈过的门槛——去认购点别的，都算数，都 ¥0.00。')
+              toast('Quota is the only threshold, and the easiest one to cross. Go reserve something else. It all counts, and it is all ¥0.00.')
               navigate('/')
             }}
             className="gold-cta flex-1 py-3.5 text-center text-xs font-semibold tracking-[0.2em] lg:w-56 lg:flex-none"
           >
-            去配货
+            Go earn quota
           </button>
         )}
       </div>

@@ -45,9 +45,9 @@ export default function Me() {
         <div className="flex items-center gap-4">
           <span className="text-2xl">🎩</span>
           <div className="min-w-0">
-            <p className="font-lux text-2xl text-ivory lg:text-4xl">尊敬的贵宾</p>
+            <p className="font-lux text-2xl text-ivory lg:text-4xl">Esteemed Patron</p>
             <p className="mt-3 text-[10px] tracking-wider text-fog">
-              {memberLevel(orders.length)}，已下 {orders.length} 单
+              {memberLevel(orders.length)}, {orders.length} orders placed
             </p>
           </div>
         </div>
@@ -55,11 +55,11 @@ export default function Me() {
 
       {/* 首付账本（治愈绿：全站唯一收起玩笑的地方，也是全站唯一的颜色） */}
       <section className="mt-24 px-6 lg:mt-40">
-        <h2 className="font-lux text-2xl text-ivory lg:text-4xl">首付账本</h2>
-        <p className="mt-2 text-[11px] text-fog">累计为你守住</p>
+        <h2 className="font-lux text-2xl text-ivory lg:text-4xl">Downpayment Ledger</h2>
+        <p className="mt-2 text-[11px] text-fog">Kept safe for you, in total</p>
         <p className="font-price mt-8 text-4xl font-bold text-jade lg:text-6xl">{yuan(counted)}</p>
         <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
-          这些钱严格来说从来没有过。但守住的踏实，和数完三行逗号的快乐，是真的。
+          Strictly speaking, this money never existed. But the calm of having kept it, and the joy of counting three rows of commas, are real.
         </p>
         {saved > 0 && (
           <button
@@ -67,31 +67,31 @@ export default function Me() {
             className="quiet-link mt-8 inline-block text-[11px] text-jade"
           >
             {conv ? (
-              <>≈ {convN.toLocaleString('zh-CN')} {conv.unit}{conv.suffix ?? ''}</>
+              <>≈ {convN.toLocaleString('en-US')} {conv.unit}{conv.suffix ?? ''}</>
             ) : (
-              <>≈ 你安然无恙的很多年</>
+              <>≈ many years of you, safe and sound</>
             )}
-            <span className="ml-2 opacity-60">换算 ⟳</span>
+            <span className="ml-2 opacity-60">convert ⟳</span>
           </button>
         )}
       </section>
 
       {/* 本月小结 */}
       <section className="mt-24 px-6 lg:mt-40">
-        <h2 className="font-lux text-lg text-ivory lg:text-2xl">本月小结</h2>
+        <h2 className="font-lux text-lg text-ivory lg:text-2xl">This Month</h2>
         {monthOrders.length > 0 ? (
           <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
-            本月你心动了 <span className="font-price text-ivory">{monthOrders.length}</span> 次，守住{' '}
-            <span className="font-price text-jade">{yuan(monthSaved)}</span>。
+            This month your heart raced <span className="font-price text-ivory">{monthOrders.length}</span> times, keeping{' '}
+            <span className="font-price text-jade">{yuan(monthSaved)}</span> safe.
             <br />
-            富了个寂寞——寂寞是假的，开过眼是真的。
+            Rich in solitude. The solitude is fake; the looking was real.
           </p>
         ) : (
-          <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">本月还没心动过。也挺好，殿堂常开，随时来。</p>
+          <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">No heart-flutters this month yet. That's fine too. The hall is always open, come anytime.</p>
         )}
         {topUrge && (
           <p className="mt-6 max-w-md border-l border-hairline pl-5 text-[10px] leading-loose text-fog">
-            你最常因为「{topUrge}」心动。只是记着，没有别的意思。
+            Your heart races most often over "{topUrge}". Just keeping note, nothing more by it.
           </p>
         )}
       </section>
@@ -99,8 +99,8 @@ export default function Me() {
       {/* 金库：这里是全站唯一真实的东西 */}
       <EditorialImage
         src="/img/ed-vault.jpg"
-        alt="合着的圆形钢制金库门，锁栓排成一圈"
-        caption="您守住的钱存放于此。此处为比喻——但钱是真的没花出去。"
+        alt="A closed round steel vault door, bolts arrayed in a ring"
+        caption="This is where the money you kept is stored. A metaphor, of course. But the money really did go unspent."
       />
 
       {/* 入口 */}
@@ -109,21 +109,21 @@ export default function Me() {
           to="/orders"
           className="flex items-center justify-between border-t border-hairline px-6 py-6 text-xs text-ivory"
         >
-          <span>🎩 管家动态</span>
-          <span className="text-[10px] text-fog">{orders.length} 单，全部在途 ›</span>
+          <span>🎩 Butler</span>
+          <span className="text-[10px] text-fog">{orders.length} orders, all in transit ›</span>
         </Link>
         <Link
           to="/about"
           className="flex items-center justify-between border-t border-hairline px-6 py-6 text-xs text-ivory"
         >
-          <span>🏛️ 关于本店</span>
+          <span>🏛️ About</span>
           <span className="text-[10px] text-fog">›</span>
         </Link>
         <button
           onClick={() => setConfirmClear(true)}
           className="flex w-full items-center justify-between border-y border-hairline px-6 py-6 text-xs text-ivory"
         >
-          <span>🕯️ 散尽家财</span>
+          <span>🕯️ Renounce it all</span>
           <span className="text-[10px] text-fog">›</span>
         </button>
       </nav>
@@ -135,19 +135,19 @@ export default function Me() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-10">
           <div className="pop-in w-full max-w-72 bg-ink p-9">
             <p className="text-3xl">🕯️</p>
-            <p className="font-lux mt-6 text-base text-ivory">要散尽家财了吗？</p>
+            <p className="font-lux mt-6 text-base text-ivory">Renounce it all?</p>
             <p className="mt-3 text-[11px] leading-loose text-fog">
-              虚拟的散了就散了，守住的踏实删不掉，也带不走你的。
+              What's virtual is gone once it's scattered. The calm of having kept it can't be deleted, and it takes nothing real from you.
             </p>
             <div className="mt-10 flex items-center gap-8">
               <button onClick={clearAll} className="gold-cta px-8 py-2.5 text-[11px] tracking-widest">
-                散尽
+                Renounce
               </button>
               <button
                 onClick={() => setConfirmClear(false)}
                 className="quiet-link text-[11px] tracking-widest text-fog transition-opacity hover:text-ivory"
               >
-                再留一会儿
+                Stay a while longer
               </button>
             </div>
           </div>

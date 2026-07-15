@@ -10,10 +10,10 @@ import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductImage from '../components/ProductImage'
 
-const ADDRESSES = ['半山别墅（心里那栋）', '游艇泊位 3 号（概念泊位）', '就送到心里吧']
+const ADDRESSES = ['Hillside villa (the one in your heart)', 'Yacht berth No. 3 (a conceptual berth)', 'Just deliver it to my heart']
 const DELIVERY = [
-  { name: '白手套管家亲送', note: '永不达', fee: '¥0' },
-  { name: '私人飞机直送', note: '在等一个好天气', fee: '+¥0' },
+  { name: 'Hand-delivered by white-glove butler', note: 'never arrives', fee: '¥0' },
+  { name: 'Direct by private jet', note: 'awaiting good weather', fee: '+¥0' },
 ]
 
 const CONFETTI_EMOJIS = ['🥂', '✨', '🤍', '🕊️', '🖤']
@@ -59,7 +59,7 @@ function SavedFlip({ total }: { total: number }) {
       {flipped ? (
         <p className="font-price float-up text-3xl font-bold text-jade">
           +{yuan(counted)}
-          <span className="mt-1.5 block text-[10px] font-normal tracking-widest text-jade/90">已存入首付账本</span>
+          <span className="mt-1.5 block text-[10px] font-normal tracking-widest text-jade/90">Deposited to your down-payment book</span>
         </p>
       ) : (
         <p className="font-price text-3xl font-bold text-fog">-¥0.00</p>
@@ -90,9 +90,9 @@ function ReceiptBespoke({ item }: { item: OrderItem }) {
           <span className="font-price shrink-0">+{yuan(r.surcharge)}</span>
         </div>
       ))}
-      <div className="flex justify-between"><span>定制加价合计</span><span className="font-price">+{yuan(total)}</span></div>
-      <div className="flex justify-between"><span>定制加价减免</span><span className="font-price">-{yuan(total)}</span></div>
-      <p className="text-fog">（本行与上一行互相抵消，像极了生活）</p>
+      <div className="flex justify-between"><span>Bespoke surcharge total</span><span className="font-price">+{yuan(total)}</span></div>
+      <div className="flex justify-between"><span>Bespoke surcharge waiver</span><span className="font-price">-{yuan(total)}</span></div>
+      <p className="text-fog">(This line cancels the one above, much like life.)</p>
     </div>
   )
 }
@@ -111,8 +111,8 @@ function SuccessView({ order }: { order: Order }) {
         <div className="pop-in mx-auto flex h-16 w-16 items-center justify-center border border-hairline text-2xl text-jade">
           ✓
         </div>
-        <h1 className="font-lux mt-8 text-lg text-ivory">支付成功，实付 ¥0.00</h1>
-        <p className="mt-2.5 text-[10px] tracking-wider text-fog">钱没动，排面到位了。</p>
+        <h1 className="font-lux mt-8 text-lg text-ivory">Payment successful. Paid ¥0.00</h1>
+        <p className="mt-2.5 text-[10px] tracking-wider text-fog">The money didn't move. The prestige arrived.</p>
         <div className="mt-10">
           <SavedFlip total={order.total} />
         </div>
@@ -135,12 +135,12 @@ function SuccessView({ order }: { order: Order }) {
         ))}
         <div className="my-3 border-t border-dashed border-hairline" />
         <div className="flex justify-between">
-          <span>配送方式</span>
-          <span>白手套管家亲送（永不达）</span>
+          <span>Delivery method</span>
+          <span>Hand-delivered by white-glove butler (never arrives)</span>
         </div>
         <div className="mt-1 flex justify-between gap-3">
-          <span className="shrink-0">预计送达</span>
-          <span className="text-right">等一个好天气（好天气的标准，由机长掌握）</span>
+          <span className="shrink-0">Estimated delivery</span>
+          <span className="text-right">Awaiting good weather (the standard for good weather is set by the captain)</span>
         </div>
       </div>
 
@@ -150,7 +150,7 @@ function SuccessView({ order }: { order: Order }) {
 
       {/* 安抚语（治愈绿） */}
       <div className="mx-6 mt-10 border border-jade/30 bg-jade/5 p-5">
-        {order.urge && <p className="mb-2 text-[9px] tracking-wider text-jade/70">因为「{order.urge}」的这一单</p>}
+        {order.urge && <p className="mb-2 text-[9px] tracking-wider text-jade/70">The order placed for "{order.urge}"</p>}
         <p className="font-lux text-xs leading-relaxed text-jade">{soothing}</p>
       </div>
 
@@ -159,13 +159,13 @@ function SuccessView({ order }: { order: Order }) {
           to="/orders"
           className="flex-1 border border-hairline py-2.5 text-center text-xs tracking-widest text-fog hover:border-ivory hover:text-ivory"
         >
-          查看管家动态（他不会来）
+          View butler updates (he will not come)
         </Link>
         <Link
           to="/"
           className="gold-cta flex-1 py-3 text-center text-xs font-semibold tracking-widest"
         >
-          再富一次
+          Get rich again
         </Link>
       </div>
     </div>
@@ -201,8 +201,8 @@ export default function Checkout() {
     return (
       <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-3 pb-20 text-fog">
         <span className="text-4xl">🧾</span>
-        <p className="font-lux text-sm">没什么可结算的。排面是免费的，随时来。</p>
-        <Link to="/" className="quiet-link text-sm text-ivory">回殿堂 ›</Link>
+        <p className="font-lux text-sm">Nothing to check out. Prestige is free, come anytime.</p>
+        <Link to="/" className="quiet-link text-sm text-ivory">Back to the hall ›</Link>
       </div>
     )
   }
@@ -222,7 +222,7 @@ export default function Checkout() {
     <div className="pb-28 lg:mx-auto lg:max-w-2xl">
       <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-hairline bg-ink/95 px-4 py-3.5 backdrop-blur">
         <button onClick={() => navigate(-1)} className="text-lg text-fog">‹</button>
-        <h1 className="font-lux text-base text-ivory">确认订单</h1>
+        <h1 className="font-lux text-base text-ivory">Confirm order</h1>
       </header>
 
       {/* 收货地址 */}
@@ -254,7 +254,7 @@ export default function Checkout() {
               }`}
             >
               <span>
-                🖤 {d.name} <span className="text-fog">，{d.note}</span>
+                🖤 {d.name} <span className="text-fog">, {d.note}</span>
               </span>
               <span className="font-price font-semibold text-ivory">{d.fee}</span>
             </button>
@@ -287,14 +287,14 @@ export default function Checkout() {
 
       {/* 心动来源（温柔一问） */}
       <section className="mx-4 mt-10 border border-hairline bg-panel p-5 lg:mt-14">
-        <p className="text-[10px] text-fog">今晚想拥有它，是因为——（不说也行）</p>
+        <p className="text-[10px] text-fog">You want it tonight because... (you needn't say)</p>
         <div className="mt-4 flex flex-wrap gap-2">
           {URGE_CHIPS.map((c) => (
             <button
               key={c}
               onClick={() => {
                 setUrge(urge === c ? null : c)
-                if (urge !== c) toast('记下了。都是好品位。')
+                if (urge !== c) toast('Noted. All good taste.')
               }}
               className={`border px-2.5 py-1.5 text-[10px] ${
                 urge === c ? 'border-jade text-jade' : 'border-hairline text-fog'
@@ -309,25 +309,25 @@ export default function Checkout() {
       {/* 礼遇明细 */}
       <section className="mx-4 mt-10 border border-hairline bg-panel p-5 text-[10px] lg:mt-14">
         <div className="flex justify-between py-1 text-fog">
-          <span>藏品总价</span>
+          <span>Collection total</span>
           <span className="font-price line-through">{yuan(originalTotal)}</span>
         </div>
         <div className="flex justify-between py-1 text-fog">
-          <span>私享礼遇</span>
+          <span>Private client courtesy</span>
           <span className="font-price">-{yuan(priveOff)}</span>
         </div>
         {subtotal >= 1_000_000 && (
           <div className="flex justify-between gap-4 py-1 text-fog">
-            <span className="shrink-0">满 ¥1,000,000 臻礼</span>
-            <span className="text-right">帆布托特袋一只（与主商品一同不发货）</span>
+            <span className="shrink-0">Gift for orders over ¥1,000,000</span>
+            <span className="text-right">One canvas tote (which, like the main item, does not ship)</span>
           </div>
         )}
         <div className="flex justify-between py-1 text-fog">
-          <span>黑卡礼金抵扣（额度无上限，反正也用不上）</span>
+          <span>Black-card credit (unlimited balance, not that you'll ever use it)</span>
           <span className="font-price">-{yuan(subtotal)}</span>
         </div>
         <div className="mt-4 flex items-baseline justify-between border-t border-hairline pt-4">
-          <span className="font-lux text-ivory">实付</span>
+          <span className="font-lux text-ivory">Amount paid</span>
           <span className="font-price text-xl font-bold text-ivory">¥0.00</span>
         </div>
       </section>
@@ -338,8 +338,8 @@ export default function Checkout() {
           onClick={pay}
           className="gold-cta w-full py-3.5 text-center text-sm font-semibold tracking-widest"
         >
-          支付 ¥0.00
-          <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">这一下，守住 {yuan(subtotal)}</span>
+          Pay ¥0.00
+          <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">This one keeps {yuan(subtotal)}</span>
         </button>
       </div>
 
@@ -350,7 +350,7 @@ export default function Checkout() {
             <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center border border-hairline text-3xl">
               🖤
             </div>
-            <p className="text-[10px] text-fog">白手套正在核验您的身份——随便按，都对。</p>
+            <p className="text-[10px] text-fog">The white glove is verifying your identity. Press anything, it all works.</p>
           </div>
         </div>
       )}

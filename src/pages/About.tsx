@@ -10,50 +10,50 @@ export default function About() {
   return (
     <div className="pb-20 lg:mx-auto lg:max-w-2xl">
       <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-hairline bg-ink/95 px-6 py-4 backdrop-blur">
-        <button onClick={() => navigate(-1)} className="text-lg text-fog" aria-label="返回">
+        <button onClick={() => navigate(-1)} className="text-lg text-fog" aria-label="Back">
           ‹
         </button>
-        <h1 className="font-lux text-base text-ivory">关于本店</h1>
+        <h1 className="font-lux text-base text-ivory">About</h1>
       </header>
 
       {/* 无边框无面板：靠留白与发丝线分栏 */}
       <section className="px-6 pt-14">
-        <p className="font-lux text-xl leading-relaxed text-ivory lg:text-2xl">富了个寂寞</p>
+        <p className="font-lux text-xl leading-relaxed text-ivory lg:text-2xl">LuxuryNeverComes</p>
         <p className="mt-6 text-[11px] leading-loose text-fog">
-          一个治愈「买不起」的模拟奢侈品殿堂：尽情认购铂金包、陀飞轮、游艇、小岛、算力集群——
-          支付 ¥0.00，永不发货。多巴胺来自期待而非获得，对奢侈品，这个逻辑成立得最彻底。
-          每一单的金额都会存入你的首付账本。
+          A simulated hall of luxury that heals the "can't afford it" ache: subscribe freely to platinum handbags, tourbillons, yachts, private islands, compute clusters.
+          You pay ¥0.00, and nothing ever ships. The dopamine comes from anticipation, not acquisition, and for luxury goods that logic holds most completely of all.
+          Every order's amount is deposited into your Downpayment Ledger.
         </p>
         <p className="mt-5 text-[11px] leading-loose text-fog">
-          姊妹站：
+          Sister site:{' '}
           <a
             href="https://github.com/coindef/parcelnevercomes"
             target="_blank"
             rel="noreferrer"
             className="quiet-link text-ivory"
           >
-            买了个寂寞 · ParcelNeverComes
+            ParcelNeverComes
           </a>
-          （日用百货版）。灵感致敬{' '}
+          {' '}(the everyday-goods edition). Inspired by{' '}
           <a href="https://foodnevercomes.com" target="_blank" rel="noreferrer" className="quiet-link text-ivory">
             FoodNeverComes
           </a>
-          。
+          .
         </p>
       </section>
 
       <EditorialImage
         src="/img/ed-atelier-2.jpg"
-        alt="工坊暗墙上挂着一排手工具，各归各位"
-        caption="本店工坊。工匠是真的，工序是真的，交付是假的。"
+        alt="A row of hand tools hanging on the atelier's dark wall, each in its place"
+        caption="Our atelier. The artisans are real, the craft is real, the delivery is fake."
       />
 
       <section className="mt-20 border-t border-hairline px-6 pt-14">
-        <h2 className="font-lux text-lg text-ivory">图片来源</h2>
+        <h2 className="font-lux text-lg text-ivory">Image Credits</h2>
         <p className="mt-5 text-[11px] leading-loose text-fog">
-          商品图为真实无品牌照片，主要来自 Unsplash，另有部分 CC0 / CC BY 授权图源。
-          每一张都经过逐张目检：画面里不得出现任何可读的品牌字标——找不到合格的，就不放图。
-          未配图的藏品展示「拍卖图录展签」——连占位符都有排面。以下为需要署名的图片。
+          Product photos are real, brand-free images, mostly from Unsplash, with some under CC0 / CC BY licenses.
+          Each one is inspected by eye, one at a time: no readable brand mark may appear in the frame. If we can't find a suitable image, we run none.
+          Pieces without a photo show an "auction catalogue placard" instead, because even a placeholder deserves some poise. The images requiring attribution are listed below.
         </p>
         <ul className="mt-8 space-y-4">
           {IMAGE_CREDITS.map((c) => {
@@ -65,7 +65,7 @@ export default function About() {
                 <a href={c.sourceUrl} target="_blank" rel="noreferrer" className="quiet-link text-fog">
                   “{c.title.length > 30 ? `${c.title.slice(0, 30)}…` : c.title}”
                 </a>
-                ，{c.creator}，{c.license}
+                , {c.creator}, {c.license}
               </li>
             )
           })}
@@ -76,8 +76,8 @@ export default function About() {
       {/* 法务小字层级：本店的签名就藏在最小号字里 */}
       <section className="mt-20 border-t border-hairline px-6 pt-10">
         <p className="text-[8px] leading-loose text-fog">
-          本站为娱乐与情绪自助工具，不是真实电商。所有商品、价格、销量、评价、工坊与管家均为虚构，
-          与任何真实奢侈品牌无关联、无授权关系，商品名均为品类描述。不收款、不收货址、不收集任何个人信息。
+          This site is an entertainment and emotional self-help tool, not a real store. All products, prices, sales figures, reviews, ateliers, and butlers are fictional,
+          with no affiliation with or authorization from any real luxury brand; product names are category descriptions. We take no payment, no shipping address, and collect no personal information whatsoever.
         </p>
         <p className="mt-4 text-[8px] leading-loose text-fog">{PRIVACY_FOOTER}</p>
       </section>
