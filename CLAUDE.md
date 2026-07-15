@@ -1,7 +1,17 @@
 # CLAUDE.md
 
-「富了个寂寞 · LuxuryNeverComes」——模拟认购奢侈品治愈「买不起」的纯前端 SPA。
+「LuxuryNeverComes」——模拟认购奢侈品治愈「买不起」的纯前端 SPA。
 「买了个寂寞 · ParcelNeverComes」的奢侈品姊妹站（同架构不同气质）。
+
+- **界面语言：英文**（用户于 2026-07 要求全站英文化）。1009 件商品名/描述/销量、
+  管家剧本、定制项、所有页面 UI 均为英文 deadpan。**内部数据键仍是中文**
+  （`product.category`、`CATEGORY_CUSTOM`/`CATEGORY_GRADIENTS`/`maisons` 的分类键），
+  显示层经 `CATEGORY_LABELS`/`catLabel()` 映射为英文——改文案时别动这些键。
+  文案禁用 em-dash（`—`/`–`，英文 AI 破绽）；中文注释里的 `——` 无所谓
+- **品牌屋（maison）**：`src/lib/maisons.ts` 定义 22 家**虚构**奢侈品牌屋（各有名字/人格/身世），
+  `maisonOf()` 按稳定哈希把商品分配到各屋（品类内均衡）。The Houses 导览页（`/maisons`）+
+  单屋页（`/maison/:id`）实现「按店面逛」，与品类筛选并存（双维度）。
+  **严禁用真实品牌名做店面**（LV/Dior/Hermès……）——触碰红线且属商标侵权/品牌冒充
 
 ## 常用命令
 
