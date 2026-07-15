@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CATEGORIES, PRODUCTS, SALON_PRODUCTS, catLabel } from '../lib/products'
 import { MARQUEE_CITIES, SEARCH_PLACEHOLDERS, SLOGAN, SUB_SLOGAN, pick } from '../lib/copy'
+import { MAISONS, maisonHero } from '../lib/maisons'
 import { yuan } from '../lib/format'
 import { useRotating, useSeckillCountdown } from '../lib/hooks'
 import { useStore } from '../lib/store'
@@ -12,6 +13,9 @@ import EditorialImage from '../components/EditorialImage'
 
 const WELCOME_KEY = 'flgj.welcomed'
 const PAGE_SIZE = 24
+
+/** Eight houses spanning categories, for the front-page teaser strip. */
+const TEASER_MAISONS = ['cuir', 'chrones', 'vantor', 'orion', 'terrafirma', 'nimbus', 'silene', 'chronos']
 
 /** Black-card ritual (the only dark moment on the site; fixed hex, silver not gold foil). */
 function BlackCardModal({ onClose }: { onClose: () => void }) {
@@ -50,8 +54,8 @@ function BlackCardModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-/** Subscription ticker: one quiet line. */
-function Marquee() {
+/** Live subscription ticker, one quiet rotating line. `tone` styles it for light or dark ground. */
+function Ticker({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   const lines = useMemo(
     () =>
       Array.from({ length: 8 }, () => {
@@ -63,10 +67,9 @@ function Marquee() {
     [],
   )
   const line = useRotating(lines, 3400)
-
   return (
-    <p className="mt-20 text-[10px] leading-relaxed text-fog lg:mt-28">
-      <span key={line} className="float-up inline-block">
+    <p className={`truncate text-[10px] leading-relaxed ${tone === 'light' ? 'text-white/60' : 'text-fog'}`}>
+      <span key={line} className="float-up inline-block max-w-full truncate align-bottom">
         {line}
       </span>
     </p>
@@ -104,6 +107,44 @@ function SalonPrive() {
             </div>
           </Link>
         ))}
+      </div>
+    </section>
+  )
+}
+
+/** The Houses teaser: a horizontal strip of fictional maisons. */
+function HousesTeaser() {
+  return (
+    <section className="mt-24 lg:mt-40">
+      <div className="mx-auto flex max-w-6xl items-baseline justify-between px-6">
+        <h2 className="font-lux text-2xl text-ivory lg:text-4xl">The Houses</h2>
+        <Link to="/maisons" className="quiet-link text-[11px] tracking-[0.2em] text-ivory">
+          All 22
+        </Link>
+      </div>
+      <p className="mx-auto mt-4 max-w-md px-6 text-[11px] leading-loose text-fog">
+        Twenty-two maisons, none of them real. Browse by house, the way you would a boutique arcade.
+      </p>
+      <div className="mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-2 [-webkit-overflow-scrolling:touch] lg:mx-auto lg:max-w-6xl lg:gap-8">
+        {TEASER_MAISONS.map((mid) => {
+          const m = MAISONS.find((x) => x.id === mid)
+          const hero = m && maisonHero(m.id)
+          if (!m || !hero) return null
+          return (
+            <Link key={mid} to={`/maison/${mid}`} className="group w-[62%] shrink-0 snap-start sm:w-[42%] lg:w-[22%]">
+              <div className="overflow-hidden bg-panel">
+                <ProductImage
+                  product={hero}
+                  className="aspect-[4/5] w-full transition-transform duration-700 group-hover:scale-[1.03]"
+                  emojiClass="text-6xl"
+                  plaque
+                />
+              </div>
+              <p className="mt-3 text-[9px] uppercase tracking-[0.2em] text-fog">{m.flourish}</p>
+              <p className="font-lux mt-1 text-[15px] leading-snug text-ivory">{m.name}</p>
+            </Link>
+          )
+        })}
       </div>
     </section>
   )
@@ -149,42 +190,41 @@ export default function Home() {
     <div className="pb-28">
       {showWelcome && <BlackCardModal onClose={closeWelcome} />}
 
-      {/* Cinematic hero: one image fills the view, text steps down into an editorial bar */}
-      <header>
+      {/* Cinematic hero: the photograph IS the design. Desaturated to the monochrome palette,
+          scrim at the foot, headline and CTA overlaid so the fold actually communicates. */}
+      <header className="relative h-[92vh] min-h-[560px] w-full overflow-hidden bg-black">
         <img
           src="/img/lx-loire-chateau.jpg"
           alt="A château reflected in its moat"
-          className="h-[68vh] w-full object-cover lg:h-[86vh]"
+          className="absolute inset-0 h-full w-full object-cover [filter:grayscale(0.7)_contrast(1.02)_brightness(0.92)]"
         />
-        <div className="mx-auto max-w-6xl px-6">
-          <h1 className="font-lux mt-14 max-w-2xl text-[26px] leading-relaxed text-ivory lg:mt-20 lg:text-5xl lg:leading-[1.35]">
-            {SLOGAN}
-          </h1>
-          <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">{SUB_SLOGAN}</p>
-          <button
-            onClick={() => toast("Searching won't ship it either. Though your taste, clearly, is impeccable.")}
-            className="quiet-link mt-8 block text-left text-[11px] text-fog transition-opacity hover:text-ivory"
-          >
-            <span key={placeholder} className="float-up">
-              {placeholder}
-            </span>
-          </button>
-          <Marquee />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30" />
+        <div className="absolute inset-x-0 bottom-0">
+          <div className="mx-auto max-w-6xl px-6 pb-14 lg:pb-20">
+            <p className="tracking-maison text-[10px] text-white/60">Maison Zéro</p>
+            <h1 className="font-lux mt-4 max-w-3xl text-[30px] leading-[1.25] text-white lg:text-[64px] lg:leading-[1.1]">
+              {SLOGAN}
+            </h1>
+            <p className="mt-5 max-w-md text-[11px] leading-loose text-white/70 lg:text-[13px]">{SUB_SLOGAN}</p>
+            <button
+              onClick={() => toast("Searching won't ship it either. Though your taste, clearly, is impeccable.")}
+              className="mt-8 flex w-full max-w-sm items-center gap-2 border-b border-white/40 pb-2 text-left text-[11px] text-white/70 transition-colors hover:border-white hover:text-white"
+            >
+              <span>⌕</span>
+              <span key={placeholder} className="float-up truncate">
+                {placeholder}
+              </span>
+            </button>
+            <div className="mt-10 max-w-md">
+              <Ticker tone="light" />
+            </div>
+          </div>
         </div>
       </header>
 
-      <SalonPrive />
+      <HousesTeaser />
 
-      {/* The Houses: entry to browse by fictional maison */}
-      <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
-        <h2 className="font-lux text-2xl text-ivory lg:text-4xl">The Houses</h2>
-        <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
-          Twenty-two maisons, none of them real. Browse by house, the way you would a boutique arcade.
-        </p>
-        <Link to="/maisons" className="quiet-link mt-6 inline-block text-[11px] tracking-[0.2em] text-ivory">
-          Enter the houses
-        </Link>
-      </section>
+      <SalonPrive />
 
       {/* Bespoke atelier: one handwork photo and a whisper */}
       <EditorialImage
