@@ -24,7 +24,11 @@ npm run lint       # oxlint
   小票 `ReceiptBespoke`（加价与减免互相抵消）→ 订单定制档案 → 物流剧场插入工坊节点
 - **管家剧本**：`copy.ts` 的 `TRACKING_SCRIPT`（9 级按真实时间解锁）；
   有定制时 Orders 页 Timeline 会在 36h 处插入 `BESPOKE_TRACKING_TEXT` 节点
-- **商品**：`products.ts` 65 件（脚本生成后手工维护），`SALON_PRODUCTS` 取每分类最贵一件
+- **商品**：`products.ts` ~1009 件（10 分类各约 100，`RAW_PRODUCTS` 数组 → 套 `QUOTA_RULES` 得 `PRODUCTS`），
+  `SALON_PRODUCTS` 取每分类最贵一件。价格对标真实世界行情，全位数千分位；`p()` 第 9 位可选 `easterEgg`
+- **配货流程**：`QUOTA_RULES`（id → 需累计守住的额度）给顶级热门款设门槛（`Product.quota`）。
+  台账就是 store 的 `saved`（历史订单总额）。详情页 `saved < quota` 时门控认购，CTA 变「去配货」，
+  显示「已配 / 门槛」与极细进度线。核心笑点：配货本身也 ¥0.00——反复花 ¥0.00 换取花 ¥0.00 的资格
 - **商品图**：`public/img/lx-<slug>.jpg`；`ProductImage` 失败回退「拍卖图录展签」
   （分类丝绒渐变 + 细银线框 + emoji，`plaque` 属性附图录小字），所以缺图不是错误。
   注意：线框**只画在兜底展签上**，真实照片裸排不加框
