@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CATEGORIES, PRODUCTS, SALON_PRODUCTS, catLabel } from '../lib/products'
+import { CATEGORIES, PRODUCTS, catLabel, getProduct } from '../lib/products'
 import { MARQUEE_CITIES, SEARCH_PLACEHOLDERS, SLOGAN, SUB_SLOGAN, pick } from '../lib/copy'
-import { MAISONS, maisonHero } from '../lib/maisons'
+import { MAISONS } from '../lib/maisons'
 import { yuan } from '../lib/format'
 import { useRotating, useSeckillCountdown } from '../lib/hooks'
 import { useStore } from '../lib/store'
@@ -14,8 +14,15 @@ import EditorialImage from '../components/EditorialImage'
 const WELCOME_KEY = 'flgj.welcomed'
 const PAGE_SIZE = 24
 
-/** Eight houses spanning categories, for the front-page teaser strip. */
-const TEASER_MAISONS = ['cuir', 'chrones', 'vantor', 'orion', 'terrafirma', 'nimbus', 'silene', 'chronos']
+/** Salon showcase: the dearest photographed piece per category, so the strip is all real photos. */
+const SHOWCASE_IDS = [
+  'lx-superyacht-76',
+  'lx-himalaya-croc',
+  'lx-lily-corner',
+  'lx-emerald-garden',
+  'lx-vintage-racer',
+  'lx-bridal-couture',
+]
 
 /** Black-card ritual (the only dark moment on the site; fixed hex, silver not gold foil). */
 function BlackCardModal({ onClose }: { onClose: () => void }) {
@@ -76,9 +83,10 @@ function Ticker({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   )
 }
 
-/** Today's Salon. */
+/** Today's Salon: a tight showcase of photographed flagships. */
 function SalonPrive() {
   const countdown = useSeckillCountdown()
+  const items = SHOWCASE_IDS.map(getProduct).filter(Boolean)
 
   return (
     <section className="mt-24 lg:mt-40">
@@ -90,19 +98,19 @@ function SalonPrive() {
         </p>
       </div>
       <div className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-2 [-webkit-overflow-scrolling:touch] lg:mx-auto lg:mt-16 lg:grid lg:max-w-6xl lg:grid-cols-3 lg:gap-14 lg:overflow-visible">
-        {SALON_PRODUCTS.slice(0, 6).map((p) => (
-          <Link key={p.id} to={`/product/${p.id}`} className="group w-[82%] shrink-0 snap-center lg:w-auto">
+        {items.map((p) => (
+          <Link key={p!.id} to={`/product/${p!.id}`} className="group w-[82%] shrink-0 snap-center lg:w-auto">
             <div className="overflow-hidden bg-panel">
               <ProductImage
-                product={p}
+                product={p!}
                 className="aspect-[3/4] w-full transition-transform duration-700 group-hover:scale-[1.03]"
                 emojiClass="text-8xl"
                 plaque
               />
             </div>
             <div className="pt-5">
-              <p className="font-lux text-[15px] leading-snug text-ivory">{p.name}</p>
-              <p className="font-price mt-2 text-[13px] text-ivory">{yuan(p.price)}</p>
+              <p className="font-lux text-[15px] leading-snug text-ivory">{p!.name}</p>
+              <p className="font-price mt-2 text-[13px] text-ivory">{yuan(p!.price)}</p>
               <p className="mt-2 text-[10px] leading-relaxed text-fog">Waitlist at position 847. The queue does not move.</p>
             </div>
           </Link>
@@ -112,39 +120,28 @@ function SalonPrive() {
   )
 }
 
-/** The Houses teaser: a horizontal strip of fictional maisons. */
-function HousesTeaser() {
+/** The Houses: a typographic directory of the fictional maisons (no image clutter). */
+function HousesDirectory() {
   return (
-    <section className="mt-24 lg:mt-40">
-      <div className="mx-auto flex max-w-6xl items-baseline justify-between px-6">
+    <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
+      <div className="flex items-baseline justify-between">
         <h2 className="font-lux text-2xl text-ivory lg:text-4xl">The Houses</h2>
         <Link to="/maisons" className="quiet-link text-[11px] tracking-[0.2em] text-ivory">
           All 22
         </Link>
       </div>
-      <p className="mx-auto mt-4 max-w-md px-6 text-[11px] leading-loose text-fog">
+      <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
         Twenty-two maisons, none of them real. Browse by house, the way you would a boutique arcade.
       </p>
-      <div className="mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-2 [-webkit-overflow-scrolling:touch] lg:mx-auto lg:max-w-6xl lg:gap-8">
-        {TEASER_MAISONS.map((mid) => {
-          const m = MAISONS.find((x) => x.id === mid)
-          const hero = m && maisonHero(m.id)
-          if (!m || !hero) return null
-          return (
-            <Link key={mid} to={`/maison/${mid}`} className="group w-[62%] shrink-0 snap-start sm:w-[42%] lg:w-[22%]">
-              <div className="overflow-hidden bg-panel">
-                <ProductImage
-                  product={hero}
-                  className="aspect-[4/5] w-full transition-transform duration-700 group-hover:scale-[1.03]"
-                  emojiClass="text-6xl"
-                  plaque
-                />
-              </div>
-              <p className="mt-3 text-[9px] uppercase tracking-[0.2em] text-fog">{m.flourish}</p>
-              <p className="font-lux mt-1 text-[15px] leading-snug text-ivory">{m.name}</p>
-            </Link>
-          )
-        })}
+      <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-hairline pt-8 lg:grid-cols-3 lg:gap-x-14">
+        {MAISONS.map((m) => (
+          <Link key={m.id} to={`/maison/${m.id}`} className="group block">
+            <p className="text-[8px] uppercase tracking-[0.2em] text-fog">{m.flourish}</p>
+            <p className="font-lux mt-1 text-[15px] leading-snug text-ivory transition-opacity group-hover:opacity-60">
+              {m.name}
+            </p>
+          </Link>
+        ))}
       </div>
     </section>
   )
@@ -190,15 +187,15 @@ export default function Home() {
     <div className="pb-28">
       {showWelcome && <BlackCardModal onClose={closeWelcome} />}
 
-      {/* Cinematic hero: the photograph IS the design. Desaturated to the monochrome palette,
-          scrim at the foot, headline and CTA overlaid so the fold actually communicates. */}
+      {/* Cinematic hero: an empty grand gallery, the showroom for a store that ships nothing.
+          The photograph IS the design; headline and CTA overlaid so the fold communicates. */}
       <header className="relative h-[92vh] min-h-[560px] w-full overflow-hidden bg-black">
         <img
-          src="/img/lx-loire-chateau.jpg"
-          alt="A château reflected in its moat"
-          className="absolute inset-0 h-full w-full object-cover [filter:grayscale(0.7)_contrast(1.02)_brightness(0.92)]"
+          src="/img/ed-hero.jpg"
+          alt="An empty baroque gallery, checkered marble receding to a distant door"
+          className="absolute inset-0 h-full w-full object-cover [filter:grayscale(0.5)_contrast(1.05)_brightness(0.94)]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/15" />
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-6xl px-6 pb-14 lg:pb-20">
             <p className="tracking-maison text-[10px] text-white/60">Maison Zéro</p>
@@ -222,34 +219,27 @@ export default function Home() {
         </div>
       </header>
 
-      <HousesTeaser />
+      <HousesDirectory />
 
       <SalonPrive />
 
-      {/* Bespoke atelier: one handwork photo and a whisper */}
+      {/* One editorial break: an artisan's hands, the single human touch on the page */}
       <EditorialImage
         src="/img/ed-atelier.jpg"
         alt="An artisan's hands adjusting a movement in dim light"
-        className="h-[46vh] lg:h-[64vh]"
+        className="mt-24 h-[46vh] lg:mt-40 lg:h-[62vh]"
       />
       <section className="mx-auto mt-14 max-w-6xl px-6 lg:mt-20">
         <p className="font-lux max-w-xl text-lg leading-loose text-ivory lg:text-2xl">
           The bespoke atelier is open: something made to the millimetre for you, being earnestly not made.
         </p>
         <Link
-          to={`/product/${SALON_PRODUCTS[0]?.id ?? ''}`}
+          to={`/product/${SHOWCASE_IDS[1]}`}
           className="quiet-link mt-6 inline-block text-[11px] tracking-[0.2em] text-ivory"
         >
           Book the atelier
         </Link>
       </section>
-
-      {/* An empty vitrine: whitespace is the luxury, there is not even a product here */}
-      <EditorialImage
-        src="/img/ed-vitrine.jpg"
-        alt="An empty stone hall, nothing displayed between the columns"
-        caption="Our showroom. Empty, since nothing ships anyway."
-      />
 
       {/* The Collection */}
       <section className="mt-24 lg:mt-40">
