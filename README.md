@@ -148,6 +148,14 @@ Everything is generated and shown at **3:4**, the catalogue's page shape. Every 
 that ratio, so nothing is ever cropped to fit: a container in any other proportion quietly slices the
 handles and the base off a standing bag and leaves you the middle.
 
+The older photographs did not arrive at 3:4 (they run 900x506 to 600x900), and a landscape photograph
+dropped into a portrait frame loses most of its subject: one tiara was showing at 20% of its width.
+`npm run images:aspect` pads them instead, and pads them with **the photograph's own background colour**,
+sampled by taking the two most similar of its four corners. On a studio sweep the subject can occupy at
+most two corners, so the other two are the background and agree almost exactly, which is how a macro
+watch shot on black resolves to `#000000` and gains two invisible bands. Nothing is scaled and nothing
+is stretched: the photograph is untouched, only the canvas grows.
+
 ## Quick start
 
 ```bash
