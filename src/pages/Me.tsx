@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CONVERSIONS, PRIVACY_FOOTER, memberLevel } from '../lib/copy'
+import { CONVERSIONS, memberLevel } from '../lib/copy'
 import { yuan } from '../lib/format'
 import { useCountUp } from '../lib/hooks'
 import { useStore } from '../lib/store'
@@ -128,7 +128,7 @@ export default function Me() {
         </button>
       </nav>
 
-      <p className="px-6 pt-16 text-[9px] leading-loose tracking-wider text-fog">{PRIVACY_FOOTER}</p>
+      {/* 法务小字统一挪到全站页脚，别一页一份 */}
 
       {/* 温柔的二次确认 */}
       {confirmClear && (

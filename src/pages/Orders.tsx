@@ -6,7 +6,6 @@ import {
   BUTLER_REPLIES,
   CONFIRM_RECEIPT_HINT,
   EMPTY_ORDERS,
-  PRIVACY_FOOTER,
   TRACKING_SCRIPT,
   pick,
   revisitLine,
@@ -228,7 +227,7 @@ export default function Orders() {
         <OrderCard key={o.id} order={o} />
       ))}
 
-      <p className="px-6 pt-16 text-[9px] leading-loose tracking-wider text-fog">{PRIVACY_FOOTER}</p>
+      {/* 法务小字统一挪到全站页脚，别一页一份 */}
     </div>
   )
 }

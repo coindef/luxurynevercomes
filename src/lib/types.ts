@@ -5,8 +5,6 @@ export interface Product {
   price: number
   originalPrice?: number
   emoji: string
-  /** 真实商品图路径（加载失败时回退到 emoji 色块） */
-  image: string
   /** tailwind gradient classes 做商品图背景 */
   gradient: string
   description: string

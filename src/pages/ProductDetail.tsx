@@ -8,7 +8,7 @@ import { yuan } from '../lib/format'
 import { useSeckillCountdown } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
-import ProductImage from '../components/ProductImage'
+import ProductGallery from '../components/ProductGallery'
 
 /** 认购低语：单条淡入淡出（浮层用固定 hex） */
 function Whisper() {
@@ -161,12 +161,7 @@ export default function ProductDetail() {
       <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-16">
         {/* 大图区：藏品先声夺人 */}
         <div className="relative lg:sticky lg:top-24">
-          <ProductImage
-            product={product}
-            className="h-[58vh] w-full lg:h-[680px]"
-            emojiClass="emoji-float text-[96px]"
-            plaque
-          />
+          <ProductGallery product={product} />
           <button
             onClick={() => navigate(-1)}
             className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center bg-black/35 text-white backdrop-blur-sm"
@@ -174,15 +169,6 @@ export default function ProductDetail() {
           >
             ‹
           </button>
-          {/* 轮播小圆点：每张图一模一样（彩蛋） */}
-          <div
-            className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5"
-            title="Every image is identical. It never ships anyway."
-          >
-            <span className="h-1 w-4 bg-white" />
-            <span className="h-1 w-1 bg-white/50" />
-            <span className="h-1 w-1 bg-white/50" />
-          </div>
         </div>
 
         <div className="lg:pt-4">

@@ -3,6 +3,9 @@ import { useStore } from '../lib/store'
 
 const TABS = [
   { to: '/', label: 'Salon', emoji: '🏛️' },
+  // 手机上原本根本到不了全目录：1009 件藏品只能从首页那个「View all」进去。
+  // 一家店的货架不该只有一个入口（搜索框也在这一页）
+  { to: '/collection', label: 'Collection', emoji: '🖼️' },
   { to: '/maisons', label: 'Houses', emoji: '🗝️' },
   { to: '/cart', label: 'Reserve', emoji: '🛍️' },
   { to: '/orders', label: 'Butler', emoji: '🤍' },
@@ -14,7 +17,7 @@ export default function TabBar() {
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink/95 backdrop-blur lg:hidden">
-      <div className="grid grid-cols-5">
+      <div className="grid grid-cols-6">
         {TABS.map((t) => (
           <NavLink
             key={t.to}

@@ -1,4 +1,5 @@
 import type { Product } from './types'
+import { IMAGE_VIEWS, VIEW_CAPTIONS } from './imageManifest'
 
 /**
  * 分类丝绒渐变（拍卖图录展签底色），emoji 兜底时使用。
@@ -67,12 +68,28 @@ function p(
     price,
     originalPrice,
     emoji,
-    image: `/img/${id}.jpg`,
     gradient: CATEGORY_GRADIENTS[category],
     description,
     sales,
     easterEgg,
   }
+}
+
+/**
+ * 一件藏品的全部图录视角（按顺序：全貌 / 另一角度 / 细节，随分类而定）。
+ * 没有照片就返回空数组——那是常态，不是错误，交给丝绒展签兜底。
+ *
+ * 图有没有、有几张，是构建期就查清楚的事实（见 imageManifest.ts），
+ * 不靠运行时 404 去试：1009 件里九成没图，靠试就是九百个必然失败的请求。
+ */
+export function viewsOf(product: Product): string[] {
+  const n = IMAGE_VIEWS[product.id] ?? 0
+  return Array.from({ length: n }, (_, i) => (i === 0 ? `/img/${product.id}.jpg` : `/img/${product.id}-v${i + 1}.jpg`))
+}
+
+/** 视角小字（图录腔）：Full view / Reverse / From above……按分类而定。 */
+export function captionOf(product: Product, view: number): string {
+  return VIEW_CAPTIONS[product.category]?.[view] ?? 'Further view'
 }
 
 const RAW_PRODUCTS: Product[] = [

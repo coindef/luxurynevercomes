@@ -39,9 +39,24 @@ npm run lint       # oxlint
 - **配货流程**：`QUOTA_RULES`（id → 需累计守住的额度）给顶级热门款设门槛（`Product.quota`）。
   台账就是 store 的 `saved`（历史订单总额）。详情页 `saved < quota` 时门控认购，CTA 变「去配货」，
   显示「已配 / 门槛」与极细进度线。核心笑点：配货本身也 ¥0.00——反复花 ¥0.00 换取花 ¥0.00 的资格
-- **商品图**：`public/img/lx-<slug>.jpg`；`ProductImage` 失败回退「拍卖图录展签」
-  （分类丝绒渐变 + 细银线框 + emoji，`plaque` 属性附图录小字），所以缺图不是错误。
-  注意：线框**只画在兜底展签上**，真实照片裸排不加框
+- **商品图**：主图 `public/img/lx-<slug>.jpg`，其余视角 `-v2` / `-v3`
+  （**不是 `-2`**：商品 id 里有 `lx-mini-sub-2` 这种，会和别人的第二视角撞文件名）。
+  哪件有几张是 `src/lib/imageManifest.ts` 说了算（构建期生成，已提交），
+  组件一律走 `viewsOf(product)`，别再靠 `<img>` 撞 404 兜底——九成商品没图，那是九百个必然失败的请求。
+  无图/加载失败回退「拍卖图录展签」（分类丝绒渐变 + 细银线框 + emoji，`plaque` 属性附图录小字），
+  所以缺图不是错误。注意：线框**只画在兜底展签上**，真实照片裸排不加框
+- **图录画廊**：`ProductGallery` 给详情页排 2-3 个视角（原生 scroll-snap + 缩略图，
+  只有一个视角时整套控件消失）。视角小字（Full view / Reverse / From above……）按分类走
+  manifest 里的 `VIEW_CAPTIONS`，与生成脚本里的视角一一对应
+- **配图流水线**：`npm run images`（Flux via Pollinations，免费无 key）→ `npm run images:manifest`。
+  可随时 Ctrl-C，重跑自动续跑。**限速是硬约束**：匿名档每 IP 只允许 1 并发，实测稳定在
+  ~40s/张（换 turbo 也一样，限的是 IP 不是算力），1009 件 × 3 视角 ≈ 32 小时，跑不完是常态。
+  提示词的四条铁律写在 `scripts/art-direction.mjs` 文件头，**每条都是踩坑踩出来的，别想当然改**：
+  同一件商品三视角**共用一个 seed**（否则画的是三个不同的包）、视角短语**必须打头**、
+  绝不出现 hand/people 这类名词（扩散模型不会否定，只会照画：写 "hand stitching" 就伸进来一只手）、
+  只做整体视角**不做微距**（把细节写成主语，模型会丢掉商品本体：包扣微距画出一枚钻戒）。
+  真人拍的照片（Unsplash / CC BY，见 `scripts/ai-sourced.json` 之外的 id）**不许被 AI 图覆盖**；
+  商品本身是「一个人」的（管家/教练/主厨）一律不生成，交给展签——画出来必然是张人脸，是硬否决
 - **图片美术方向（拍卖图录，不是 eBay 挂牌）**——图片也是设计系统的一部分，不是填空：
   背景只能中性（无缝白/灰/炭/黑/石材/木），**材质本色保留**（皮革棕、金属金、翡翠绿都对），
   **但禁止彩色背景布**（蜜桃粉/薄荷绿/电光蓝会和黑白体系打架，65 张各带一个色 = 集市而非殿堂）；
@@ -89,8 +104,10 @@ npm run lint       # oxlint
 1. `products.ts` 加 `p(...)`（id 用 `lx-` 前缀全小写 slug，价格符合奢侈品行情，
    originalPrice 为 1.2-1.8 倍——奢侈品折扣本身是笑点，别打狠折）
 2. 该分类若无定制选项组，去 `bespoke.ts` 补一组（拟真为骨、荒诞为魂）
-3. 配图走 Openverse（cc0/by/by-sa）→ `sips -Z 700` 压缩 → Read 目检（无品牌字、主体清晰）
-   → CC BY 补 credits.ts；找不到合格图就不放图，展签兜底
+3. 配图跑 `npm run images`（会自动排到队里，按可见度优先）→ `npm run images:manifest` →
+   Read 目检（无品牌字、无人手人脸、主体清晰）。真实照片仍优先于 AI：
+   Unsplash 找得到棚拍级好图就手动放，并补 credits.ts（CC BY/BY-SA 必须署名）；
+   都没有就不放图，展签兜底
 4. DESIGN.md 是设计唯一事实源，改文案体系时同步
 
 ## 其他

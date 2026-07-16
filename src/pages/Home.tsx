@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { PRODUCTS, getProduct } from '../lib/products'
 import { MARQUEE_CITIES, SEARCH_PLACEHOLDERS, SLOGAN, SUB_SLOGAN, pick } from '../lib/copy'
 import { MAISONS } from '../lib/maisons'
 import { yuan } from '../lib/format'
 import { useRotating, useSeckillCountdown } from '../lib/hooks'
 import { useStore } from '../lib/store'
-import { useToast } from '../components/Toast'
 import ProductCard from '../components/ProductCard'
 import ProductImage from '../components/ProductImage'
 import EditorialImage from '../components/EditorialImage'
@@ -164,9 +163,10 @@ function HousesDirectory() {
 
 export default function Home() {
   const { saved } = useStore()
-  const toast = useToast()
+  const navigate = useNavigate()
   const placeholder = useRotating(SEARCH_PLACEHOLDERS, 3600)
   const [showWelcome, setShowWelcome] = useState(false)
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     if (!localStorage.getItem(WELCOME_KEY)) setShowWelcome(true)
@@ -199,15 +199,29 @@ export default function Home() {
               {SLOGAN}
             </h1>
             <p className="mt-5 max-w-md text-[11px] leading-loose text-white/70 lg:text-[13px]">{SUB_SLOGAN}</p>
-            <button
-              onClick={() => toast("Searching won't ship it either. Though your taste, clearly, is impeccable.")}
-              className="mt-8 flex w-full max-w-sm items-center gap-2 border-b border-white/40 pb-2 text-left text-[11px] text-white/70 transition-colors hover:border-white hover:text-white"
+            {/* 真的能搜了。原本这里是个假搜索框，点一下弹句俏皮话——
+                笑点还在（搜到了也照样不发货），但一家店的搜索框总得真的会搜 */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                navigate(query.trim() ? `/collection?q=${encodeURIComponent(query.trim())}` : '/collection')
+              }}
+              className="mt-8 flex w-full max-w-sm items-center gap-2 border-b border-white/40 pb-2 transition-colors focus-within:border-white"
             >
-              <span>⌕</span>
-              <span key={placeholder} className="float-up truncate">
-                {placeholder}
+              <span aria-hidden="true" className="text-white/70">
+                ⌕
               </span>
-            </button>
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={placeholder}
+                aria-label="Search the collection"
+                className="min-w-0 flex-1 bg-transparent text-[11px] text-white placeholder:text-white/70 focus:outline-none"
+              />
+              <button type="submit" className="shrink-0 text-[10px] tracking-[0.2em] text-white/70 hover:text-white">
+                Search
+              </button>
+            </form>
             <div className="mt-10 max-w-md">
               <Ticker tone="light" />
             </div>
@@ -248,7 +262,7 @@ export default function Home() {
         <p className="mx-auto mt-4 max-w-md px-6 text-[11px] text-fog">A dozen to begin with. Everything you can't afford, affordable here.</p>
 
         <div className="mx-auto mt-12 max-w-6xl px-6 lg:mt-16">
-          <div className="columns-2 gap-5 lg:columns-3 lg:gap-14">
+          <div className="grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
             {featured.map((p) => (
               <ProductCard key={p!.id} product={p!} />
             ))}

@@ -32,6 +32,10 @@ dist-ssr
 # impeccable 开发工具（vendored 脚本，不进产品仓库）
 .claude/skills/
 
+# 配图流水线的运行日志（ai-sourced.json 是记录，要提交；日志不要）
+scripts/.gen-images.log
+scripts/.gen-run.out
+
 # API keys / 本地环境变量（严禁提交）
 .env
 .env.*

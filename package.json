@@ -10,7 +10,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "images": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs",
+    "images:plan": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --plan",
+    "images:manifest": "node --import ./scripts/ts-resolve.mjs scripts/build-image-manifest.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",

@@ -5,6 +5,7 @@ import { ToastProvider } from './components/Toast'
 import ErrorBoundary from './components/ErrorBoundary'
 import SiteNav from './components/SiteNav'
 import TabBar from './components/TabBar'
+import Footer from './components/Footer'
 import Home from './pages/Home'
 import Collection from './pages/Collection'
 import Maisons from './pages/Maisons'
@@ -25,11 +26,12 @@ function ScrollToTop() {
   return null
 }
 
-/** 底部 Tab 布局：首页 / 购物车 / 订单 / 我的 */
+/** 底部 Tab 布局：首页 / 目录 / 品牌屋 / 购物车 / 订单 / 我的。页脚跟着这一组走 */
 function TabLayout() {
   return (
     <>
       <Outlet />
+      <Footer />
       <TabBar />
     </>
   )
