@@ -38,12 +38,14 @@ export default function ProductImage({
 
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${product.gradient} ${className}`}>
-      {/* 细银线框只属于兜底展签；真实照片一律裸排，不加边框 */}
-      {fallback && <div className="pointer-events-none absolute inset-1.5 border border-white/20" />}
-      <div className="flex flex-col items-center gap-1.5">
-        <span className={`${emojiClass} drop-shadow-md`}>{product.emoji}</span>
+      {/* 细发丝线只属于兜底展签；真实照片一律裸排，不加边框 */}
+      {fallback && <div className="pointer-events-none absolute inset-1.5 border border-black/[0.07]" />}
+      <div className="flex flex-col items-center gap-2">
+        {/* emoji 去色：全站只有一个颜色（绿），一格粉色小包会把冷调单色体系戳个洞。
+            它是占位图，不是插画 */}
+        <span className={`${emojiClass} opacity-45 grayscale`}>{product.emoji}</span>
         {plaque && fallback && (
-          <span className="font-lux px-3 text-center text-[9px] leading-relaxed text-[#e8e8e8]/75">
+          <span className="font-lux px-3 text-center text-[9px] leading-relaxed text-fog">
             {product.name}
             <br />
             LOT №{lotNo(product.id)}

@@ -1,5 +1,5 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { CATEGORIES, PRODUCTS, catLabel } from '../lib/products'
 import { SEARCH_PLACEHOLDERS } from '../lib/copy'
 import { emptyLine, searchProducts } from '../lib/search'
@@ -36,7 +36,6 @@ export default function Collection() {
   const quotaOnly = params.get('quota') === '1'
 
   const [visible, setVisible] = useState(PAGE_SIZE)
-  const sentinelRef = useRef<HTMLDivElement>(null)
   const placeholder = useRotating(SEARCH_PLACEHOLDERS, 3600)
 
   /** 改哪个参数都保持其它参数不变；空值就把 key 拿掉，别在地址栏里留 `?q=&cat=` 这种垃圾 */
@@ -49,9 +48,13 @@ export default function Collection() {
 
   const search = useMemo(() => (q ? searchProducts(q) : null), [q])
 
+  /** 品类筛选**之前**的结果集：品类计数要按它算，才是「活的」计数 */
+  const base = useMemo(() => {
+    const b = search ? search.items : PRODUCTS
+    return quotaOnly ? b.filter((p) => p.quota) : b
+  }, [search, quotaOnly])
+
   const list = useMemo(() => {
-    let base = search ? search.items : PRODUCTS
-    if (quotaOnly) base = base.filter((p) => p.quota)
     const filtered = category ? base.filter((p) => p.category === category) : base
     if (sort === 'price-desc') return [...filtered].sort((a, b) => b.price - a.price)
     if (sort === 'price-asc') return [...filtered].sort((a, b) => a.price - b.price)
@@ -62,36 +65,50 @@ export default function Collection() {
     return [...filtered].sort(
       (a, b) => CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category) || b.price - a.price,
     )
-  }, [search, category, sort, quotaOnly])
+  }, [base, search, category, sort])
 
   useEffect(() => {
     setVisible(PAGE_SIZE)
   }, [q, category, sort, quotaOnly])
 
-  useEffect(() => {
-    const el = sentinelRef.current
-    if (!el) return
-    const ob = new IntersectionObserver((entries) => entries[0].isIntersecting && setVisible((v) => v + PAGE_SIZE), {
-      rootMargin: '600px',
-    })
-    ob.observe(el)
-    return () => ob.disconnect()
-  }, [])
+  // 无限滚动已移除：实测七家（Hermès / Cartier / Dior / Net-a-Porter / Mytheresa / Farfetch…）
+  // **没有一家用纯无限滚动**——要么「Load more」+ 一行看过多少的进度，要么老老实实翻页。
+  // 无限滚动会吃掉页脚，也让人永远不知道自己在 1009 件里走到了哪
 
   const shown = list.slice(0, visible)
   const heading = q ? 'Search' : quotaOnly ? 'By quota only' : category ? catLabel(category) : 'The Collection'
   /** 只有「逛全部、图录序」时才分章：搜索按相关度、按价格排序时，品类是乱的，硬分章只会更乱 */
   const sectioned = !q && !category && !quotaOnly && sort === ''
+  /** 每个品类**在当前结果里**有多少件。Hermès 的每个筛选值后面都挂着实时计数（「Black (5)」） */
   const counts = useMemo(() => {
     const n: Record<string, number> = {}
-    for (const p of PRODUCTS) n[p.category] = (n[p.category] ?? 0) + 1
+    for (const p of base) n[p.category] = (n[p.category] ?? 0) + 1
     return n
-  }, [])
+  }, [base])
+  const filtered = Boolean(q || category || quotaOnly || sort)
 
   return (
     <div className="pb-28">
-      <header className="mx-auto max-w-6xl px-6 pt-16 lg:pt-24">
-        <h1 className="font-lux text-3xl leading-relaxed text-ivory lg:text-5xl">{heading}</h1>
+      <header className="mx-auto max-w-6xl px-6 pt-8 lg:pt-12">
+        {/* 面包屑：真店近乎人人都有，斜杠分隔（Cartier「Home / Jewelry / All Collections」） */}
+        <nav aria-label="Breadcrumb" className="text-[10px] text-fog">
+          <Link to="/" className="hover:text-ivory">
+            Home
+          </Link>
+          <span aria-hidden="true" className="px-1.5">/</span>
+          {category || q || quotaOnly ? (
+            <>
+              <Link to="/collection" className="hover:text-ivory">
+                The Collection
+              </Link>
+              <span aria-hidden="true" className="px-1.5">/</span>
+              <span className="text-ivory">{heading}</span>
+            </>
+          ) : (
+            <span className="text-ivory">The Collection</span>
+          )}
+        </nav>
+        <h1 className="font-lux mt-8 text-3xl leading-relaxed text-ivory lg:text-5xl">{heading}</h1>
         <p className="mt-4 text-[11px] leading-relaxed text-fog">
           {q ? (
             <>
@@ -157,8 +174,10 @@ export default function Collection() {
           </p>
         )}
 
-        {/* 品类：平铺不裁切。原本是横向滚动条，最后一项永远被切成「Co」，像坏了 */}
-        <nav className="mt-6 flex flex-wrap gap-x-6 gap-y-3">
+        {/* 品类：平铺不裁切（原本是横向滚动条，最后一项永远被切成「Co」，像坏了）。
+            每个值挂实时计数，且当前结果里没有的品类直接不列——Hermès 就是这么做的。
+            清除是一个「Clear all」链接，不是一排 chips：实测七家没有一家用 chips 当主显示 */}
+        <nav className="mt-6 flex flex-wrap items-baseline gap-x-6 gap-y-3">
           <button
             onClick={() => setParam('cat', null)}
             aria-current={category === null}
@@ -168,7 +187,7 @@ export default function Collection() {
           >
             All
           </button>
-          {CATEGORIES.map((c) => (
+          {CATEGORIES.filter((c) => counts[c.name]).map((c) => (
             <button
               key={c.name}
               onClick={() => setParam('cat', category === c.name ? null : c.name)}
@@ -177,9 +196,14 @@ export default function Collection() {
                 category === c.name ? 'text-ivory' : 'text-fog hover:text-ivory'
               }`}
             >
-              {c.label}
+              {c.label} <span className="font-price text-[10px]">({counts[c.name]})</span>
             </button>
           ))}
+          {filtered && (
+            <button onClick={() => setParams({}, { replace: true })} className="quiet-link ml-auto text-[10px] text-ivory">
+              Clear all
+            </button>
+          )}
         </nav>
       </div>
 
@@ -219,11 +243,28 @@ export default function Collection() {
             </div>
           </>
         )}
-        <div ref={sentinelRef} />
-        {list.length > 0 && visible >= list.length && (
-          <p className="py-16 text-[10px] leading-relaxed text-fog">
-            You've reached the bottom. The bottom is priced the same as the top.
-          </p>
+        {/* Load more + 看过多少：真店的主流做法（MatchesFashion 逐字是
+            「You've viewed 72 out of 3609 products」，Cartier 是「Showing 24 of …」） */}
+        {list.length > 0 && (
+          <div className="mt-20 flex flex-col items-start gap-5">
+            <p className="text-[10px] leading-relaxed text-fog">
+              You have viewed <span className="font-price text-ivory">{Math.min(visible, list.length)}</span> of{' '}
+              <span className="font-price text-ivory">{list.length.toLocaleString('en-US')}</span>
+              {list.length === 1 ? ' piece' : ' pieces'}
+            </p>
+            {visible < list.length ? (
+              <button
+                onClick={() => setVisible((v) => v + PAGE_SIZE)}
+                className="border border-ivory px-10 py-3 text-[11px] tracking-[0.2em] text-ivory transition-colors hover:bg-ivory/5"
+              >
+                Load more
+              </button>
+            ) : (
+              <p className="text-[10px] leading-relaxed text-fog">
+                That is all of them. Every one is priced the same as the first.
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -2,21 +2,26 @@ import type { Product } from './types'
 import { IMAGE_VIEWS, VIEW_CAPTIONS } from './imageManifest'
 
 /**
- * 分类丝绒渐变（拍卖图录展签底色），emoji 兜底时使用。
- * 全中性：靠明度差区分分类，不靠色相——全站唯一的彩色是治愈绿，展签不参与配色。
- * （上一版每个分类一个颜色，是「黑金殿堂」时期的遗留，与冷调单色体系冲突。）
+ * 分类展签底色（无照片时的兜底），靠明度差区分分类，不靠色相。
+ *
+ * **为什么从深丝绒改成了纸色**：深色展签是 65 件商品、只有 5 件缺图那会儿定的，
+ * 那时它是一片白里偶尔一块黑丝绒，克制而有戏。现在目录 1009 件、
+ * 903 件（89%）没照片，于是四格里三格半是黑的——
+ * 一个「真纸白 + 纯墨黑」的站，格子却成了黑白棋盘，深色反客为主。
+ * 展签是占位，不该压过它占的那个位。
+ * （深色仍然只属于：黑卡本卡、鉴定证书、照片上的浮层。）
  */
 export const CATEGORY_GRADIENTS: Record<string, string> = {
-  包袋皮具: 'bg-gradient-to-br from-neutral-800 to-neutral-950',
-  腕表珠宝: 'bg-gradient-to-br from-zinc-700 to-zinc-950',
-  尊贵座驾: 'bg-gradient-to-br from-neutral-900 to-black',
-  游艇航空: 'bg-gradient-to-br from-slate-700 to-slate-950',
-  不动产: 'bg-gradient-to-br from-stone-700 to-stone-950',
-  科技算力: 'bg-gradient-to-br from-gray-800 to-black',
-  运动竞技: 'bg-gradient-to-br from-stone-800 to-neutral-950',
-  酒窖餐桌: 'bg-gradient-to-br from-zinc-800 to-neutral-950',
-  高定衣橱: 'bg-gradient-to-br from-zinc-900 to-stone-800',
-  艺术收藏: 'bg-gradient-to-br from-neutral-700 to-zinc-950',
+  包袋皮具: 'bg-gradient-to-br from-neutral-100 to-neutral-200',
+  腕表珠宝: 'bg-gradient-to-br from-zinc-100 to-zinc-200',
+  尊贵座驾: 'bg-gradient-to-br from-neutral-200 to-neutral-300',
+  游艇航空: 'bg-gradient-to-br from-slate-100 to-slate-200',
+  不动产: 'bg-gradient-to-br from-stone-100 to-stone-200',
+  科技算力: 'bg-gradient-to-br from-gray-200 to-gray-300',
+  运动竞技: 'bg-gradient-to-br from-stone-200 to-neutral-200',
+  酒窖餐桌: 'bg-gradient-to-br from-zinc-200 to-neutral-200',
+  高定衣橱: 'bg-gradient-to-br from-zinc-100 to-stone-200',
+  艺术收藏: 'bg-gradient-to-br from-neutral-100 to-zinc-200',
 }
 
 /** 品类英文显示名。内部键保持中文（与 product.category / bespoke 键一致），仅显示层用英文。 */
