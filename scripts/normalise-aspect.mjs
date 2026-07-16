@@ -37,20 +37,30 @@ function sizeOf(file) {
 }
 
 /**
- * 取一小块的平均色：裁出方块 → 缩成 1×1（sips 自己做平均）→ 存成 BMP 读那三个字节。
- * BMP 是这里唯一不用解码器就能读的格式（24 位 BMP = 头 + BGR 三字节）。
+ * 整图转成 BMP，直接读像素。
+ *
+ * 为什么不用 `sips -c` 裁一个角来采样：**`sips -c` 是从中心裁的，不是从左上角**
+ * （拿一张明确带红边的图标定过：裁「最上面 80 行」拿回来的是照片中段，不是红色）。
+ * 也就是说，用它采「四个角」其实采的是画面中央——采到的是主体，不是背景。
+ * BMP 没有这种歧义：24 位 BMP = 头 + 自下而上的 BGR 三元组，坐标是我自己算的。
  */
-function patch(file, top, left, size) {
-  const crop = `${TMP}-crop.png`
-  const px = `${TMP}-px.bmp`
-  // -c 高 宽 --cropOffset 上 左
-  sips('-c', String(size), String(size), '--cropOffset', String(top), String(left), file, '--out', crop)
-  sips('-z', '1', '1', crop, '--out', px, '-s', 'format', 'bmp')
-  const buf = readFileSync(px)
-  const off = buf.readUInt32LE(10) // 像素数据起始偏移
-  const [b, g, r] = [buf[off], buf[off + 1], buf[off + 2]]
-  for (const f of [crop, px]) if (existsSync(f)) unlinkSync(f)
-  return { r, g, b }
+function readBMP(file) {
+  const bmp = `${TMP}.bmp`
+  sips('-s', 'format', 'bmp', file, '--out', bmp)
+  const b = readFileSync(bmp)
+  const off = b.readUInt32LE(10)
+  const w = b.readInt32LE(18)
+  const h = Math.abs(b.readInt32LE(22))
+  const bpp = b.readUInt16LE(28) / 8
+  const stride = ((w * bpp + 3) & ~3) >>> 0
+  const bottomUp = b.readInt32LE(22) > 0
+  const at = (x, y) => {
+    const row = bottomUp ? h - 1 - y : y
+    const p = off + row * stride + x * bpp
+    return { r: b[p + 2], g: b[p + 1], b: b[p] }
+  }
+  if (existsSync(bmp)) unlinkSync(bmp)
+  return { w, h, at }
 }
 
 const dist = (a, b) => Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b - b.b)
@@ -63,9 +73,24 @@ const dist = (a, b) => Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.abs(a.b 
  * 但四个角里，主体最多占掉两个——剩下两个几乎总是背景，而且彼此一模一样。
  * 取最接近的那一对，腕表得到 #000000（它的背景本来就是纯黑），补完看不出接缝。
  */
-function backgroundColour(file, w, h) {
-  const s = Math.max(8, Math.round(Math.min(w, h) * 0.08))
-  const corners = [patch(file, 0, 0, s), patch(file, 0, w - s, s), patch(file, h - s, 0, s), patch(file, h - s, w - s, s)]
+function backgroundColour(file) {
+  const { w, h, at } = readBMP(file)
+  const s = Math.max(6, Math.round(Math.min(w, h) * 0.06))
+  const mean = (x0, y0) => {
+    let r = 0
+    let g = 0
+    let b = 0
+    for (let y = y0; y < y0 + s; y++)
+      for (let x = x0; x < x0 + s; x++) {
+        const p = at(x, y)
+        r += p.r
+        g += p.g
+        b += p.b
+      }
+    const n = s * s
+    return { r: Math.round(r / n), g: Math.round(g / n), b: Math.round(b / n) }
+  }
+  const corners = [mean(0, 0), mean(w - s, 0), mean(0, h - s), mean(w - s, h - s)]
   let best = [0, 1]
   let bd = Infinity
   for (let i = 0; i < 4; i++)
@@ -103,7 +128,7 @@ for (const f of files) {
   // 只补短边，绝不缩放：横图补上下，竖过头的补左右
   const [padH, padW] = ratio > TARGET ? [Math.round(w / TARGET), w] : [h, Math.round(h * TARGET)]
 
-  const pad = hex(backgroundColour(file, w, h))
+  const pad = hex(backgroundColour(file))
 
   report.push(`  ${f.padEnd(34)} ${w}x${h} (${ratio.toFixed(2)}) → ${padW}x${padH}  pad #${pad}`)
   if (!DRY) {
