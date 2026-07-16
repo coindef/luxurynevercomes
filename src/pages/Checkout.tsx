@@ -266,7 +266,7 @@ export default function Checkout() {
       <section className="mx-4 mt-10 border border-hairline bg-panel p-5 lg:mt-14">
         {lines.map((r) => (
           <div key={r.key} className="flex items-start gap-3 py-1.5">
-            <ProductImage product={r.product} className="h-12 w-12 shrink-0" emojiClass="text-2xl" />
+            <ProductImage product={r.product} className="aspect-[3/4] w-10 shrink-0" emojiClass="text-lg" />
             <div className="min-w-0 flex-1">
               <p className="font-lux truncate text-xs text-ivory/90">{r.product.name}</p>
               {r.customization && Object.keys(r.customization).length > 0 ? (

@@ -35,8 +35,13 @@ In the tradition of dopamine sites like [FoodNeverComes](https://foodnevercomes.
   Sort **by what you actually pay** and nothing moves, because every piece ties at ¥0.00.
 - **Lot galleries** — two or three catalogue views per photographed piece (full view, reverse, from
   above), swipeable, with a filmstrip. *"Photographed from three angles. Undeliverable from all of them."*
-- **Bespoke atelier** — pick crocodile leathers, a starlight roof of your birth sky, a quantum-paint
-  that decides its colour only when observed. Surcharges shown, then struck through: payable ¥0.00.
+- **Bespoke atelier** — every lot configures the way its own kind configures. A ring asks for metal and
+  **ring size**; a necklace for clasp and **length**; a watch for case metal and **diameter**; shoes for
+  last and **EU size** ("one of each foot, measured separately: they are not the same size, they never
+  were"). A racehorse asks about stabling, a violin about setup, a naming right about which register.
+  **36 option sets across 1,009 pieces**, chosen by subtype rather than by category, because a category
+  here holds both a tourbillon and a jade bangle, and only one of them has a dial. Surcharges are shown,
+  then struck through: payable ¥0.00. Sizes are never priced, the way sizes never are.
 - **Quota (配货)** — the most coveted pieces refuse a direct order. You must first subscribe to *other*
   things to build up allocation. The joke: the allocation is also ¥0.00. You spend nothing, repeatedly,
   to earn the right to spend nothing on the bag.
@@ -100,6 +105,10 @@ the obvious alternative failed:
 Real photography outranks generated work: pieces shot by people (Unsplash, CC BY) are never overwritten,
 and pieces that *are* a person (a butler, a coach, a chef) are never generated at all, because that means
 generating a face. They keep the plaque.
+
+Everything is generated and shown at **3:4**, the catalogue's page shape. Every frame on the site holds
+that ratio, so nothing is ever cropped to fit: a container in any other proportion quietly slices the
+handles and the base off a standing bag and leaves you the middle.
 
 ## Quick start
 

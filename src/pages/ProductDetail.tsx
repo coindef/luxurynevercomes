@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Customization, CustomGroup } from '../lib/types'
 import { getProduct } from '../lib/products'
-import { CATEGORY_CUSTOM } from '../lib/bespoke'
+import { customFor } from '../lib/bespoke'
 import { BESPOKE, MARQUEE_CITIES, REVIEWS, SERVICE_BAR, pick } from '../lib/copy'
 import { yuan } from '../lib/format'
 import { useSeckillCountdown } from '../lib/hooks'
@@ -62,7 +62,12 @@ function BespokeSection({
       <p className="mt-1.5 text-[10px] text-fog">{BESPOKE.subtitle}</p>
       <p className="mt-4 max-w-md text-[10px] leading-loose text-fog">{BESPOKE.intro}</p>
 
-      {groups.map((g) => (
+      {groups.map((g) => {
+        // 尺寸这类「规格组」全组不加价：那就一个价签都别挂。
+        // 每个尺码后面跟一句「Atelier base · included in ¥0.00」是噪音——
+        // 真实的配置器不会在鞋码旁边写 +¥0.00
+        const isSpec = g.type === 'choice' && (g.choices ?? []).every((c) => c.surcharge === 0)
+        return (
         <div key={g.label} className="mt-8">
           <p className="font-lux text-xs text-ivory">{g.label}</p>
           {g.type === 'choice' ? (
@@ -81,9 +86,11 @@ function BespokeSection({
                     }`}
                   >
                     {c.name}
-                    <span className={`ml-1.5 text-[8px] ${selected ? 'text-ivory' : 'text-fog'}`}>
-                      {c.surcharge > 0 ? `+${yuan(c.surcharge)}` : BESPOKE.baseTag}
-                    </span>
+                    {!isSpec && (
+                      <span className={`ml-1.5 text-[8px] ${selected ? 'text-ivory' : 'text-fog'}`}>
+                        {c.surcharge > 0 ? `+${yuan(c.surcharge)}` : BESPOKE.baseTag}
+                      </span>
+                    )}
                   </button>
                 )
               })}
@@ -109,7 +116,8 @@ function BespokeSection({
             </div>
           )}
         </div>
-      ))}
+        )
+      })}
 
       {/* 合计条：加价划掉，实付归零——归零那一刻是绿的 */}
       <div className="mt-10 flex items-baseline justify-between border-t border-hairline pt-5">
@@ -145,7 +153,8 @@ export default function ProductDetail() {
     )
   }
 
-  const groups = CATEGORY_CUSTOM[product.category] ?? []
+  // 子品类优先：戒指配戒圈尺寸，腕表才配表盘（同类一百件共用一套选项是上一版的做法）
+  const groups = customFor(product)
   const cleanCustom = Object.fromEntries(Object.entries(custom).filter(([, v]) => v))
   const hasCustom = Object.keys(cleanCustom).length > 0
 

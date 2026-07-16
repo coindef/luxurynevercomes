@@ -27,11 +27,13 @@ export default function Maisons() {
                 const hero = maisonHero(m.id)
                 return (
                   <Link key={m.id} to={`/maison/${m.id}`} className="group block">
+                    {/* 3:4：全站藏品图统一的图录开本。这里原本是 4:3 横构图，
+                        于是竖构图的商品照被拦腰切走上下（手柄和底座都没了，只剩中间一条） */}
                     <div className="overflow-hidden bg-panel">
                       {hero && (
                         <ProductImage
                           product={hero}
-                          className="aspect-[4/3] w-full transition-transform duration-700 group-hover:scale-[1.03]"
+                          className="aspect-[3/4] w-full transition-transform duration-700 group-hover:scale-[1.03]"
                           emojiClass="text-5xl"
                           plaque
                         />

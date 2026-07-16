@@ -125,7 +125,7 @@ function OrderCard({ order }: { order: Order }) {
             <ProductImage
               key={it.product.id + JSON.stringify(it.customization ?? {})}
               product={it.product}
-              className="h-16 w-16 shrink-0"
+              className="aspect-[3/4] w-14 shrink-0"
               emojiClass="text-2xl"
             />
           ))}

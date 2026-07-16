@@ -26,7 +26,9 @@ export default function ProductGallery({ product }: { product: Product }) {
   }
 
   const single = views.length <= 1
-  const mainClass = 'h-[58vh] w-full lg:h-[680px]'
+  // 3:4 = 生成图的原始开本（525×700）。原本写死高度、宽度随栏宽走，
+  // 于是容器比例随视口浮动，object-cover 就按当时的宽高比随手裁一刀
+  const mainClass = 'aspect-[3/4] w-full'
 
   if (single) {
     return <ProductImage product={product} className={mainClass} emojiClass="emoji-float text-[96px]" plaque eager />
@@ -76,7 +78,7 @@ export default function ProductGallery({ product }: { product: Product }) {
             <ProductImage
               product={product}
               view={i}
-              className={`h-14 w-11 transition-opacity duration-500 [transition-timing-function:var(--ease-out-quart)] lg:h-16 lg:w-12 ${
+              className={`aspect-[3/4] w-11 transition-opacity duration-500 [transition-timing-function:var(--ease-out-quart)] lg:w-12 ${
                 i === active ? 'opacity-100' : 'opacity-45 group-hover:opacity-75'
               }`}
               emojiClass="text-lg"

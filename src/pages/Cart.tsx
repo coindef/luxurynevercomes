@@ -95,7 +95,7 @@ export default function Cart() {
                 ✓
               </button>
               <Link to={`/product/${product!.id}`} className="shrink-0">
-                <ProductImage product={product!} className="h-16 w-16" emojiClass="text-3xl" />
+                <ProductImage product={product!} className="aspect-[3/4] w-14 shrink-0" emojiClass="text-2xl" />
               </Link>
               <div className="min-w-0 flex-1">
                 <p className="font-lux truncate text-xs text-ivory">{product!.name}</p>
