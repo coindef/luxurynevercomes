@@ -187,12 +187,17 @@ export default function Home() {
       {/* Cinematic hero: an empty grand gallery, the showroom for a store that ships nothing.
           The photograph IS the design; headline and CTA overlaid so the fold communicates. */}
       <header className="relative h-[92vh] min-h-[560px] w-full overflow-hidden bg-black">
+        {/* 大理石本身是**纯白**的（量过：字底下最亮处 rgb(255,255,255)，白字对它 1.00:1，
+            也就是压根看不见）。标语换成三行之后文字上移到亮拱顶，问题才暴露出来。
+            所以先把照片压暗，再叠两道遮罩——对比度是硬红线，不是打光偏好。 */}
         <img
           src="/img/ed-hero.jpg"
           alt="An empty baroque gallery, checkered marble receding to a distant door"
-          className="absolute inset-0 h-full w-full object-cover [filter:grayscale(0.5)_contrast(1.05)_brightness(0.94)]"
+          className="absolute inset-0 h-full w-full object-cover [filter:grayscale(0.6)_contrast(1.05)_brightness(0.62)]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/25" />
+        {/* 文字靠左，就在左边再压一道横向遮罩：右边的照片保持干净，左边保证读得清 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-6xl px-6 pb-14 lg:pb-20">
             <p className="tracking-maison text-[10px] text-white/60">Maison Zéro</p>

@@ -2,7 +2,7 @@
 
 # LuxuryNeverComes
 
-### Tonight, money is no object. We don't take any.
+### You never actually own it. You merely want it.
 
 *Finally affordable. Forever undelivered.*
 
@@ -14,6 +14,10 @@ A healing storefront for everything you can't afford. Subscribe to crocodile bag
 hypercars, superyachts, private islands, ten-thousand-GPU clusters. Pay a solemn **¥0.00**, and
 nothing ever ships. The dopamine lives in the wanting, not the having, and for luxury that logic
 holds best of all. Every order's price is quietly banked in your **Downpayment Ledger**.
+
+The headline is Patek Philippe's, finished honestly. Theirs runs *"You never actually own a Patek
+Philippe. You merely look after it for the next generation."* The most famous sentence in luxury is
+already about not owning the thing; this shop is only that sentence taken the rest of the way.
 
 Sister site: [ParcelNeverComes](https://github.com/coindef/parcelnevercomes) (everyday goods).
 In the tradition of dopamine sites like [FoodNeverComes](https://foodnevercomes.com).
@@ -60,6 +64,8 @@ In the tradition of dopamine sites like [FoodNeverComes](https://foodnevercomes.
 
 ![The Houses](docs/houses.jpg)
 
+*The Houses: twenty-two invented maisons, each with a name, a temperament and a one-line history.*
+
 </div>
 
 ## The catalogue
@@ -77,6 +83,20 @@ real estate, art, cellar, couture) there is new-money luxury too:
 
 Pieces without a real, logo-free photograph fall back to an **auction-catalogue velvet plaque** — even
 the placeholder has poise.
+
+<div align="center">
+
+![The Collection](docs/collection.jpg)
+
+*The catalogue runs in chapters, dearest first, every filter value carrying a live count. Pieces
+awaiting photography show a catalogue plaque rather than a gap.*
+
+![A product page](docs/product.jpg)
+
+*One decision, then the numbers. Each size carries its own availability; the reference number sits
+small and unexplained at the foot of the page, where Cartier puts it.*
+
+</div>
 
 ## Shopping, simulated
 
