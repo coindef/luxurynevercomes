@@ -31,3 +31,8 @@ dist-ssr
 
 # impeccable 开发工具（vendored 脚本，不进产品仓库）
 .claude/skills/
+
+# API keys / 本地环境变量（严禁提交）
+.env
+.env.*
+!.env.example
