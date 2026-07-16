@@ -150,10 +150,11 @@ function HousesDirectory() {
       <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-hairline pt-8 lg:grid-cols-3 lg:gap-x-14">
         {MAISONS.map((m) => (
           <Link key={m.id} to={`/maison/${m.id}`} className="group block">
-            <p className="text-[8px] uppercase tracking-[0.2em] text-fog">{m.flourish}</p>
-            <p className="font-lux mt-1 text-[15px] leading-snug text-ivory transition-opacity group-hover:opacity-60">
+            {/* 名字在上、行当在下、正常大小写：eyebrow 是本站清过的 AI 排版签名 */}
+            <p className="font-lux text-[15px] leading-snug text-ivory transition-opacity group-hover:opacity-60">
               {m.name}
             </p>
+            <p className="mt-1 text-[10px] text-fog">{m.flourish}</p>
           </Link>
         ))}
       </div>

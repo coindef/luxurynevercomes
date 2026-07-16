@@ -217,12 +217,16 @@ export default function ProductDetail() {
   }
 
   const maison = maisonOf(product)
-  const specs = specsOf(product)
   const groups = customFor(product)
   // 规格组（全组不加价）= 尺寸，提到正文里当「唯一的那个决定」；
   // 其余（材质/五金/刻字）收进「工坊」折叠区——真店的个性化是单独一步，不是首屏一面墙
   const sizeGroup = groups.find((g) => g.type === 'choice' && (g.choices ?? []).every((c) => c.surcharge === 0))
   const atelierGroups = groups.filter((g) => g !== sizeGroup)
+
+  // 选择器一旦让你挑某个尺寸，规格表就不能再断言它：项链的规格写「长度 45cm」、
+  // 选择器又给你 40/45/60/90 选——挑了 60，这一页就自己打自己的脸。谁给选，谁拥有这个字段。
+  const sizeLabel = sizeGroup?.label.split('·')[0].trim().toLowerCase()
+  const specs = specsOf(product).filter((s) => s.label.toLowerCase() !== sizeLabel)
 
   const cleanCustom = Object.fromEntries(Object.entries(custom).filter(([, v]) => v))
   const hasCustom = Object.keys(cleanCustom).length > 0

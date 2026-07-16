@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { catLabel } from '../lib/products'
 import { getMaison, productsOfMaison } from '../lib/maisons'
 import ProductCard from '../components/ProductCard'
@@ -7,7 +7,6 @@ import ProductCard from '../components/ProductCard'
 /** One house's collection. */
 export default function Maison() {
   const { id } = useParams()
-  const navigate = useNavigate()
   const maison = getMaison(id ?? '')
 
   useEffect(() => {
@@ -29,15 +28,26 @@ export default function Maison() {
 
   return (
     <div className="pb-28">
-      <header className="mx-auto max-w-6xl px-6 pt-16 lg:pt-24">
-        <button onClick={() => navigate('/maisons')} className="quiet-link text-[10px] tracking-[0.2em] text-fog">
-          The Houses
-        </button>
-        <p className="mt-8 text-[10px] uppercase tracking-[0.2em] text-fog">{maison.flourish}</p>
-        <h1 className="font-lux mt-2 text-3xl leading-relaxed text-ivory lg:text-5xl">{maison.name}</h1>
+      <header className="mx-auto max-w-6xl px-6 pt-8 lg:pt-12">
+        {/* 面包屑，与目录页/详情页同一套（真店近乎人人都有，斜杠分隔）。
+            原本是个孤零零的返回按钮，读者无从知道自己在哪一层 */}
+        <nav aria-label="Breadcrumb" className="text-[10px] text-fog">
+          <Link to="/" className="hover:text-ivory">
+            Home
+          </Link>
+          <span aria-hidden="true" className="px-1.5">/</span>
+          <Link to="/maisons" className="hover:text-ivory">
+            The Houses
+          </Link>
+          <span aria-hidden="true" className="px-1.5">/</span>
+          <span className="text-ivory">{maison.name}</span>
+        </nav>
+        <h1 className="font-lux mt-8 text-3xl leading-relaxed text-ivory lg:text-5xl">{maison.name}</h1>
+        {/* flourish 挪到名字下面、正常大小写：留内容，去掉 eyebrow 那个 AI 排版签名 */}
+        <p className="mt-2 text-[11px] text-fog">{maison.flourish}</p>
         <p className="mt-5 max-w-md text-[11px] leading-loose text-fog">{maison.story}</p>
-        <p className="mt-6 text-[10px] tracking-wider text-fog">
-          {catLabel(maison.category)} · {items.length} pieces
+        <p className="mt-6 text-[10px] text-fog">
+          {catLabel(maison.category)}, {items.length} pieces
         </p>
       </header>
 

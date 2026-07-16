@@ -20,7 +20,8 @@ export default function Maisons() {
         return (
           <section key={c.name} className="mt-20 lg:mt-28">
             <div className="mx-auto max-w-6xl px-6">
-              <h2 className="text-[11px] uppercase tracking-[0.2em] text-fog">{catLabel(c.name)}</h2>
+              {/* 全大写宽字距的小字是本站明令清掉的 eyebrow 签名；章节标题就该是个标题 */}
+              <h2 className="font-lux text-lg text-ivory lg:text-2xl">{catLabel(c.name)}</h2>
             </div>
             <div className="mx-auto mt-8 grid max-w-6xl gap-x-8 gap-y-12 px-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-12">
               {houses.map((m) => {
@@ -39,8 +40,10 @@ export default function Maisons() {
                         />
                       )}
                     </div>
-                    <p className="mt-4 text-[9px] uppercase tracking-[0.2em] text-fog">{m.flourish}</p>
-                    <p className="font-lux mt-1 text-lg text-ivory">{m.name}</p>
+                    {/* flourish 从「标题上方的全大写小字」挪到名字下面、恢复正常大小写：
+                        内容留着（它说明这家屋做什么），走的是那个 AI 排版签名 */}
+                    <p className="font-lux mt-4 text-lg text-ivory">{m.name}</p>
+                    <p className="mt-1 text-[10px] text-fog">{m.flourish}</p>
                     <p className="mt-2 max-w-xs text-[10px] leading-loose text-fog">{m.story}</p>
                     <p className="mt-3 text-[9px] tracking-wider text-fog">{maisonCount(m.id)} pieces</p>
                   </Link>

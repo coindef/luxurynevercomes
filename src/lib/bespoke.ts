@@ -14,7 +14,13 @@ import type { CustomGroup, Product } from './types'
  * 每个子品类沿用真实高定配置的节奏：**材质 → 尺寸/规格 → 刻字**。
  * 尺寸那一档是「像在买东西」的关键（戒圈、链长、鞋码、表径），本来整站都没有。
  */
-export const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
+/**
+ * **不导出**：全站只能经 `customFor()` 拿选项。
+ * 一旦有人直接查这张表，就会和详情页用的子品类选项对不上——
+ * 结算页就这么干过，导致 978/1009 件商品的小票加价全解析成 0，签名笑点当场失效。
+ * 少一个出口，就少一次走散的机会。
+ */
+const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
   腕表珠宝: [
     {
       label: 'Dial · Le Cadran',
@@ -337,16 +343,10 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Sapphire crystal case · fully transparent, so you can watch it not arrive', surcharge: 980000 },
       ],
     },
-    {
-      label: 'Case size · Le Diamètre',
-      type: 'choice',
-      choices: [
-        { name: '36mm · classic', surcharge: 0 },
-        { name: '39mm · the size that suits every wrist, including the one it never reaches', surcharge: 0 },
-        { name: '41mm · contemporary', surcharge: 0 },
-        { name: '44mm · to be seen from across the room, from the other side of the ocean', surcharge: 0 },
-      ],
-    },
+    // 表径**没有**选择器：它是规格，不是选项。规格表已经写死了这只表是 43mm，
+    // 再给一个 36/39/41/44 的选择器，同一页就自己打自己的脸（43 甚至不在选项里）。
+    // 真店也是这么分的：Cartier 的 Santos S/M/L 是三个商品、三个编号、三个价格，
+    // 不是一个下拉框。腕表因此变成「零决策」，正好和珠宝拉开结构差异。
     engraving('Engraved caseback · La Gravure', 'e.g. this moment is already eternity', 'Hand-engraved inside the caseback; normally only the movement sees it, now not even the movement does', 8800),
   ],
   ring: [

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import type { CustomGroup, Order, OrderItem } from '../lib/types'
 import { getProduct } from '../lib/products'
-import { CATEGORY_CUSTOM } from '../lib/bespoke'
+import { customFor } from '../lib/bespoke'
 import { BESPOKE, SOOTHING_BY_URGE, SOOTHING_GENERIC, URGE_CHIPS, pick } from '../lib/copy'
 import { orderNo, yuan } from '../lib/format'
 import { useCountUp } from '../lib/hooks'
@@ -71,7 +71,12 @@ function SavedFlip({ total }: { total: number }) {
 /** 小票上的定制块：加价与减免互相抵消，像极了生活 */
 function ReceiptBespoke({ item }: { item: OrderItem }) {
   if (!item.customization) return null
-  const groups: CustomGroup[] = CATEGORY_CUSTOM[item.product.category] ?? []
+  // 必须和详情页用同一个查找（customFor = 子品类优先）。
+  // 这里曾经直接查 CATEGORY_CUSTOM[分类]，于是 978/1009 件商品的定制在小票上
+  // 一条都对不上 label，加价全部解析成 0——
+  // 「加价合计 +¥0.00 / 减免 -¥0.00 /（这一行抵消了上一行，像极了生活）」抵消了个寂寞。
+  // 全站的签名笑点就这么在线上死了 97%。
+  const groups: CustomGroup[] = customFor(item.product)
   const rows = Object.entries(item.customization).map(([label, v]) => {
     const g = groups.find((x) => x.label === label)
     const surcharge = g?.type === 'text' ? (g.choices?.[0]?.surcharge ?? 0) : (g?.choices?.find((c) => c.name === v)?.surcharge ?? 0)
