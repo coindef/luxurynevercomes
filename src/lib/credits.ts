@@ -12,7 +12,7 @@ export interface ImageCredit {
 
 /** 未逐条署名的图片总述（Unsplash 免署名图 + CC0 图源）。 */
 export const UNSPLASH_NOTE =
-  'The remaining product and scene images come from Unsplash (attribution-free license) and CC0 public-domain sources, each inspected by eye, with no readable brand marks in frame.'
+  'The remaining images are either photographs from Unsplash (attribution-free) and CC0 public-domain sources, or AI-generated (Flux). All were inspected by eye to carry no readable brand marks. Pieces without a suitable image show an auction-catalogue plaque instead.'
 
 export const IMAGE_CREDITS: ImageCredit[] = [
   { productId: 'ed-atelier', title: "An artisan's hands adjusting a movement in dim light", creator: 'Tahlia Doyle', license: 'Unsplash', sourceUrl: 'https://unsplash.com/photos/bfk68pL0EJ0', label: "An artisan's hands adjusting a movement in dim light" },
