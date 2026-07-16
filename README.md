@@ -35,13 +35,17 @@ In the tradition of dopamine sites like [FoodNeverComes](https://foodnevercomes.
   Sort **by what you actually pay** and nothing moves, because every piece ties at ¥0.00.
 - **Lot galleries** — two or three catalogue views per photographed piece (full view, reverse, from
   above), swipeable, with a filmstrip. *"Photographed from three angles. Undeliverable from all of them."*
-- **Bespoke atelier** — every lot configures the way its own kind configures. A ring asks for metal and
-  **ring size**; a necklace for clasp and **length**; a watch for case metal and **diameter**; shoes for
-  last and **EU size** ("one of each foot, measured separately: they are not the same size, they never
-  were"). A racehorse asks about stabling, a violin about setup, a naming right about which register.
-  **36 option sets across 1,009 pieces**, chosen by subtype rather than by category, because a category
-  here holds both a tourbillon and a jade bangle, and only one of them has a dial. Surcharges are shown,
-  then struck through: payable ¥0.00. Sizes are never priced, the way sizes never are.
+- **A product page built like a maison's** — one decision (the size), each size carrying its own
+  availability ("40, notify when available", which in this shop is the only wholly honest line on the
+  page); then a specification table, then accordions composed per piece, then the reference number, set
+  small and unexplained at the very bottom where Cartier puts it. The CTA stack routes you to a human
+  four ways, because in real luxury the sale usually does not close online. Here none of them close.
+- **1,009 pieces, 1,009 different specification sheets** — its own reference, material, dimensions,
+  colourway and origin, all derived from the piece itself. This is where the variety lives, and it is
+  where real maisons keep it too. See [Shopping, simulated](#shopping-simulated).
+- **Bespoke atelier** — demoted to an accordion, where personalisation belongs: crocodile leathers, a
+  starlight roof of your birth sky, a quantum paint that picks its colour only when observed.
+  Surcharges are shown, then struck through: payable ¥0.00.
 - **Quota (配货)** — the most coveted pieces refuse a direct order. You must first subscribe to *other*
   things to build up allocation. The joke: the allocation is also ¥0.00. You spend nothing, repeatedly,
   to earn the right to spend nothing on the bag.
@@ -73,6 +77,40 @@ real estate, art, cellar, couture) there is new-money luxury too:
 
 Pieces without a real, logo-free photograph fall back to an **auction-catalogue velvet plaque** — even
 the placeholder has poise.
+
+## Shopping, simulated
+
+The store is modelled on how luxury e-commerce actually behaves, which was researched rather than
+assumed: Cartier, Hermès, Dior, Louis Vuitton, Chanel, Van Cleef, Loro Piana, Net-a-Porter, Mytheresa
+and Farfetch were read directly where they were readable, then every claim was handed to an adversarial
+pass whose only job was to refute it. Several were refuted. What survived shaped the build, and three
+findings overturned what had already been written here:
+
+**Colourway is never a decision.** Every colourway is a separate page with its own reference, confirmed
+at six houses (Dior's `_M900` is a house-wide black code; Chanel keeps style `A01112` and varies the
+suffix). So a leather picker on a bag page is not a luxury pattern, it is an invention. Ours was also
+identical across all 100 bags, which is exactly what it felt like.
+
+**A product page asks for almost nothing.** Decisions per page run 0 to 3, and the mode is 1: the size.
+Hermès Petit h asks for nothing at all, its selector reading "Color, Random selected" over the line "The
+color of the product is a surprise!" So the variety in real luxury does not come from a configurator. It
+comes from the *data*: every piece has its own reference, material, dimensions, colourway. That is what
+[src/lib/spec.ts](src/lib/spec.ts) generates, deterministically, per piece, one thousand and nine times.
+
+**Size is never priced inside a selector.** Either one price spans the whole run (Cartier's LOVE is one
+number from 15 to 21cm, while conceding that the diamond count changes) or the size is a separate
+product you navigate to (Hermès prices the Birkin 25/30/35 apart). Either way the page shows one
+finished number.
+
+Also adopted, each because a real house does it: breadcrumbs; live counts on every filter value with
+empty categories omitted; a single "Clear all" rather than filter chips; brand → name → price on the
+card with the piece's own material beneath; a deep CTA stack that routes to a human; and **load more with
+a viewed count instead of infinite scroll**, which not one of the ten sites uses.
+
+The counter-evidence was kept too. NN/g documents shoppers punishing maisons for withholding information,
+and found Tom Ford's light-grey all-caps text actively undermined its luxury positioning: an independent
+corroboration of this repo's own contrast floor and its ban on eyebrow labels. Steal the restraint, not
+the withholding.
 
 ## Photography
 
