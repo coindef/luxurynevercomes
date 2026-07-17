@@ -15,6 +15,7 @@ import { useLongPress } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductImage from '../components/ProductImage'
+import { IconHat, IconPlane } from '../components/icons'
 
 function daysSince(ts: number): number {
   return Math.floor((Date.now() - ts) / 86400_000)
@@ -116,7 +117,7 @@ function OrderCard({ order }: { order: Order }) {
           <span className="font-price text-[10px] text-fog">{orderNo(order.createdAt)}</span>
           <span className={`text-[10px] tracking-wider ${arrived ? 'text-jade' : 'text-fog'}`}>
             {arrived ? 'On display in your heart\'s gallery' : 'Under white-glove escort'}{' '}
-            {!arrived && <span className="truck-move inline-block">🕊️</span>}
+            {!arrived && <span className="truck-move inline-block align-[-2px]"><IconPlane size={12} /></span>}
           </span>
         </div>
 
@@ -162,7 +163,7 @@ function OrderCard({ order }: { order: Order }) {
 
           {/* 管家 */}
           <div className="mt-10 flex items-center gap-4">
-            <span className="text-lg">🎩</span>
+            <IconHat size={22} className="shrink-0 text-ivory" />
             <div className="flex-1">
               <p className="font-lux text-[12px] text-ivory">Butler · Alfred</p>
               <p className="mt-1 text-[10px] text-fog">Selecting gloves worthy of your doorbell</p>
@@ -208,7 +209,7 @@ export default function Orders() {
   if (orders.length === 0) {
     return (
       <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-6 px-10 pb-20 text-center">
-        <span className="text-5xl">🎩</span>
+        <IconHat size={44} className="text-fog" />
         <p className="font-lux text-sm leading-loose text-fog">{EMPTY_ORDERS}</p>
         <Link to="/" className="gold-cta mt-2 px-10 py-3 text-xs tracking-[0.2em]">
           Take a look ›

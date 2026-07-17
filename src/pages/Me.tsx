@@ -4,6 +4,7 @@ import { CONVERSIONS, memberLevel } from '../lib/copy'
 import { yuan } from '../lib/format'
 import { useCountUp } from '../lib/hooks'
 import { useStore } from '../lib/store'
+import { IconCandle, IconHat } from '../components/icons'
 import EditorialImage from '../components/EditorialImage'
 
 export default function Me() {
@@ -43,7 +44,7 @@ export default function Me() {
       {/* 贵宾 */}
       <header className="px-6 pt-16 lg:pt-20">
         <div className="flex items-center gap-4">
-          <span className="text-2xl">🎩</span>
+          <IconHat size={30} className="shrink-0 text-ivory" />
           <div className="min-w-0">
             <p className="font-lux text-2xl text-ivory lg:text-4xl">Esteemed Patron</p>
             <p className="mt-3 text-[10px] tracking-wider text-fog">
@@ -109,7 +110,7 @@ export default function Me() {
           to="/orders"
           className="flex items-center justify-between border-t border-hairline px-6 py-6 text-xs text-ivory"
         >
-          <span>🎩 Butler</span>
+          <span>Butler</span>
           <span className="text-[10px] text-fog">{orders.length} orders, all in transit ›</span>
         </Link>
         <Link
@@ -123,7 +124,7 @@ export default function Me() {
           onClick={() => setConfirmClear(true)}
           className="flex w-full items-center justify-between border-y border-hairline px-6 py-6 text-xs text-ivory"
         >
-          <span>🕯️ Renounce it all</span>
+          <span>Renounce it all</span>
           <span className="text-[10px] text-fog">›</span>
         </button>
       </nav>
@@ -134,7 +135,7 @@ export default function Me() {
       {confirmClear && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-10">
           <div className="pop-in w-full max-w-72 bg-ink p-9">
-            <p className="text-3xl">🕯️</p>
+            <IconCandle size={30} className="text-ivory" />
             <p className="font-lux mt-6 text-base text-ivory">Renounce it all?</p>
             <p className="mt-3 text-[11px] leading-loose text-fog">
               What's virtual is gone once it's scattered. The calm of having kept it can't be deleted, and it takes nothing real from you.

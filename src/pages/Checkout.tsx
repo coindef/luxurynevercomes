@@ -9,6 +9,7 @@ import { useCountUp } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductImage from '../components/ProductImage'
+import { IconReceipt } from '../components/icons'
 
 const ADDRESSES = ['Hillside villa (the one in your heart)', 'Yacht berth No. 3 (a conceptual berth)', 'Just deliver it to my heart']
 const DELIVERY = [
@@ -206,7 +207,7 @@ export default function Checkout() {
   if (lines.length === 0) {
     return (
       <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-3 pb-20 text-fog">
-        <span className="text-4xl">🧾</span>
+        <IconReceipt size={40} className="text-fog" />
         <p className="font-lux text-sm">Nothing to check out. Prestige is free, come anytime.</p>
         <Link to="/" className="quiet-link text-sm text-ivory">Back to the hall ›</Link>
       </div>
@@ -260,7 +261,7 @@ export default function Checkout() {
               }`}
             >
               <span>
-                🖤 {d.name} <span className="text-fog">, {d.note}</span>
+                {d.name} <span className="text-fog">, {d.note}</span>
               </span>
               <span className="font-price font-semibold text-ivory">{d.fee}</span>
             </button>
@@ -353,8 +354,9 @@ export default function Checkout() {
       {paying && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70">
           <div className="w-full max-w-[480px] border-t border-hairline bg-panel p-12 text-center float-up">
-            <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center border border-hairline text-3xl">
-              🖤
+            {/* 白手套核验：亮出屋徽（衬线 Z），像支付面板亮商户标——不用彩色 emoji */}
+            <div className="font-lux mx-auto mb-8 flex h-20 w-20 items-center justify-center border border-hairline text-3xl text-ivory">
+              Z
             </div>
             <p className="text-[10px] text-fog">The white glove is verifying your identity. Press anything, it all works.</p>
           </div>

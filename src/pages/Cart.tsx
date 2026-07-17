@@ -6,6 +6,7 @@ import { yuan } from '../lib/format'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductImage from '../components/ProductImage'
+import { IconKey } from '../components/icons'
 
 /** 配货门槛：满额解锁主袋认购资格（当然，配货也是 ¥0.00） */
 const PEIHUO_THRESHOLD = 1_000_000
@@ -45,11 +46,7 @@ export default function Cart() {
   if (rows.length === 0) {
     return (
       <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-5 px-10 pb-20 text-center">
-        {/* 单色细线钥匙，不用彩色 🗝️（金色，戳穿冷调单色） */}
-        <svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true" className="text-fog">
-          <circle cx="8" cy="8" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
-          <path d="M10.3 10.3 L19 19 M16 16 l2.2 2.2 M13.8 18.2 l2 2" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <IconKey size={44} className="text-fog" />
         <p className="font-lux text-sm leading-relaxed text-fog">{EMPTY_CART}</p>
         <Link to="/" className="gold-cta mt-1 px-10 py-2.5 text-sm tracking-widest">
           Go browse ›

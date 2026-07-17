@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import { IconHat } from './icons'
 import type { ErrorInfo, ReactNode } from 'react'
 
 interface State {
@@ -21,7 +22,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
     if (this.state.hasError) {
       return (
         <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-10 text-center">
-          <span className="text-5xl">🎩</span>
+          <IconHat size={44} className="text-fog" />
           <p className="font-lux text-sm text-ivory">The salon hit a snag</p>
           <p className="text-[11px] leading-relaxed text-fog">
             The butler is handling it, by taking a deep breath.
