@@ -40,6 +40,7 @@ const has = (name) => argv.includes(`--${name}`)
 const MODEL = flag('model', 'flux')
 const LIMIT = Number(flag('limit', Infinity))
 const ONLY_TIER = flag('tier', null)
+const BREADTH = has('breadth')
 const PLAN_ONLY = has('plan')
 
 const MIN_BYTES = 25_000
@@ -106,7 +107,18 @@ for (const p of openProducts.filter((p) => visibility(p) > 0)) for (let v = 1; v
 for (const p of openProducts.filter((p) => visibility(p) === 0)) push(3, p, 1)
 for (const p of openProducts.filter((p) => visibility(p) === 0)) for (const v of [2, 3]) push(4, p, v)
 
-const work = (ONLY_TIER ? queue.filter((j) => j.tier === Number(ONLY_TIER)) : queue).slice(0, LIMIT)
+/**
+ * --breadth：先把**每一件**的主图铺满，再回头补第 2、3 视角。
+ *
+ * 默认顺序是「一件补齐三视角，再下一件」，于是逛目录时会看到一小撮商品有完整画廊、
+ * 而几百件还是空展签——「怎么这么多图没有」。广度优先把 view 1 全部提到前面，
+ * 每一格先有一张图，画廊留到最后补。免费通道下这是让目录「看起来齐了」最快的排法。
+ */
+let ordered = ONLY_TIER ? queue.filter((j) => j.tier === Number(ONLY_TIER)) : queue
+if (BREADTH) {
+  ordered = [...ordered].sort((a, b) => a.view - b.view || a.tier - b.tier)
+}
+const work = ordered.slice(0, LIMIT)
 
 const onDisk = PRODUCTS.reduce((n, p) => n + [1, 2, 3].filter((v) => hasView(p.id, v)).length, 0)
 const tierCount = (t) => queue.filter((j) => j.tier === t).length

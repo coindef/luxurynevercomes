@@ -1,13 +1,13 @@
 /** Site-wide copy pool. Deadpan and healing; the green is the only sincerity. */
 
 /**
- * 主标语。戏仿的是奢侈品行业最出名的那一句——百达翡丽的
- * 「You never actually own a Patek Philippe. You merely look after it for the next generation.」
- * 那句广告语本身讲的就是**你并不拥有它**；本站不过是把这个逻辑推到了尽头。
- * 所以懂行的人一眼就接住了梗，不懂的人读到的也是一句正经的、温柔的话。
- * 落点在治愈那一侧（wanting is free），不落在笑点上——这是本店的规矩。
+ * 主标语。方向是**鼓励购买、满足购买欲**，不能以「失去/得不到」开场。
+ * （上一版戏仿百达翡丽的「You never actually own it」——聪明，但「你并不拥有它」
+ *   领着一股丧气，跟本店「点一下就当富过」的多巴胺是拧着的。）
+ * 「Buy everything. Keep everything.」两句都字面为真，正因为一切 ¥0.00：
+ * 整车都买（满足购买欲），一分不花（钱全留下）。邀请你买，落点在你毫无损失。
  */
-export const SLOGAN = 'You never actually own it. You merely want it.'
+export const SLOGAN = 'Buy everything. Keep everything.'
 export const SLOGAN_EN = 'Finally affordable. Forever undelivered.'
 export const SUB_SLOGAN = 'No queue. No quota. No proof of funds. All equal here: everything ¥0.00, nothing ships.'
 

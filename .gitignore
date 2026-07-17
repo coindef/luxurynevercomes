@@ -40,3 +40,7 @@ scripts/.gen-run.out
 .env
 .env.*
 !.env.example
+
+# Claude Code 技能缓存（工具产物，不进产品仓库）
+.agents/
+skills-lock.json
