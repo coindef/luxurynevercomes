@@ -11,6 +11,7 @@ import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductGallery from '../components/ProductGallery'
 import ProductCard from '../components/ProductCard'
+import ConciergeRow from '../components/Concierge'
 import Accordion from '../components/Accordion'
 
 /** 认购低语：单条淡入淡出（浮层用固定 hex） */
@@ -193,19 +194,6 @@ function BespokeSection({
 }
 
 /**
- * 只把人引向人的那一排。真店的 CTA 很深（Cartier 商品页有八个：Add to Bag / Add to Wish List /
- * Request Price / NOTIFY ME / Contact an ambassador / Book an Appointment / Order by Phone /
- * Find in Boutique），因为这单本来就不指望在线上成交——只有一个是买，其余都是把你交给一个人。
- * 一家永远不发货的店，正该把这排照抄。
- */
-const HUMAN_CTAS: { label: string; reply: string }[] = [
-  { label: 'Contact an ambassador', reply: 'The ambassador has read your message on a silver tray. He sends his regards, and nothing else.' },
-  { label: 'Book an appointment', reply: 'Booked. The salon is expecting you on a date we have not chosen, at an address we do not have.' },
-  { label: 'Find in boutique', reply: 'Available in 0 boutiques worldwide. Reassuringly, it is equally unavailable in all of them.' },
-  { label: 'Request price', reply: 'The price is on this page. It is ¥0.00. We are nonetheless happy to confirm it by telephone.' },
-]
-
-/**
  * Care 文案按子品类走。此前全站共用一段「远离阳光与海水」——
  * 对赛马、星系命名权和液冷机柜念同一段保养须知，正是「每件都一样」的余毒。
  * Hermès 自己站上两个商品的折叠区就不一样；Cartier 的动力储存栏 Santos 没有、Ballon Bleu 有。
@@ -255,7 +243,7 @@ export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const product = getProduct(id ?? '')
-  const { addToCart, saved, wishlist, toggleWish } = useStore()
+  const { addToCart, saved } = useStore()
   const toast = useToast()
   const reviews = useMemo(() => [...REVIEWS].sort(() => 0.5 - Math.random()).slice(0, 2), [])
   const [custom, setCustom] = useState<Customization>({})
@@ -411,27 +399,8 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* 把人交给人的那一排。心愿单排第一——Cartier 商品页的第二个 CTA 就是它 */}
-          <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3">
-            <button
-              onClick={() => {
-                toggleWish(product.id)
-                toast(
-                  wishlist.includes(product.id)
-                    ? 'Removed from the wish list. The wanting was real while it lasted.'
-                    : 'Added to the wish list. Wanting, now on file. The file is kept in your browser, like your fortune.',
-                )
-              }}
-              className={`quiet-link text-[10px] ${wishlist.includes(product.id) ? 'text-jade' : 'text-ivory'}`}
-            >
-              {wishlist.includes(product.id) ? 'In your wish list' : 'Add to wish list'}
-            </button>
-            {HUMAN_CTAS.map((c) => (
-              <button key={c.label} onClick={() => toast(c.reply)} className="quiet-link text-[10px] text-ivory">
-                {c.label}
-              </button>
-            ))}
-          </div>
+          {/* 礼宾那一排：心愿单 + 四个真流程（预约/大使/问价/找门店），见 Concierge.tsx */}
+          <ConciergeRow product={product} />
 
           {/* 工坊不开放时给一句屋里的托词（真店的原话腔调是「a selection of creations, subject to feasibility」） */}
           {!atelierOpen && (

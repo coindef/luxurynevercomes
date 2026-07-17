@@ -10,8 +10,9 @@ import EditorialImage from '../components/EditorialImage'
 import ProductCard from '../components/ProductCard'
 
 export default function Me() {
-  const { orders, saved, wishlist } = useStore()
+  const { orders, saved, wishlist, appointments, cancelAppointment } = useStore()
   const wishes = wishlist.map(getProduct).filter((p) => p !== undefined)
+  const upcoming = appointments.filter((a) => a.at > Date.now() - 3600_000)
   const counted = useCountUp(saved, 1800)
   const [convIdx, setConvIdx] = useState(0)
   const [confirmClear, setConfirmClear] = useState(false)
@@ -99,6 +100,38 @@ export default function Me() {
           </p>
         )}
       </section>
+
+      {/* 预约：真日期真日历，假沙龙 */}
+      {upcoming.length > 0 && (
+        <section className="mt-24 px-6 lg:mt-40">
+          <h2 className="font-lux text-lg text-ivory lg:text-2xl">Appointments</h2>
+          <p className="mt-2 max-w-md text-[11px] leading-loose text-fog">
+            The hours are real and so is your calendar. The salon will be ready, in the sense that it will not be there.
+          </p>
+          <div className="mt-6 max-w-md">
+            {upcoming.map((a) => (
+              <div key={a.id} className="flex items-baseline justify-between gap-4 border-t border-hairline py-4 last:border-b">
+                <div className="min-w-0">
+                  <p className="text-[11px] text-ivory">
+                    {new Date(a.at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })},{' '}
+                    {new Date(a.at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                  </p>
+                  <p className="mt-1 truncate text-[10px] text-fog">
+                    {a.boutique}
+                    {a.productName ? `, regarding ${a.productName.split('·')[0].trim()}` : ''}
+                  </p>
+                </div>
+                <button
+                  onClick={() => cancelAppointment(a.id)}
+                  className="quiet-link shrink-0 text-[9px] text-fog hover:text-ivory"
+                >
+                  Cancel
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 心愿单：想要而未认购的。想要本身就值得建档 */}
       {wishes.length > 0 && (

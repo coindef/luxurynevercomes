@@ -57,6 +57,17 @@ export interface OrderItem {
   customization?: Customization
 }
 
+/** 预约（Book an appointment 是真流程：选沙龙、选日子、进日历。沙龙不存在，那个钟点是你的） */
+export interface Appointment {
+  id: string
+  productId?: string
+  productName?: string
+  boutique: string
+  /** 预约时刻（epoch ms） */
+  at: number
+  note?: string
+}
+
 export interface Order {
   id: string
   items: OrderItem[]

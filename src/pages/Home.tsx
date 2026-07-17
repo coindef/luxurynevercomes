@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { PRODUCTS, getProduct } from '../lib/products'
 import { MARQUEE_CITIES, SEARCH_PLACEHOLDERS, SLOGAN, SUB_SLOGAN, pick } from '../lib/copy'
-import { MAISONS } from '../lib/maisons'
+import { MAISONS, maisonOf } from '../lib/maisons'
 import { yuan } from '../lib/format'
+import { bespokeOffered } from '../lib/bespoke'
+import { colourwayOf, materialOf } from '../lib/spec'
 import { useRotating, useSeckillCountdown } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import ProductCard from '../components/ProductCard'
@@ -37,6 +39,12 @@ const FEATURED_IDS = [
   'lx-croc-cardcase',
   'lx-royal-sapphire',
 ]
+
+/** 工坊开着的展示件：优先从首页已亮相的藏品里挑，保证「Book the atelier」说到做到 */
+const atelierPieceId =
+  [...SHOWCASE_IDS, ...FEATURED_IDS].map(getProduct).find((p) => p && bespokeOffered(p))?.id ??
+  PRODUCTS.find((p) => bespokeOffered(p))?.id ??
+  SHOWCASE_IDS[0]
 
 /** Black-card ritual (the only dark moment on the site; fixed hex, silver not gold foil). */
 function BlackCardModal({ onClose }: { onClose: () => void }) {
@@ -122,10 +130,15 @@ function SalonPrive() {
                 plaque
               />
             </div>
+            {/* 卡片三行制式与目录一致（屋 → 名 → 价 + 这件自己的材质色号）。
+                原本六张卡下面重复同一句排队笑话——同一个笑话讲六遍，是模板不是幽默 */}
             <div className="pt-5">
-              <p className="font-lux text-[15px] leading-snug text-ivory">{p!.name}</p>
+              <p className="truncate text-[10px] text-fog">{maisonOf(p!).name}</p>
+              <p className="font-lux mt-1 text-[15px] leading-snug text-ivory">{p!.name}</p>
               <p className="font-price mt-2 text-[13px] text-ivory">{yuan(p!.price)}</p>
-              <p className="mt-2 text-[10px] leading-relaxed text-fog">Waitlist at position 847. The queue does not move.</p>
+              <p className="mt-1.5 truncate text-[9px] leading-relaxed text-fog">
+                {materialOf(p!)}, {colourwayOf(p!)}
+              </p>
             </div>
           </Link>
         ))}
@@ -200,11 +213,12 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-6xl px-6 pb-14 lg:pb-20">
-            <p className="tracking-maison text-[10px] text-white/60">Maison Zéro</p>
-            <h1 className="font-lux mt-4 max-w-3xl text-[30px] leading-[1.25] text-white lg:text-[64px] lg:leading-[1.1]">
+            {/* eyebrow 已删：SiteNav 的字标就悬在正上方，再来一行全大写宽字距是本站清过的签名。
+                入场做一次「昂贵地慢」的错落淡入——品牌页允许一次编排好的开场，reduced-motion 由全局规则接管 */}
+            <h1 className="font-lux float-up max-w-3xl text-[30px] leading-[1.25] text-white lg:text-[64px] lg:leading-[1.1]">
               {SLOGAN}
             </h1>
-            <p className="mt-5 max-w-md text-[11px] leading-loose text-white/70 lg:text-[13px]">{SUB_SLOGAN}</p>
+            <p className="float-up mt-5 max-w-md text-[11px] leading-loose text-white/70 lg:text-[13px]" style={{ animationDelay: '0.15s' }}>{SUB_SLOGAN}</p>
             {/* 真的能搜了。原本这里是个假搜索框，点一下弹句俏皮话——
                 笑点还在（搜到了也照样不发货），但一家店的搜索框总得真的会搜 */}
             <form
@@ -212,7 +226,8 @@ export default function Home() {
                 e.preventDefault()
                 navigate(query.trim() ? `/collection?q=${encodeURIComponent(query.trim())}` : '/collection')
               }}
-              className="mt-8 flex w-full max-w-sm items-center gap-2 border-b border-white/40 pb-2 transition-colors focus-within:border-white"
+              className="float-up mt-8 flex w-full max-w-sm items-center gap-2 border-b border-white/40 pb-2 transition-colors focus-within:border-white"
+              style={{ animationDelay: '0.3s' }}
             >
               <span aria-hidden="true" className="text-white/70">
                 ⌕
@@ -228,7 +243,7 @@ export default function Home() {
                 Search
               </button>
             </form>
-            <div className="mt-10 max-w-md">
+            <div className="float-up mt-10 max-w-md" style={{ animationDelay: '0.45s' }}>
               <Ticker tone="light" />
             </div>
           </div>
@@ -249,8 +264,10 @@ export default function Home() {
         <p className="font-lux max-w-xl text-lg leading-loose text-ivory lg:text-2xl">
           The bespoke atelier is open: something made to the millimetre for you, being earnestly not made.
         </p>
+        {/* 链到一件工坊真开着的藏品：曾链到配货旗舰，而旗舰的工坊按新规一律不开放——
+            「Book the atelier」点进去是一句「This one is not among them」，承诺当场落空 */}
         <Link
-          to={`/product/${SHOWCASE_IDS[1]}`}
+          to={`/product/${atelierPieceId}`}
           className="quiet-link mt-6 inline-block text-[11px] tracking-[0.2em] text-ivory"
         >
           Book the atelier
@@ -273,12 +290,6 @@ export default function Home() {
               <ProductCard key={p!.id} product={p!} />
             ))}
           </div>
-          <Link
-            to="/collection"
-            className="quiet-link mt-8 inline-block text-[11px] tracking-[0.2em] text-ivory"
-          >
-            View the full collection
-          </Link>
         </div>
       </section>
 
