@@ -116,7 +116,7 @@ export default function Me() {
           to="/about"
           className="flex items-center justify-between border-t border-hairline px-6 py-6 text-xs text-ivory"
         >
-          <span>🏛️ About</span>
+          <span>About</span>
           <span className="text-[10px] text-fog">›</span>
         </Link>
         <button

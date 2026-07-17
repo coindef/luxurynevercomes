@@ -16,16 +16,19 @@ const DELIVERY = [
   { name: 'Direct by private jet', note: 'awaiting good weather', fee: '+¥0' },
 ]
 
-const CONFETTI_EMOJIS = ['🥂', '✨', '🤍', '🕊️', '🖤']
+// 银箔碎屑，不是彩色 emoji（🥂/✨ 满色，戳穿冷调单色）。设计文档写的就是「银箔彩带」。
+// 深色浮层上的箔色用银不用金：#c9c9c9 / #e8e8e8（见 CLAUDE.md）
+const CONFETTI_FOIL = ['#e8e8e8', '#c9c9c9', '#f4f4f4']
 
 function Confetti() {
   const pieces = useMemo(
     () =>
-      Array.from({ length: 14 }, (_, i) => ({
-        emoji: CONFETTI_EMOJIS[i % CONFETTI_EMOJIS.length],
+      Array.from({ length: 16 }, (_, i) => ({
+        color: CONFETTI_FOIL[i % CONFETTI_FOIL.length],
         left: Math.random() * 90 + 5,
         delay: Math.random() * 1.2,
-        size: 14 + Math.random() * 12,
+        w: 3 + Math.random() * 3,
+        h: 8 + Math.random() * 8,
       })),
     [],
   )
@@ -36,10 +39,8 @@ function Confetti() {
         <span
           key={i}
           className="confetti"
-          style={{ left: `${p.left}%`, animationDelay: `${p.delay}s`, fontSize: p.size }}
-        >
-          {p.emoji}
-        </span>
+          style={{ left: `${p.left}%`, animationDelay: `${p.delay}s`, width: p.w, height: p.h, background: p.color }}
+        />
       ))}
     </div>
   )
@@ -131,7 +132,7 @@ function SuccessView({ order }: { order: Order }) {
           <div key={it.product.id + JSON.stringify(it.customization ?? {})} className="py-1">
             <div className="flex justify-between gap-2">
               <span className="font-lux truncate text-ivory/90">
-                {it.product.emoji} {it.product.name}
+                <span className="grayscale">{it.product.emoji}</span> {it.product.name}
               </span>
               <span className="shrink-0">×{it.qty}</span>
             </div>

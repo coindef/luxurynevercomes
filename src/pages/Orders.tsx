@@ -154,7 +154,7 @@ function OrderCard({ order }: { order: Order }) {
                 .filter((i) => i.customization)
                 .map((i) => (
                   <p key={i.product.id} className="mt-2 text-[11px] leading-loose text-ivory">
-                    {i.product.emoji} {Object.values(i.customization!).join(', ')}
+                    <span className="grayscale">{i.product.emoji}</span> {Object.values(i.customization!).join(', ')}
                   </p>
                 ))}
             </div>
