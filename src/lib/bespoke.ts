@@ -47,7 +47,7 @@ const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
       type: 'text',
       placeholder: 'e.g. this moment is already eternity',
       choices: [
-        { name: 'Hand-engraved inside the sapphire caseback; normally only the movement sees it, now not even the movement does', surcharge: 8800 },
+        { name: 'Hand-engraved inside the sapphire caseback; normally only the movement sees it, now not even the movement does', surcharge: 0 },
       ],
     },
   ],
@@ -78,7 +78,7 @@ const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
       type: 'text',
       placeholder: 'Your initials, or a line to stamp (12 characters max)',
       choices: [
-        { name: 'Goatskin lining hand-gilded, one artisan sees it through start to finish, start to finish being about 0 hours', surcharge: 8800 },
+        { name: 'Goatskin lining hand-gilded, one artisan sees it through start to finish, start to finish being about 0 hours', surcharge: 0 },
       ],
     },
   ],
@@ -108,7 +108,7 @@ const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
       type: 'text',
       placeholder: 'e.g. another full day',
       choices: [
-        { name: 'Each headrest is 5,000 stitches, redone if wrong, it is not coming anyway', surcharge: 26000 },
+        { name: 'Each headrest is 5,000 stitches, redone if wrong, it is not coming anyway', surcharge: 0 },
       ],
     },
   ],
@@ -169,7 +169,7 @@ const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
       type: 'text',
       placeholder: 'e.g. Do Not Disturb Island',
       choices: [
-        { name: 'Your name will be recorded on a title deed we print in earnest, the closest thing to real estate in this transaction', surcharge: 88000 },
+        { name: 'Your name will be recorded on a title deed we print in earnest, the closest thing to real estate in this transaction', surcharge: 0 },
       ],
     },
   ],
@@ -199,7 +199,7 @@ const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
       type: 'text',
       placeholder: 'e.g. Private Collection · Not For Sale',
       choices: [
-        { name: 'Brass plaque hand-chased, to hang on the wall in your imagination', surcharge: 8800 },
+        { name: 'Brass plaque hand-chased, to hang on the wall in your imagination', surcharge: 0 },
       ],
     },
   ],
@@ -228,7 +228,7 @@ const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
       type: 'text',
       placeholder: 'e.g. Compute Freedom No. 1',
       choices: [
-        { name: 'Laser-etched titanium plate, hung at the door of your imaginary data centre', surcharge: 88000 },
+        { name: 'Laser-etched titanium plate, hung at the door of your imaginary data centre', surcharge: 0 },
       ],
     },
   ],
@@ -257,7 +257,7 @@ const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
       type: 'text',
       placeholder: 'e.g. All Watch No Play',
       choices: [
-        { name: 'Heat-pressed by the official manufacturer, the number is always 0', surcharge: 8800 },
+        { name: 'Heat-pressed by the official manufacturer, the number is always 0', surcharge: 0 },
       ],
     },
   ],
@@ -286,7 +286,7 @@ const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
       type: 'text',
       placeholder: 'e.g. My Private Reserve · Not For Sale',
       choices: [
-        { name: 'Hand copperplate-printed label, applied to the bottle that is forever en route', surcharge: 28000 },
+        { name: 'Hand copperplate-printed label, applied to the bottle that is forever en route', surcharge: 0 },
       ],
     },
   ],
@@ -315,7 +315,7 @@ const CATEGORY_CUSTOM: Record<string, CustomGroup[]> = {
       type: 'text',
       placeholder: 'e.g. dignity is worn for oneself',
       choices: [
-        { name: 'Silk lining hand-embroidered in Suzhou style, seen only by whoever takes it off', surcharge: 18000 },
+        { name: 'Silk lining hand-embroidered in Suzhou style, seen only by whoever takes it off', surcharge: 0 },
       ],
     },
   ],
@@ -347,7 +347,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     // 再给一个 36/39/41/44 的选择器，同一页就自己打自己的脸（43 甚至不在选项里）。
     // 真店也是这么分的：Cartier 的 Santos S/M/L 是三个商品、三个编号、三个价格，
     // 不是一个下拉框。腕表因此变成「零决策」，正好和珠宝拉开结构差异。
-    engraving('Engraved caseback · La Gravure', 'e.g. this moment is already eternity', 'Hand-engraved inside the caseback; normally only the movement sees it, now not even the movement does', 8800),
+    engraving('Engraved caseback · La Gravure', 'e.g. this moment is already eternity', 'Hand-engraved inside the caseback; normally only the movement sees it, now not even the movement does', 0),
   ],
   ring: [
     {
@@ -363,6 +363,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Ring size · La Taille',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: 'EU 49 · we will size it for you', surcharge: 0 },
         { name: 'EU 52 · the most requested size on earth', surcharge: 0 },
@@ -370,7 +371,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Unsized · left open, in case the finger changes its mind', surcharge: 0 },
       ],
     },
-    engraving('Inner-band engraving', 'e.g. worn for no one in particular', 'Engraved inside the band, against the skin, where no one else will ever read it', 6800),
+    engraving('Inner-band engraving', 'e.g. worn for no one in particular', 'Engraved inside the band, against the skin, where no one else will ever read it', 0),
   ],
   necklace: [
     {
@@ -386,6 +387,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Length · La Longueur',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: '40cm choker · sits at the throat', surcharge: 0 },
         { name: '45cm princess · the default of the whole world', surcharge: 0 },
@@ -393,7 +395,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: '90cm sautoir · long enough to knot once, twice if you are feeling grand', surcharge: 0 },
       ],
     },
-    engraving('Clasp engraving', 'e.g. the weight is the point', 'Engraved on the clasp plate, read only by whoever fastens it', 6800),
+    engraving('Clasp engraving', 'e.g. the weight is the point', 'Engraved on the clasp plate, read only by whoever fastens it', 0),
   ],
   bracelet: [
     {
@@ -408,6 +410,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Inner circumference',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: '15cm · petite', surcharge: 0 },
         { name: '17cm · the size that fits almost every wrist', surcharge: 0 },
@@ -415,7 +418,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Rigid, unopening · once on, it stays; a promise with no hinge', surcharge: 0 },
       ],
     },
-    engraving('Interior engraving', 'e.g. still here', 'Engraved on the inner face, worn against the pulse', 6800),
+    engraving('Interior engraving', 'e.g. still here', 'Engraved on the inner face, worn against the pulse', 0),
   ],
   earrings: [
     {
@@ -430,13 +433,14 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Drop length',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: 'Stud · sits on the lobe', surcharge: 0 },
         { name: '3cm · brushes the jaw when you turn', surcharge: 0 },
         { name: '7cm · touches the shoulder, announces the turn', surcharge: 0 },
       ],
     },
-    engraving('Reverse engraving', 'e.g. heard, not seen', 'Engraved on the reverse of each, facing the neck', 6800),
+    engraving('Reverse engraving', 'e.g. heard, not seen', 'Engraved on the reverse of each, facing the neck', 0),
   ],
   brooch: [
     {
@@ -456,7 +460,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Vitrine mount · displayed rather than worn, which is honest', surcharge: 68000 },
       ],
     },
-    engraving('Reverse engraving', 'e.g. pinned to nothing', 'Engraved on the reverse plate, against the cloth', 6800),
+    engraving('Reverse engraving', 'e.g. pinned to nothing', 'Engraved on the reverse plate, against the cloth', 0),
   ],
   stone: [
     {
@@ -477,7 +481,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Platinum solitaire mount', surcharge: 180000 },
       ],
     },
-    engraving('Girdle inscription', 'e.g. older than the argument', 'Laser-inscribed on the girdle, legible at 10x, invisible to everyone else', 12000),
+    engraving('Girdle inscription', 'e.g. older than the argument', 'Laser-inscribed on the girdle, legible at 10x, invisible to everyone else', 0),
   ],
 
   /* ---------------------------------------------------------- 包袋皮具 */
@@ -495,6 +499,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Size · La Taille',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: '25 · holds a phone and a grudge', surcharge: 0 },
         { name: '30 · the one everyone means', surcharge: 0 },
@@ -545,7 +550,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'No slots · one flat pocket, for the one card that works', surcharge: 4000 },
       ],
     },
-    engraving('Corner initials', 'Up to 12 characters', 'Blind-embossed in the corner, no foil, felt with the thumb rather than read', 3800),
+    engraving('Corner initials', 'Up to 12 characters', 'Blind-embossed in the corner, no foil, felt with the thumb rather than read', 0),
   ],
 
   /* ---------------------------------------------------------- 尊贵座驾 */
@@ -569,7 +574,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Carbon-ceramic brakes · stops from 300km/h; the car is currently at 0km/h', surcharge: 380000 },
       ],
     },
-    engraving('Sill plate engraving', 'e.g. the long way round', 'Etched into the door sill, read once a day by your own shoe', 28000),
+    engraving('Sill plate engraving', 'e.g. the long way round', 'Etched into the door sill, read once a day by your own shoe', 0),
   ],
   moto: [
     {
@@ -590,7 +595,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Set for your inseam · measured, then never sat on', surcharge: 26000 },
       ],
     },
-    engraving('Triple-clamp engraving', 'e.g. ride it like you stole it', 'Engraved on the top clamp, directly in your eyeline, if there were a road', 8800),
+    engraving('Triple-clamp engraving', 'e.g. ride it like you stole it', 'Engraved on the top clamp, directly in your eyeline, if there were a road', 0),
   ],
 
   /* ---------------------------------------------------------- 游艇航空 */
@@ -636,7 +641,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Unmarked · no registration visible, which is illegal and very discreet', surcharge: 1280000 },
       ],
     },
-    engraving('Doorway plate', 'e.g. mind the step', 'Engraved plate at the cabin door, read by everyone boarding, currently no one', 68000),
+    engraving('Doorway plate', 'e.g. mind the step', 'Engraved plate at the cabin door, read by everyone boarding, currently no one', 0),
   ],
 
   /* ---------------------------------------------------------- 不动产 */
@@ -698,6 +703,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Fit · La Coupe',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: 'Made to measure · three fittings in Paris (atelier base)', surcharge: 0 },
         { name: 'Cut for the figure you have today · the bravest option on this page', surcharge: 0 },
@@ -705,7 +711,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Cut generous · this is fine as it is; self-acceptance surcharge', surcharge: 0 },
       ],
     },
-    engraving('Lining embroidery', 'e.g. dignity is worn for oneself', 'Silk lining hand-embroidered in Suzhou style, seen only by whoever takes it off', 18000),
+    engraving('Lining embroidery', 'e.g. dignity is worn for oneself', 'Silk lining hand-embroidered in Suzhou style, seen only by whoever takes it off', 0),
   ],
   outerwear: [
     {
@@ -720,13 +726,14 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Length',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: 'To the knee (atelier base)', surcharge: 0 },
         { name: 'To mid-calf · dramatic on a staircase', surcharge: 0 },
         { name: 'To the ankle · sweeps the floor of a room you do not own yet', surcharge: 0 },
       ],
     },
-    engraving('Inside-pocket embroidery', 'e.g. warmer than it needs to be', 'Embroidered inside the breast pocket, against the chest', 18000),
+    engraving('Inside-pocket embroidery', 'e.g. warmer than it needs to be', 'Embroidered inside the breast pocket, against the chest', 0),
   ],
   shoes: [
     {
@@ -741,6 +748,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Size · La Pointure',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: 'EU 39', surcharge: 0 },
         { name: 'EU 42 · the most common size on earth', surcharge: 0 },
@@ -748,7 +756,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'One of each foot, measured separately · they are not the same size, they never were', surcharge: 0 },
       ],
     },
-    engraving('Sole engraving', 'e.g. walked here on my own', 'Engraved into the leather sole, worn away by the first mile, if there is one', 12000),
+    engraving('Sole engraving', 'e.g. walked here on my own', 'Engraved into the leather sole, worn away by the first mile, if there is one', 0),
   ],
   suit: [
     {
@@ -769,7 +777,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Cut for a shoulder holster · the tailor asked nothing', surcharge: 88000 },
       ],
     },
-    engraving('Under-collar embroidery', 'e.g. made for a Tuesday', 'Embroidered under the collar, visible only when the coat is on a hanger', 12000),
+    engraving('Under-collar embroidery', 'e.g. made for a Tuesday', 'Embroidered under the collar, visible only when the coat is on a hanger', 0),
   ],
 
   accessory: [
@@ -786,13 +794,14 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Size',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: 'One size · the polite fiction of accessories', surcharge: 0 },
         { name: 'Made to your measurements · we will ask for three numbers and use one', surcharge: 0 },
         { name: 'Oversized · deliberately too big, which reads as confidence', surcharge: 0 },
       ],
     },
-    engraving('Woven initials', 'Up to 12 characters', 'Woven into the hem in matching thread, invisible unless you know to look, and you will', 6800),
+    engraving('Woven initials', 'Up to 12 characters', 'Woven into the hem in matching thread, invisible unless you know to look, and you will', 0),
   ],
   instrument: [
     {
@@ -814,7 +823,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'A player kept on retainer · someone comes and plays it, so it does not die', surcharge: 880000 },
       ],
     },
-    engraving('Inside the body', 'e.g. play it, please', 'Written inside the body where only the next restorer, in eighty years, will find it', 26000),
+    engraving('Inside the body', 'e.g. play it, please', 'Written inside the body where only the next restorer, in eighty years, will find it', 0),
   ],
   animal: [
     {
@@ -835,7 +844,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Retired immediately · never raced, never asked, simply kept', surcharge: 880000 },
       ],
     },
-    engraving('Name on the box door', 'The name it will not answer to', 'Painted on the stable door in the yard hand; the animal is indifferent, which is the point', 28000),
+    engraving('Name on the box door', 'The name it will not answer to', 'Painted on the stable door in the yard hand; the animal is indifferent, which is the point', 0),
   ],
   robot: [
     {
@@ -856,7 +865,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Silent · performs every duty and never once speaks', surcharge: 880000 },
       ],
     },
-    engraving('Plate at the nape', 'e.g. thank you, that will be all', 'Etched at the nape, where a collar would sit, read by whoever stands behind it', 68000),
+    engraving('Plate at the nape', 'e.g. thank you, that will be all', 'Etched at the nape, where a collar would sit, read by whoever stands behind it', 0),
   ],
   naming: [
     {
@@ -885,6 +894,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
     {
       label: 'Format · Le Format',
       type: 'choice',
+      role: 'size',
       choices: [
         { name: 'Bottle, 75cl (atelier base)', surcharge: 0 },
         { name: 'Magnum, 1.5L · ages slower, in step with this shop', surcharge: 0 },
@@ -901,7 +911,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Held until 2055 · by then it will be perfect, and so, presumably, will you', surcharge: 180000 },
       ],
     },
-    engraving('Custom label line', 'e.g. drunk too early, as always', 'Letterpressed onto the label by the estate; the vintage is real, the occasion is yours', 12000),
+    engraving('Custom label line', 'e.g. drunk too early, as always', 'Letterpressed onto the label by the estate; the vintage is real, the occasion is yours', 0),
   ],
   spirit: [
     {
@@ -943,7 +953,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Never · it stays at its peak indefinitely, which is the only way to keep it there', surcharge: 0 },
       ],
     },
-    engraving('Presentation card', 'e.g. eat it before you photograph it', 'Written by hand on the card that comes with it, by someone with better handwriting than either of us', 4800),
+    engraving('Presentation card', 'e.g. eat it before you photograph it', 'Written by hand on the card that comes with it, by someone with better handwriting than either of us', 0),
   ],
 
   /* ---------------------------------------------------------- 运动竞技 */
@@ -966,7 +976,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'A hot dog and a beer · ordered by someone who understands', surcharge: 0 },
       ],
     },
-    engraving('Nameplate on the door', 'The name on the box', 'Engraved plate at the box door, polished before every fixture, for a box you will not enter', 68000),
+    engraving('Nameplate on the door', 'The name on the box', 'Engraved plate at the box door, polished before every fixture, for a box you will not enter', 0),
   ],
   experience: [
     {
@@ -987,7 +997,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'One photograph, at the end · the only proof, and enough', surcharge: 28000 },
       ],
     },
-    engraving('Dedication on the certificate', 'e.g. showed up, that was the hard part', 'Written on the certificate you receive afterwards, in ink, by the person who taught you', 8800),
+    engraving('Dedication on the certificate', 'e.g. showed up, that was the hard part', 'Written on the certificate you receive afterwards, in ink, by the person who taught you', 0),
   ],
 
   /* ---------------------------------------------------------- 科技算力 */
@@ -1010,7 +1020,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Idle · powered, cooled, and running nothing; the most expensive silence available', surcharge: 2800000 },
       ],
     },
-    engraving('Rack nameplate', 'e.g. it is thinking about it', 'Etched nameplate on the rack door, read by the technicians, who will not comment', 68000),
+    engraving('Rack nameplate', 'e.g. it is thinking about it', 'Etched nameplate on the rack door, read by the technicians, who will not comment', 0),
   ],
   space: [
     {
@@ -1055,7 +1065,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Lit by a single picture light · the room goes dark, the picture does not', surcharge: 88000 },
       ],
     },
-    engraving('Collector plaque engraving', 'e.g. from the collection of nobody', 'Engraved on the brass plaque below the frame; this is the line the next century reads', 26000),
+    engraving('Collector plaque engraving', 'e.g. from the collection of nobody', 'Engraved on the brass plaque below the frame; this is the line the next century reads', 0),
   ],
   sculpture: [
     {
@@ -1076,7 +1086,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'Rotating plinth · so it can be seen from every side, by no one', surcharge: 180000 },
       ],
     },
-    engraving('Base engraving', 'e.g. stood here a while', 'Cut into the underside of the base, seen only if it is ever moved', 26000),
+    engraving('Base engraving', 'e.g. stood here a while', 'Cut into the underside of the base, seen only if it is ever moved', 0),
   ],
   antiquity: [
     {
@@ -1097,7 +1107,7 @@ export const SUBTYPE_CUSTOM: Record<string, CustomGroup[]> = {
         { name: 'No file · it appeared, and here it is; the trade calls this "private collection, Europe"', surcharge: 0 },
       ],
     },
-    engraving('Case card, hand-lettered', 'e.g. older than the argument', 'Written on the vitrine card in the museum hand, the last line anyone reads before moving on', 26000),
+    engraving('Case card, hand-lettered', 'e.g. older than the argument', 'Written on the vitrine card in the museum hand, the last line anyone reads before moving on', 0),
   ],
 }
 
@@ -1175,6 +1185,25 @@ export function subtypeOf(product: Product): string | null {
 }
 
 /** 详情页该显示哪套定制：子品类优先，退回大类 */
+/**
+ * 这件商品**是否提供**工坊定制。
+ *
+ * 实测的反直觉结论：真店的个性化是**少数商品的例外，不是人人有份**——
+ * Cartier 最重配置的页面也只有两个决定；Patek 5167A、AP 15500ST 一个配置器都没有；
+ * Hermès 的 Birkin 干脆没有商品页。而且**越是镇店的款，越没得配**。
+ * 我们此前给 1009 件全上三组选项，恰好把「每件都一样」做实了。
+ *
+ * 规则：配货款（quota 旗舰）一律不开放——最想要的款连字都不给你刻；
+ * 其余按 id 稳定抽 ~40% 开放。同一件永远同一个答案。
+ */
+export function bespokeOffered(product: Product): boolean {
+  if (product.quota) return false
+  let h = 0
+  const s = `${product.id}#atelier`
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
+  return h % 5 < 2
+}
+
 export function customFor(product: Product): CustomGroup[] {
   const subtype = subtypeOf(product)
   return (subtype && SUBTYPE_CUSTOM[subtype]) || CATEGORY_CUSTOM[product.category] || []

@@ -255,7 +255,7 @@ export default function Collection() {
             {visible < list.length ? (
               <button
                 onClick={() => setVisible((v) => v + PAGE_SIZE)}
-                className="border border-ivory px-10 py-3 text-[11px] tracking-[0.2em] text-ivory transition-colors hover:bg-ivory/5"
+                className="quiet-link text-[11px] text-ivory"
               >
                 Load more
               </button>

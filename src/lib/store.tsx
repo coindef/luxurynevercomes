@@ -4,6 +4,7 @@ import type { CartItem, Customization, Order, OrderItem } from './types'
 
 const CART_KEY = 'flgj.cart'
 const ORDERS_KEY = 'flgj.orders'
+const WISHLIST_KEY = 'flgj.wishlist'
 const VERSION_KEY = 'flgj.v'
 /** 数据结构不兼容升级时递增此版本号，旧数据会被清掉（守住的钱是真的守住了，这个不会变） */
 const DATA_VERSION = '1'
@@ -41,6 +42,8 @@ function lineKey(productId: string, customization?: Customization): string {
 interface StoreValue {
   cart: CartItem[]
   orders: Order[]
+  /** 心愿单：想要而未认购的（Cartier 商品页的第二个 CTA 就是「Add to Wish List」） */
+  wishlist: string[]
   /** 所有寂寞订单的累计金额 = 已守住的钱 */
   saved: number
   cartCount: number
@@ -48,7 +51,8 @@ interface StoreValue {
   setQty: (key: string, qty: number) => void
   removeFromCart: (key: string) => void
   clearCart: () => void
-  placeOrder: (items: OrderItem[], total: number, urge?: string) => Order
+  toggleWish: (productId: string) => void
+  placeOrder: (items: OrderItem[], total: number, opts?: { urge?: string; giftWrap?: boolean }) => Order
 }
 
 const StoreContext = createContext<StoreValue | null>(null)
@@ -56,6 +60,7 @@ const StoreContext = createContext<StoreValue | null>(null)
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>(() => load(CART_KEY, []))
   const [orders, setOrders] = useState<Order[]>(() => load(ORDERS_KEY, []))
+  const [wishlist, setWishlist] = useState<string[]>(() => load(WISHLIST_KEY, []))
 
   useEffect(() => {
     localStorage.setItem(CART_KEY, JSON.stringify(cart))
@@ -64,6 +69,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(ORDERS_KEY, JSON.stringify(orders))
   }, [orders])
+
+  useEffect(() => {
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist))
+  }, [wishlist])
 
   const addToCart = (productId: string, qty = 1, customization?: Customization) => {
     const key = lineKey(productId, customization)
@@ -90,13 +99,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => setCart([])
 
-  const placeOrder = (items: OrderItem[], total: number, urge?: string): Order => {
+  const toggleWish = (productId: string) => {
+    setWishlist((prev) => (prev.includes(productId) ? prev.filter((x) => x !== productId) : [...prev, productId]))
+  }
+
+  const placeOrder = (items: OrderItem[], total: number, opts?: { urge?: string; giftWrap?: boolean }): Order => {
     const order: Order = {
       id: `${Date.now()}`,
       items,
       total,
       createdAt: Date.now(),
-      urge,
+      urge: opts?.urge,
+      giftWrap: opts?.giftWrap,
     }
     setOrders((prev) => [order, ...prev])
     return order
@@ -107,7 +121,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <StoreContext.Provider
-      value={{ cart, orders, saved, cartCount, addToCart, setQty, removeFromCart, clearCart, placeOrder }}
+      value={{ cart, orders, wishlist, saved, cartCount, addToCart, setQty, removeFromCart, clearCart, toggleWish, placeOrder }}
     >
       {children}
     </StoreContext.Provider>

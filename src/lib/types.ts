@@ -30,6 +30,12 @@ export interface CustomChoice {
 export interface CustomGroup {
   label: string
   type: 'choice' | 'text'
+  /**
+   * 'size' = 这组是详情页「唯一的那个决定」（戒圈/链长/鞋码……）。
+   * 曾经靠「全组不加价」去猜哪组是尺寸——定价数据一动，猜错就静悄悄发生
+   * （长裙猜成了「Fit」，红酒猜成了「Format」，西装一组都猜不出）。该声明的声明。
+   */
+  role?: 'size'
   choices?: CustomChoice[]
   placeholder?: string
 }
@@ -58,4 +64,6 @@ export interface Order {
   createdAt: number
   /** 冲动来源标签（结算页温柔一问，可跳过） */
   urge?: string
+  /** 礼品包装（Cartier 的折叠区里真有一栏「Gift Wrapping」；这里当然也免费，也不送达） */
+  giftWrap?: boolean
 }

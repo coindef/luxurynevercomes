@@ -2,14 +2,15 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Customization, CustomGroup, Product } from '../lib/types'
 import { catLabel, getProduct } from '../lib/products'
-import { maisonOf } from '../lib/maisons'
-import { customFor } from '../lib/bespoke'
-import { referenceOf, specsOf } from '../lib/spec'
+import { maisonOf, productsOfMaison } from '../lib/maisons'
+import { bespokeOffered, customFor, subtypeOf } from '../lib/bespoke'
+import { IDENTITY_LABELS, referenceOf, specsOf } from '../lib/spec'
 import { BESPOKE, MARQUEE_CITIES, REVIEWS, pick } from '../lib/copy'
 import { yuan } from '../lib/format'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductGallery from '../components/ProductGallery'
+import ProductCard from '../components/ProductCard'
 import Accordion from '../components/Accordion'
 
 /** 认购低语：单条淡入淡出（浮层用固定 hex） */
@@ -65,6 +66,8 @@ function SizeChoice({
     return h % ((group.choices?.length ?? 1) + 2) // 多数商品全码齐，少数缺一个
   }, [product.id, group.choices])
 
+  const selectedNote = value.split('·')[1]?.trim()
+
   return (
     <div className="mt-10">
       <div className="flex items-baseline justify-between">
@@ -93,6 +96,9 @@ function SizeChoice({
           )
         })}
       </div>
+      {/* 尺码芯片只留数字，但那半句俏皮话是文案资产，不删——选中后作为从属小字浮出
+          （Cartier 也是把「52 mm (US 6)」的注释放从属层级，不是塞在芯片里） */}
+      {selectedNote && <p className="float-up mt-2.5 text-[9px] leading-relaxed text-fog">{selectedNote}</p>}
     </div>
   )
 }
@@ -160,8 +166,11 @@ function BespokeSection({
                   placeholder={g.placeholder}
                   className="min-w-0 flex-1 border-b border-hairline bg-transparent px-1 py-2.5 text-xs text-ivory placeholder:text-fog focus:border-ivory focus:outline-none"
                 />
+                {/* 刻字免费是实测（Cartier / LV 热压 / Burberry 花押都不收钱）：
+                    免费就写 complimentary，别写 +¥0.00——加价那笑点留给真加价的项 */}
                 <span className="shrink-0 text-[8px] text-fog">
-                  {(value[g.label] ?? '').length}/12, +{yuan(g.choices?.[0]?.surcharge ?? 0)}
+                  {(value[g.label] ?? '').length}/12,{' '}
+                  {(g.choices?.[0]?.surcharge ?? 0) > 0 ? `+${yuan(g.choices?.[0]?.surcharge ?? 0)}` : 'complimentary'}
                 </span>
               </div>
               <p className="mt-2 text-[8px] leading-relaxed text-fog">{BESPOKE.textHelper}</p>
@@ -196,11 +205,57 @@ const HUMAN_CTAS: { label: string; reply: string }[] = [
   { label: 'Request price', reply: 'The price is on this page. It is ¥0.00. We are nonetheless happy to confirm it by telephone.' },
 ]
 
+/**
+ * Care 文案按子品类走。此前全站共用一段「远离阳光与海水」——
+ * 对赛马、星系命名权和液冷机柜念同一段保养须知，正是「每件都一样」的余毒。
+ * Hermès 自己站上两个商品的折叠区就不一样；Cartier 的动力储存栏 Santos 没有、Ballon Bleu 有。
+ */
+const CARE_BY_SUBTYPE: Record<string, string> = {
+  bag: 'Feed the leather twice a year and keep it stuffed with tissue when resting. It will rest a great deal.',
+  sla: 'Rotate your cards occasionally so the pockets wear evenly. Wear is unlikely, but rotation is dignified.',
+  trunk: 'Wax the brass, air the interior each season, and never stack anything on top except another trunk.',
+  watch: 'Wind it gently at the same hour each day. A serviced movement keeps time for a century, all of it spent waiting.',
+  ring: 'Warm soapy water, a soft brush, and restraint. Remove it before gardening, which you were not going to do anyway.',
+  necklace: 'Fasten the clasp before storing so the strand cannot knot. Restring every decade, whether worn or only wanted.',
+  bracelet: 'Polish with the cloth provided. The cloth is real and will be dispatched with the same punctuality as everything else.',
+  earrings: 'Store the pair apart from other pieces; diamonds scratch diamonds, and these know no equals.',
+  brooch: 'Pin through two layers of cloth, never one. The second layer is for confidence.',
+  stone: 'Keep it in its paper, in the dark. Stones have waited a hundred million years; the dark does not trouble them.',
+  car: 'Start it monthly, drive it never, and keep the battery on a conditioner. Concours condition is easiest to maintain at zero kilometres.',
+  moto: 'Keep the chain waxed and the tank full. Fuel does not go stale in a motorcycle that does not exist.',
+  yacht: 'Haul out annually, antifoul, and re-oil the teak. The crew handles all of it, at the same rate as the delivery.',
+  aircraft: 'Hangared, always. Hours are logged by the maintenance team, of which there are currently zero, logging zero hours.',
+  home: 'A house wants living in. Failing that, it wants a housekeeper who opens the windows on Tuesdays. We have noted Tuesdays.',
+  land: 'Walk the boundary once a year. The land needs nothing from you; the walking is for you.',
+  gown: 'Hang on a padded hanger, never fold. Steam, never iron. Wear once, remember always.',
+  outerwear: 'Rest it a day between wearings, brush along the nap, and let rain dry naturally. Cashmere forgives almost everything except hurry.',
+  shoes: 'Cedar trees in, always. Polish with a little water and a lot of patience. Resole at the house, which will take approximately forever.',
+  suit: 'Brush after wearing, press rarely, dry-clean almost never. Cloth outlives fashion when treated with indifference.',
+  accessory: 'Fold along the original creases. Silk remembers everything, which is more than can be said for the courier.',
+  wine: 'Cellar at 12 degrees, on its side, in the dark, undisturbed. In this respect it is living your ideal life.',
+  spirit: 'Upright, out of the sun, and open it for occasions only. The occasion of it arriving does not count, as it will not occur.',
+  food: 'Consume at its peak, which we have arranged to be permanent by never dispatching it.',
+  painting: 'No direct sun, 50% humidity, and a dusting with a sable brush once a season. Do not clean it yourself; do not clean it at all.',
+  sculpture: 'Wax the bronze annually. Patina is time made visible, and time is the one material we supply in quantity.',
+  antiquity: 'Handle with cotton gloves, or better, do not handle it. It has survived everyone who ever did.',
+  instrument: 'Keep it at 45 to 55 percent humidity and play it, or arrange for it to be played. Instruments die of silence, not of use.',
+  compute: 'Dust the intakes, mind the dew point, and never speak of uptime aloud. The cluster is superstitious.',
+  space: 'No maintenance is possible after launch. This is the only product here whose non-serviceability is industry standard.',
+  robot: 'Wipe with a dry cloth. Do not thank it; gratitude confuses the routing tables.',
+  animal: 'Turned out daily, shod every six weeks, and spoken to kindly. It will not know it is yours. It is not troubled by this.',
+  venue: 'The seats are cleaned before every fixture and after every season. Your absence leaves them in showroom condition.',
+  experience: 'No care required. Memories, unlike goods, improve with neglect.',
+  naming: 'The register is acid-free and kept from the light. The name itself requires nothing, which suits it.',
+}
+
+const CARE_FALLBACK =
+  'Keep away from direct sun, radiators and salt water. Have it seen by the house every five years. None of this will be necessary, but the instructions are real and we would rather you had them.'
+
 export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const product = getProduct(id ?? '')
-  const { addToCart, saved } = useStore()
+  const { addToCart, saved, wishlist, toggleWish } = useStore()
   const toast = useToast()
   const reviews = useMemo(() => [...REVIEWS].sort(() => 0.5 - Math.random()).slice(0, 2), [])
   const [custom, setCustom] = useState<Customization>({})
@@ -217,11 +272,22 @@ export default function ProductDetail() {
   }
 
   const maison = maisonOf(product)
+  const subtype = subtypeOf(product)
   const groups = customFor(product)
-  // 规格组（全组不加价）= 尺寸，提到正文里当「唯一的那个决定」；
-  // 其余（材质/五金/刻字）收进「工坊」折叠区——真店的个性化是单独一步，不是首屏一面墙
-  const sizeGroup = groups.find((g) => g.type === 'choice' && (g.choices ?? []).every((c) => c.surcharge === 0))
+  // 「唯一的那个决定」按声明取（role:'size'），不再从定价数据里猜——
+  // 猜过一次，长裙猜成 Fit、红酒猜成 Format、西装一组都猜不出
+  const sizeGroup =
+    groups.find((g) => g.role === 'size') ??
+    groups.find((g) => g.type === 'choice' && (g.choices ?? []).every((c) => c.surcharge === 0))
   const atelierGroups = groups.filter((g) => g !== sizeGroup)
+  // 工坊只开放给约四成商品，配货旗舰一律不开放（真店越镇店的款越没得配，见 bespokeOffered）
+  const atelierOpen = atelierGroups.length > 0 && bespokeOffered(product)
+
+  // 同屋的另外几件：详情页原本是条死胡同，看完只能按返回。
+  // 真店的每一页都把你送向下一页（Hermès 的「Keep exploring」、卡地亚的系列横条）
+  const alsoFromHouse = productsOfMaison(maison.id)
+    .filter((p) => p.id !== product.id)
+    .slice(0, 4)
 
   // 选择器一旦让你挑某个尺寸，规格表就不能再断言它：项链的规格写「长度 45cm」、
   // 选择器又给你 40/45/60/90 选——挑了 60，这一页就自己打自己的脸。谁给选，谁拥有这个字段。
@@ -284,8 +350,27 @@ export default function ProductDetail() {
           </div>
           <p className="mt-2 text-[9px] text-fog">Tax included. The tax is also ¥0.00.</p>
 
-          {/* 散文只讲来历与材质，数字全在下面的规格表里——两者从不混排（Cartier 的写法） */}
+          {/* 散文只讲来历与材质，数字全在下面的图录小注里——两者从不混排（Cartier 的写法） */}
           <p className="mt-6 max-w-md text-xs leading-loose text-fog">{product.description}</p>
+
+          {/* 图录小注：紧跟散文（散文在上、数字在下，Cartier / Hermès 皆然）。
+              这张表每件都不一样，是「每件都不同」的真正来源，所以它排在所有共用控件之前。
+              首行是身份行，裸名词短语；其余行「Label: value」内联左对齐——
+              原先的两端对齐键值网格，内容再不同，**形状**也永远相同 */}
+          <div className="mt-8 max-w-md border-t border-hairline pt-6">
+            <h2 className="font-lux text-xs text-ivory">Catalogue note</h2>
+            <div className="mt-3 space-y-1 text-[10px] leading-relaxed">
+              {specs.map((s) =>
+                IDENTITY_LABELS.has(s.label) ? (
+                  <p key={s.label} className="text-ivory">{s.value}</p>
+                ) : (
+                  <p key={s.label} className="text-fog">
+                    {s.label}: <span className="text-ivory">{s.value}</span>
+                  </p>
+                ),
+              )}
+            </div>
+          </div>
 
           {/* 唯一的那个决定 */}
           {sizeGroup && (
@@ -326,8 +411,21 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* 把人交给人的那一排 */}
+          {/* 把人交给人的那一排。心愿单排第一——Cartier 商品页的第二个 CTA 就是它 */}
           <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3">
+            <button
+              onClick={() => {
+                toggleWish(product.id)
+                toast(
+                  wishlist.includes(product.id)
+                    ? 'Removed from the wish list. The wanting was real while it lasted.'
+                    : 'Added to the wish list. Wanting, now on file. The file is kept in your browser, like your fortune.',
+                )
+              }}
+              className={`quiet-link text-[10px] ${wishlist.includes(product.id) ? 'text-jade' : 'text-ivory'}`}
+            >
+              {wishlist.includes(product.id) ? 'In your wish list' : 'Add to wish list'}
+            </button>
             {HUMAN_CTAS.map((c) => (
               <button key={c.label} onClick={() => toast(c.reply)} className="quiet-link text-[10px] text-ivory">
                 {c.label}
@@ -335,22 +433,17 @@ export default function ProductDetail() {
             ))}
           </div>
 
-          {/* 规格表：数字都在这儿。每件商品的这张表都不一样，这才是「每件都不同」的来源 */}
-          <div className="mt-12 border-t border-hairline pt-8">
-            <h2 className="font-lux text-xs text-ivory">Specifications</h2>
-            <dl className="mt-4 max-w-md">
-              {specs.map((s) => (
-                <div key={s.label} className="flex justify-between gap-6 py-1.5 text-[10px] leading-relaxed">
-                  <dt className="shrink-0 text-fog">{s.label}</dt>
-                  <dd className="text-right text-ivory">{s.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+          {/* 工坊不开放时给一句屋里的托词（真店的原话腔调是「a selection of creations, subject to feasibility」） */}
+          {!atelierOpen && (
+            <p className="mt-10 max-w-md text-[9px] leading-loose text-fog">
+              Personalisation is offered on a selection of creations, subject to feasibility. This one is not among
+              them. Feasibility is not the obstacle.
+            </p>
+          )}
 
           {/* 折叠区按商品拼装：有定制才有工坊，有尺码才有尺码表（Hermès 就是这么拼的） */}
-          <div className="mt-10">
-            {atelierGroups.length > 0 && (
+          <div className="mt-12">
+            {atelierOpen && (
               // BESPOKE.title 是「Bespoke Atelier · BESPOKE」，把 bespoke 说了两遍
               <Accordion title="Bespoke atelier">
                 <BespokeSection groups={atelierGroups} value={custom} onChange={setCustom} />
@@ -367,15 +460,26 @@ export default function ProductDetail() {
             )}
             <Accordion title="Care">
               <p className="max-w-md text-[10px] leading-loose text-fog">
-                Keep away from direct sun, radiators and salt water. Have it seen by the house every five years. None of
-                this will be necessary, but the instructions are real and we would rather you had them.
+                {(subtype && CARE_BY_SUBTYPE[subtype]) || CARE_FALLBACK}
               </p>
             </Accordion>
             <Accordion title="Delivery and returns">
               <p className="max-w-md text-[10px] leading-loose text-fog">
-                White-glove delivery, worldwide, at no charge. The butler departs on receipt of the order and does not
-                arrive. Returns are accepted within 30 days, which is generous of us, given there is nothing to send
-                back. Nothing has ever been returned. Our satisfaction rate is therefore perfect.
+                {hasCustom ? (
+                  // 刻了字就是 final sale——真店的个性化商品一律不退。
+                  // 在一家什么都不存在的店里，唯一不可撤销的，是退回那份不存在的权利
+                  <>
+                    White-glove delivery, worldwide, at no charge. The butler departs on receipt of the order and does
+                    not arrive. Personalised pieces are final sale: the one irreversible thing sold in this house is
+                    your right to send the nothing back. You have just spent it. It cost ¥0.00.
+                  </>
+                ) : (
+                  <>
+                    White-glove delivery, worldwide, at no charge. The butler departs on receipt of the order and does
+                    not arrive. Returns are accepted within 30 days, which is generous of us, given there is nothing to
+                    send back. Nothing has ever been returned. Our satisfaction rate is therefore perfect.
+                  </>
+                )}
               </p>
             </Accordion>
             <Accordion title="Gifting">
@@ -398,11 +502,12 @@ export default function ProductDetail() {
           {/* 编号：不解释、不补零、放在最底下（Cartier 把「Ref. B6067517」印在分享按钮下面） */}
           <p className="mt-8 text-[9px] text-fog">Ref. {referenceOf(product)}</p>
 
-          <div className="mt-14 border-t border-hairline pt-10">
-            <h2 className="font-lux text-lg text-ivory">Patron Reviews</h2>
-            <p className="mt-1.5 text-[10px] text-fog">100,000+ reviews</p>
+          {/* 好评压到与图录小注同级：它是个好笑话，但不该是页面上第二响的东西 */}
+          <div className="mt-14 border-t border-hairline pt-8">
+            <h2 className="font-lux text-xs text-ivory">Patron reviews</h2>
+            <p className="mt-1 text-[9px] text-fog">100,000+ reviews</p>
             {reviews.map((r) => (
-              <div key={r.text} className="mt-8">
+              <div key={r.text} className="mt-6">
                 <div className="flex items-center gap-2 text-[9px] text-fog">
                   <span>{r.user}</span>
                   <span className="text-ivory">{'★'.repeat(r.stars)}</span>
@@ -413,6 +518,23 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* 同屋的另外几件：把死胡同接回目录。真店的每一页都把你送向下一页 */}
+      {alsoFromHouse.length > 0 && (
+        <section className="mt-24 px-6 lg:mt-32 lg:px-0">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-lux text-lg text-ivory lg:text-2xl">More from {maison.name}</h2>
+            <Link to={`/maison/${maison.id}`} className="quiet-link shrink-0 text-[10px] tracking-[0.15em] text-fog hover:text-ivory">
+              The house
+            </Link>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8">
+            {alsoFromHouse.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <Whisper />
 

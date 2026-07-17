@@ -28,7 +28,12 @@ npm run lint       # oxlint
 - **状态**：`src/lib/store.tsx`（Context + localStorage，键名空间 `flgj.*`，版本号 `flgj.v`）。
   购物车是**行 key 模型**：`lineKey = productId + 规范化定制串`，同商品不同定制各占一行——
   改动增删改购物车时必须用 `item.key`，不要用 productId
-- **定制体系**：选项数据在 `src/lib/bespoke.ts`（`CATEGORY_CUSTOM`，按分类分配）；
+- **定制体系**：选项数据在 `src/lib/bespoke.ts`，一律经 `customFor()` 取（子品类优先，别直查表）。
+  **工坊是少数商品的例外，不是人人有份**：`bespokeOffered()` 按 id 稳定开放 ~40%，
+  配货旗舰一律不开放（实测真店越镇店的款越没得配；Patek/AP 连配置器都没有）。
+  「唯一的那个决定」用 `role: 'size'` 声明，不从定价推断；刻字/烫印一律 complimentary
+  （Cartier/LV/Burberry 皆免费），只有改动实体画布的项才保留加价（金箔船名、界石刻字等）。
+  刻了字 = final sale：详情页退货文案会换（全店唯一不可撤销的，是退回那份不存在的权利）；
   类型在 types.ts（`CustomGroup`：choice 带展示性 surcharge / text 限 12 字）。
   定制数据流：详情页选择 → CartItem.customization → OrderItem.customization →
   小票 `ReceiptBespoke`（加价与减免互相抵消）→ 订单定制档案 → 物流剧场插入工坊节点

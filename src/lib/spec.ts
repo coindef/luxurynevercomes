@@ -180,6 +180,22 @@ export function materialOf(product: Product): string {
   return pickBy(product, 'material', pool)
 }
 
+/**
+ * 珠宝的「Metal」行**只认贵金属**。materialOf 会被名字里的宝石先劫走——
+ * 「Red Diamond Solitaire」在 Metal 一栏印出「Diamond, D colour」，钻石成了戒托。
+ * 名字里真提了金属就用它，否则从子品类的金属池里稳定分一个。
+ */
+const METAL_RE = /platinum|18k|yellow gold|white gold|rose gold|titanium|steel|silver\b/i
+function metalOf(product: Product): string {
+  if (METAL_RE.test(product.name)) {
+    const hit = MATERIALS.find(([re]) => re.test(product.name) && METAL_RE.test(product.name.match(re)?.[0] ?? ''))
+    if (hit) return hit[1]
+  }
+  const st = subtypeOf(product)
+  const pool = (st ? MATERIAL_BY_SUBTYPE[st] : undefined) ?? ['18K yellow gold (750/1000)']
+  return pickBy(product, 'metal', pool)
+}
+
 const ATELIERS = [
   'Made in France',
   'Made in Italy',
@@ -212,28 +228,28 @@ const SPECS: Record<string, (p: Product) => SpecRow[]> = {
     { label: 'Water resistance', value: pickBy(p, 'wr', ['30 metres', '50 metres', '100 metres', '300 metres']) },
   ],
   ring: (p) => [
-    { label: 'Metal', value: materialOf(p) },
+    { label: 'Metal', value: metalOf(p) },
     { label: 'Width', value: `${(rangeBy(p, 'w', 21, 92) / 10).toFixed(1)} mm` },
     { label: 'Stone', value: colourwayOf(p) },
     { label: 'Certificate', value: pickBy(p, 'cert', ['GIA, with the piece', 'SSEF, with the piece', 'House certificate']) },
   ],
   necklace: (p) => [
-    { label: 'Metal', value: materialOf(p) },
+    { label: 'Metal', value: metalOf(p) },
     { label: 'Length', value: `${pickBy(p, 'len', [40, 45, 60, 90])} cm` },
     { label: 'Clasp', value: pickBy(p, 'clasp', ['Concealed box clasp', 'Ratchet clasp', 'Hook and eye']) },
   ],
   bracelet: (p) => [
-    { label: 'Metal', value: materialOf(p) },
+    { label: 'Metal', value: metalOf(p) },
     { label: 'Inner circumference', value: `${rangeBy(p, 'circ', 15, 21)} cm` },
     { label: 'Width', value: `${(rangeBy(p, 'w', 30, 110) / 10).toFixed(1)} mm` },
   ],
   earrings: (p) => [
-    { label: 'Metal', value: materialOf(p) },
+    { label: 'Metal', value: metalOf(p) },
     { label: 'Drop', value: `${rangeBy(p, 'drop', 8, 70) / 10} cm` },
     { label: 'Fitting', value: pickBy(p, 'fit', ['Post and butterfly', 'Clip', 'Lever back']) },
   ],
   brooch: (p) => [
-    { label: 'Metal', value: materialOf(p) },
+    { label: 'Metal', value: metalOf(p) },
     { label: 'Dimensions', value: `H ${rangeBy(p, 'h', 30, 90) / 10} x W ${rangeBy(p, 'w', 20, 70) / 10} cm` },
     { label: 'Fitting', value: 'Pin with safety catch' },
   ],
@@ -310,7 +326,7 @@ const SPECS: Record<string, (p: Product) => SpecRow[]> = {
   suit: (p) => [
     { label: 'Cloth', value: materialOf(p) },
     { label: 'Atelier hours', value: `${rangeBy(p, 'hrs', 40, 120)} hours` },
-    { label: 'Canvas', value: 'Full floating canvas' },
+    { label: 'Construction', value: 'Full floating canvas' },
   ],
   accessory: (p) => [
     { label: 'Material', value: materialOf(p) },
@@ -398,12 +414,31 @@ const GENERIC = (p: Product): SpecRow[] => [
   { label: 'Dimensions', value: `H ${rangeBy(p, 'h', 10, 120)} x W ${rangeBy(p, 'w', 10, 120)} cm` },
 ]
 
+/**
+ * 不给这些子品类附「色号/产地」：星系命名权没有色号，赛马不是 Made in France。
+ * 通栏追加曾把这两行盖到所有 1009 件上——真店的规格是按商品拼的，不是模板打的。
+ */
+const NO_EXTRAS = new Set(['naming', 'experience', 'animal', 'venue', 'land'])
+
+/**
+ * 首行是「身份行」：Cartier 的做法是把材质当第一句陈述而不是键值对
+ * （「18K white gold (750/1000)」单独一行，下面才是「Width: 5.5mm」）。
+ * 详情页据此把这些 label 渲染成**裸名词短语**，其余行才是「Label: value」。
+ */
+export const IDENTITY_LABELS = new Set([
+  'Metal', 'Material', 'Case', 'Cloth', 'Fabric', 'Medium', 'Frame', 'Construction',
+  'Upper', 'Cask', 'Shell', 'Bus', 'Chassis', 'Condition', 'Title', 'Register', 'Materials', 'Leather',
+])
+
 export function specsOf(product: Product): SpecRow[] {
   const st = subtypeOf(product)
   const rows = ((st ? SPECS[st] : undefined) ?? GENERIC)(product)
+  if (st && NO_EXTRAS.has(st)) return rows
+  const colour = colourwayOf(product)
   return [
     ...rows,
-    { label: 'Colourway', value: colourwayOf(product) },
+    // 某行已经写了这个颜色（戒指的 Stone: Rouge）就别再来一行 Colourway: Rouge
+    ...(rows.some((r) => r.value === colour) ? [] : [{ label: 'Colourway', value: colour }]),
     { label: 'Origin', value: originOf(product) },
   ]
 }

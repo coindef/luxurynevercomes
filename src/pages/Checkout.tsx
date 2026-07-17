@@ -145,6 +145,12 @@ function SuccessView({ order }: { order: Order }) {
           <span>Delivery method</span>
           <span>Hand-delivered by white-glove butler (never arrives)</span>
         </div>
+        {order.giftWrap && (
+          <div className="mt-1 flex justify-between">
+            <span>Gift wrapping</span>
+            <span>House box, ribbon, wax seal, complimentary</span>
+          </div>
+        )}
         <div className="mt-1 flex justify-between gap-3">
           <span className="shrink-0">Estimated delivery</span>
           <span className="text-right">Awaiting good weather (the standard for good weather is set by the captain)</span>
@@ -186,6 +192,7 @@ export default function Checkout() {
   const toast = useToast()
   const [address, setAddress] = useState(ADDRESSES[2])
   const [delivery, setDelivery] = useState(0)
+  const [giftWrap, setGiftWrap] = useState(false)
   const [urge, setUrge] = useState<string | null>(null)
   const [paying, setPaying] = useState(false)
   const [order, setOrder] = useState<Order | null>(null)
@@ -218,7 +225,7 @@ export default function Checkout() {
     setPaying(true)
     setTimeout(() => {
       const items: OrderItem[] = lines.map((r) => ({ product: r.product, qty: r.qty, customization: r.customization }))
-      const created = placeOrder(items, subtotal, urge ?? undefined)
+      const created = placeOrder(items, subtotal, { urge: urge ?? undefined, giftWrap })
       lines.forEach((r) => removeFromCart(r.key))
       setPaying(false)
       setOrder(created)
@@ -267,6 +274,17 @@ export default function Checkout() {
             </button>
           ))}
         </div>
+        {/* 礼品包装：Cartier 的折叠区里真有一栏 Gift Wrapping，且免费。这里当然也免费，也不送达 */}
+        <button
+          onClick={() => setGiftWrap(!giftWrap)}
+          className="mt-3 flex w-full items-center justify-between px-1 text-[10px] text-fog"
+        >
+          <span>
+            <span className={`mr-2 inline-flex h-3.5 w-3.5 items-center justify-center border align-[-2px] text-[9px] ${giftWrap ? 'border-ivory text-ivory' : 'border-hairline text-transparent'}`}>✓</span>
+            Gift wrapping <span>, house box, hand-tied ribbon, wax seal</span>
+          </span>
+          <span className="font-price font-semibold text-ivory">¥0</span>
+        </button>
       </section>
 
       {/* 藏品清单 */}

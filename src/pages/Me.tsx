@@ -1,14 +1,17 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CONVERSIONS, memberLevel } from '../lib/copy'
+import { getProduct } from '../lib/products'
 import { yuan } from '../lib/format'
 import { useCountUp } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import { IconCandle, IconHat } from '../components/icons'
 import EditorialImage from '../components/EditorialImage'
+import ProductCard from '../components/ProductCard'
 
 export default function Me() {
-  const { orders, saved } = useStore()
+  const { orders, saved, wishlist } = useStore()
+  const wishes = wishlist.map(getProduct).filter((p) => p !== undefined)
   const counted = useCountUp(saved, 1800)
   const [convIdx, setConvIdx] = useState(0)
   const [confirmClear, setConfirmClear] = useState(false)
@@ -96,6 +99,22 @@ export default function Me() {
           </p>
         )}
       </section>
+
+      {/* 心愿单：想要而未认购的。想要本身就值得建档 */}
+      {wishes.length > 0 && (
+        <section className="mt-24 px-6 lg:mt-40">
+          <h2 className="font-lux text-lg text-ivory lg:text-2xl">The Wish List</h2>
+          <p className="mt-2 max-w-md text-[11px] leading-loose text-fog">
+            {wishes.length === 1 ? 'One piece, wanted and on file.' : `${wishes.length} pieces, wanted and on file.`}{' '}
+            Wanting is kept here at the same temperature as owning.
+          </p>
+          <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4 lg:gap-x-8">
+            {wishes.slice(0, 8).map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 金库：这里是全站唯一真实的东西 */}
       <EditorialImage
