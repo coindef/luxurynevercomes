@@ -1,3 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <text x="50" y="62" font-size="64" text-anchor="middle" dominant-baseline="middle">📦</text>
+  <!-- Maison Zéro 的字标：Didone 高反差衬线 Z，象牙白落在墨黑方砖上。
+       全站冷调单色，logo 也不用第二个颜色——绿只在笑点落地时出现，不给字标。 -->
+  <rect width="100" height="100" fill="#111111"/>
+  <text x="50" y="53" font-family="Didot,'Bodoni 72',Georgia,'Times New Roman',serif"
+        font-size="74" fill="#f7f7f7" text-anchor="middle" dominant-baseline="central">Z</text>
 </svg>
