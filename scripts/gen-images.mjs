@@ -1,26 +1,24 @@
 #!/usr/bin/env node
 /**
- * 商品配图流水线（Flux via Pollinations，免费无 key）。
- *
- * 为什么长这样：Pollinations 匿名档 **每 IP 只允许 1 个并发**（并发请求直接 429），
- * 且持续请求会被限速到 ~40s/张（换 turbo 也一样，可见限的是 IP 不是算力）。
- * 所以本脚本是严格串行 + 自适应退避 + **可续跑**的。1009 件 × 3 视角 = 2900+ 张，
- * 按这个速率是 30 多个小时——跑不完是常态，不是故障。随时 Ctrl-C，下次重跑接着来。
+ * 商品配图流水线（Flux）。两条通道：
+ *   - **pollinations**（默认，免费无 key）：匿名档每 IP 只允许 1 并发，越跑越慢（~40s→几分钟/张），
+ *     所以严格串行 + 自适应退避。跑不完是常态，随时 Ctrl-C，重跑续上。
+ *   - **fal**（付费，快几十倍）：同样是 Flux，可并发；key 从 .env 的 FAL_KEY 读。
  *
  * 续跑为什么不会画风走样：seed 只由商品 id 决定（见 art-direction.mjs 第 1 条），
- * 所以今天生成的视角 1 和下周生成的视角 2、3 仍然是同一件东西。
+ * 换通道也一样——fal 和 pollinations 同 seed 出的是同一件东西，可以混着补。
  *
- * 用法：
- *   node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs              # 按优先级一直跑
- *   node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --limit 100  # 只跑 100 张
- *   node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --tier 1     # 只跑某一档
- *   node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --plan       # 只看计划，不联网
+ * 用法（都可加 --breadth：先把每件的主图铺满，再回头补 2、3 视角）：
+ *   npm run images                    # 免费通道，广度优先
+ *   npm run images:fal                # fal 付费通道，6 并发（需 .env 里的 FAL_KEY）
+ *   ... --provider fal --concurrency 10   # 调并发
+ *   ... --limit 100 / --tier 1 / --plan   # 限量 / 单档 / 只看计划不联网
  *
  * 产物：public/img/<id>.jpg（视角 1）、<id>-v2.jpg、<id>-v3.jpg
- * 跑完记得： node --import ./scripts/ts-resolve.mjs scripts/build-image-manifest.mjs
+ * 跑完记得： npm run images:manifest
  */
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync, appendFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync, unlinkSync, writeFileSync, appendFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promptFor, seedOf, shouldGenerate, VIEWS_PER_PRODUCT } from './art-direction.mjs'
@@ -29,6 +27,16 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const IMG_DIR = join(ROOT, 'public', 'img')
 const LOG = join(ROOT, 'scripts', '.gen-images.log')
 const AI_RECORD = join(ROOT, 'scripts', 'ai-sourced.json')
+
+// 从 .env 读 FAL_KEY（node 不会自动加载 .env）；已在环境里的不覆盖
+try {
+  for (const line of readFileSync(join(ROOT, '.env'), 'utf8').split('\n')) {
+    const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/)
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '')
+  }
+} catch {
+  /* 没有 .env 也没关系，只有 fal 通道才需要 key */
+}
 
 const argv = process.argv.slice(2)
 const flag = (name, fallback) => {
@@ -41,6 +49,13 @@ const MODEL = flag('model', 'flux')
 const LIMIT = Number(flag('limit', Infinity))
 const ONLY_TIER = flag('tier', null)
 const BREADTH = has('breadth')
+
+/**
+ * 图源。pollinations = 免费但每 IP 单并发、越跑越慢；fal = 付费但可并发（快几十倍），
+ * 同样是 Flux，出图风格与免费通道一致。key 从 .env 的 FAL_KEY 读。
+ */
+const PROVIDER = flag('provider', 'pollinations')
+const CONCURRENCY = PROVIDER === 'fal' ? Math.max(1, Number(flag('concurrency', 6))) : 1
 const PLAN_ONLY = has('plan')
 
 const MIN_BYTES = 25_000
@@ -126,10 +141,15 @@ console.log(`catalogue       ${PRODUCTS.length} pieces, ${onDisk} view files on 
 console.log(`protected       ${PRODUCTS.filter(isProtected).length} pieces have real photography (left alone, single view)`)
 console.log(`ai-sourced      ${aiProducts.length} pieces re-generatable`)
 console.log(`queue           tier1 ${tierCount(1)} · tier2 ${tierCount(2)} · tier3 ${tierCount(3)} · tier4 ${tierCount(4)} = ${queue.length} images to make`)
-console.log(`this run        ${work.length} images, model=${MODEL}, ~${((work.length * 44) / 3600).toFixed(1)}h at the observed rate`)
+console.log(`this run        ${work.length} images · provider=${PROVIDER}${PROVIDER === 'fal' ? ` · ${CONCURRENCY} concurrent` : ' · serial (免费单并发)'}`)
 if (PLAN_ONLY) {
   for (const j of work.slice(0, 6)) console.log(`  [t${j.tier}] ${j.id} v${j.view}${j.overwrite ? ' (redraw)' : ''}\n      ${j.prompt.slice(0, 140)}…`)
   process.exit(0)
+}
+
+if (PROVIDER === 'fal' && !process.env.FAL_KEY) {
+  console.error('缺 FAL_KEY：把 fal.ai 的 key 写进 .env（FAL_KEY=xxx），或换 --provider pollinations')
+  process.exit(1)
 }
 
 /* ---------------------------------------------------------------- 抓取 */
@@ -141,18 +161,58 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 let made = 0
 let failed = 0
+let done = 0
 const startedAt = Date.now()
 let stopping = false
 process.on('SIGINT', () => {
-  console.log('\n收到中断，跑完这张就停。重跑本脚本会从断点继续（seed 由 id 决定，接得上）。')
+  console.log('\n收到中断，跑完手上这些就停。重跑本脚本会从断点继续（seed 由 id 决定，接得上）。')
   stopping = true
 })
 
-const url = (job) =>
+const pollUrl = (job) =>
   `https://image.pollinations.ai/prompt/${encodeURIComponent(job.prompt)}` +
   `?width=768&height=1024&nologo=true&model=${MODEL}&seed=${job.seed}`
 
-/** 下载 → 验真（真 JPEG 且够大）→ 压到 700px 宽。任一步失败都不留半张图。 */
+/**
+ * 取原始图字节。
+ * pollinations：GET，响应体本身就是图；429 抛出带标记，交给退避。
+ * fal：POST 提示词拿到 json 里的图 url，再下一次；付费、可并发、同样 Flux。
+ */
+async function rawImage(job, signal) {
+  if (PROVIDER === 'fal') {
+    const res = await fetch('https://fal.run/fal-ai/flux/schnell', {
+      method: 'POST',
+      headers: { Authorization: `Key ${process.env.FAL_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: job.prompt,
+        image_size: { width: 768, height: 1024 },
+        num_inference_steps: 4,
+        seed: job.seed,
+        num_images: 1,
+        output_format: 'jpeg',
+        enable_safety_checker: true,
+      }),
+      signal,
+    })
+    if (!res.ok) throw new Error(`fal HTTP ${res.status}`)
+    const data = await res.json()
+    const u = data?.images?.[0]?.url
+    if (!u) throw new Error('fal: no image url in response')
+    const img = await fetch(u, { signal })
+    if (!img.ok) throw new Error(`fal image HTTP ${img.status}`)
+    return Buffer.from(await img.arrayBuffer())
+  }
+  const res = await fetch(pollUrl(job), { signal })
+  if (res.status === 429) {
+    const e = new Error('429')
+    e.rateLimited = true
+    throw e
+  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return Buffer.from(await res.arrayBuffer())
+}
+
+/** 下载 → 验真（是图且够大）→ 转 jpeg 压到 700px 宽。任一步失败都不留半张图。 */
 async function fetchOne(job) {
   const dest = pathFor(job.id, job.view)
   const tmp = `${dest}.part`
@@ -161,62 +221,72 @@ async function fetchOne(job) {
     try {
       const ctrl = new AbortController()
       const t = setTimeout(() => ctrl.abort(), 120_000)
-      const res = await fetch(url(job), { signal: ctrl.signal })
-      clearTimeout(t)
-
-      if (res.status === 429) {
-        delayMs = Math.min(MAX_DELAY, delayMs * 2)
-        await sleep(delayMs)
-        continue
+      let buf
+      try {
+        buf = await rawImage(job, ctrl.signal)
+      } finally {
+        clearTimeout(t)
       }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-
-      const buf = Buffer.from(await res.arrayBuffer())
       if (buf.length < MIN_BYTES) throw new Error(`too small (${buf.length}B)`)
-      if (buf[0] !== 0xff || buf[1] !== 0xd8) throw new Error('not a JPEG')
+      const jpg = buf[0] === 0xff && buf[1] === 0xd8
+      const png = buf[0] === 0x89 && buf[1] === 0x50
+      if (!jpg && !png) throw new Error('not an image')
 
       writeFileSync(tmp, buf)
-      execFileSync('sips', ['-Z', '700', tmp], { stdio: 'ignore' })
-      if (statSync(tmp).size < MIN_BYTES / 3) throw new Error('degenerate after resize')
-      renameSync(tmp, dest)
+      execFileSync('sips', ['-Z', '700', '-s', 'format', 'jpeg', tmp, '--out', dest], { stdio: 'ignore' })
+      if (existsSync(tmp)) unlinkSync(tmp)
+      if (statSync(dest).size < MIN_BYTES / 3) throw new Error('degenerate after resize')
       remember(job.id)
       return true
     } catch (err) {
       if (existsSync(tmp)) unlinkSync(tmp)
+      if (err.rateLimited) {
+        // 429 只发生在免费通道；翻倍退避后重试，不消耗尝试次数
+        delayMs = Math.min(MAX_DELAY, delayMs * 2)
+        await sleep(delayMs)
+        attempt--
+        continue
+      }
       if (attempt === MAX_ATTEMPTS) {
         appendFileSync(LOG, `FAIL ${job.id} v${job.view} ${err.message}\n`)
         return false
       }
-      await sleep(delayMs * attempt)
+      await sleep((PROVIDER === 'fal' ? 1500 : delayMs) * attempt)
     }
   }
   return false
 }
 
-appendFileSync(LOG, `\nrun ${new Date().toISOString()} model=${MODEL} jobs=${work.length}\n`)
-
-for (const [i, job] of work.entries()) {
-  if (stopping) break
-  const t0 = Date.now()
-  const ok = await fetchOne(job)
-  const took = ((Date.now() - t0) / 1000).toFixed(1)
-
-  if (ok) {
-    made++
-    delayMs = Math.max(MIN_DELAY, delayMs * 0.9) // 顺利就把节流慢慢收回来
-  } else {
-    failed++
-  }
-
-  const done = i + 1
+function report(job, ok, took) {
+  done++
+  if (ok) made++
+  else failed++
   const rate = (Date.now() - startedAt) / done / 1000
   const eta = (((work.length - done) * rate) / 60).toFixed(0)
   const line = `[${done}/${work.length}] t${job.tier} ${ok ? '✓' : '✗'} ${job.id} v${job.view} ${took}s (avg ${rate.toFixed(1)}s, eta ${eta}m)`
   console.log(line)
   appendFileSync(LOG, `${line}\n`)
-
-  if (!stopping && done < work.length) await sleep(delayMs)
 }
+
+/** 一个 worker 从共享迭代器里不停取活。CONCURRENCY 个并跑（免费通道恒为 1）。 */
+async function worker(iter) {
+  for (const job of iter) {
+    if (stopping) return
+    const t0 = Date.now()
+    const ok = await fetchOne(job)
+    report(job, ok, ((Date.now() - t0) / 1000).toFixed(1))
+    if (PROVIDER === 'pollinations') {
+      if (ok) delayMs = Math.max(MIN_DELAY, delayMs * 0.9) // 顺利就把节流慢慢收回来
+      if (!stopping) await sleep(delayMs)
+    }
+  }
+}
+
+appendFileSync(LOG, `\nrun ${new Date().toISOString()} provider=${PROVIDER} conc=${CONCURRENCY} jobs=${work.length}\n`)
+
+// 多个 worker 共享同一个数组迭代器；JS 单线程，.next() 原子，不会取到重复
+const shared = work[Symbol.iterator]()
+await Promise.all(Array.from({ length: CONCURRENCY }, () => worker(shared)))
 
 console.log(`\ndone: ${made} made, ${failed} failed, ${((Date.now() - startedAt) / 60000).toFixed(1)} min`)
 console.log('next: node --import ./scripts/ts-resolve.mjs scripts/build-image-manifest.mjs')

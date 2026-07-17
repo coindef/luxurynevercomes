@@ -11,7 +11,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "images": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs",
+    "images": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --breadth",
+    "images:fal": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --provider fal --breadth",
     "images:plan": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --plan",
     "images:manifest": "node --import ./scripts/ts-resolve.mjs scripts/build-image-manifest.mjs",
     "images:aspect": "node scripts/normalise-aspect.mjs"
