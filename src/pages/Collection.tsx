@@ -229,7 +229,7 @@ export default function Collection() {
             {search?.everythingLine && (
               <p className="float-up mb-10 max-w-md text-[11px] leading-loose text-jade">{search.everythingLine}</p>
             )}
-            <div className="grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
               {shown.map((p, i) => {
                 // 逛「全部」时按品类分章。章内是同一类，一行四件才彼此相干
                 const opensSection = sectioned && (i === 0 || shown[i - 1].category !== p.category)

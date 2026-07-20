@@ -7,8 +7,13 @@ import ProductImage from '../components/ProductImage'
 export default function Maisons() {
   return (
     <div className="pb-28">
-      <header className="mx-auto max-w-6xl px-6 pt-16 lg:pt-24">
-        <h1 className="font-lux text-3xl leading-relaxed text-ivory lg:text-5xl">The Houses</h1>
+      <header className="mx-auto max-w-6xl px-6 pt-8 lg:pt-12">
+        <nav aria-label="Breadcrumb" className="text-[10px] text-fog">
+          <Link to="/" className="hover:text-ivory">Home</Link>
+          <span aria-hidden="true" className="px-1.5">/</span>
+          <span className="text-ivory">The Houses</span>
+        </nav>
+        <h1 className="font-lux mt-8 text-3xl leading-relaxed text-ivory lg:text-5xl">The Houses</h1>
         <p className="mt-5 max-w-md text-[11px] leading-loose text-fog">
           Every maison here is invented. None of them will ship you anything, but each does it in its own voice.
         </p>

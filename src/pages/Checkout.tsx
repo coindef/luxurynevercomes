@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import type { CustomGroup, Order, OrderItem } from '../lib/types'
 import { getProduct } from '../lib/products'
 import { customFor } from '../lib/bespoke'
@@ -162,7 +162,7 @@ function SuccessView({ order }: { order: Order }) {
       )}
 
       {/* 安抚语（治愈绿） */}
-      <div className="mx-6 mt-10 border border-jade/30 bg-jade/5 p-5">
+      <div className="mx-6 mt-10 border-l border-hairline pl-5">
         {order.urge && <p className="mb-2 text-[9px] tracking-wider text-jade/70">The order placed for "{order.urge}"</p>}
         <p className="font-lux text-xs leading-relaxed text-jade">{soothing}</p>
       </div>
@@ -188,7 +188,6 @@ function SuccessView({ order }: { order: Order }) {
 export default function Checkout() {
   const { cart, removeFromCart, placeOrder } = useStore()
   const location = useLocation()
-  const navigate = useNavigate()
   const toast = useToast()
   const [address, setAddress] = useState(ADDRESSES[2])
   const [delivery, setDelivery] = useState(0)
@@ -233,15 +232,26 @@ export default function Checkout() {
   }
 
   return (
-    <div className="pb-28 lg:mx-auto lg:max-w-2xl">
-      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-hairline bg-ink/95 px-4 py-3.5 backdrop-blur">
-        <button onClick={() => navigate(-1)} className="text-lg text-fog">‹</button>
-        <h1 className="font-lux text-base text-ivory">Confirm order</h1>
+    <div className="pb-32 lg:mx-auto lg:max-w-3xl lg:pb-24">
+      {/* 编辑式页头：与目录/详情同一套（面包屑 + 大衬线标题），不再是 app 式的贴顶小条 */}
+      <header className="px-6 pt-8 lg:px-0 lg:pt-12">
+        <nav aria-label="Breadcrumb" className="text-[10px] text-fog">
+          <Link to="/" className="hover:text-ivory">Home</Link>
+          <span aria-hidden="true" className="px-1.5">/</span>
+          <Link to="/cart" className="hover:text-ivory">The Reserve</Link>
+          <span aria-hidden="true" className="px-1.5">/</span>
+          <span className="text-ivory">Confirm</span>
+        </nav>
+        <h1 className="font-lux mt-8 text-3xl leading-relaxed text-ivory lg:text-4xl">Confirm the order</h1>
+        <p className="mt-3 text-[11px] leading-relaxed text-fog">
+          {lines.reduce((s, r) => s + r.qty, 0)} pieces, one signature, no money. The usual.
+        </p>
       </header>
 
       {/* 收货地址 */}
-      <section className="mx-4 mt-10 border border-hairline bg-panel p-5 lg:mt-14">
-        <div className="flex flex-wrap gap-2">
+      <section className="mx-6 mt-12 border-t border-hairline pt-8 lg:mx-0 lg:mt-16">
+        <h2 className="font-lux text-xs text-ivory">Deliver to</h2>
+        <div className="mt-4 flex flex-wrap gap-2">
           {ADDRESSES.map((a) => (
             <button
               key={a}
@@ -257,8 +267,9 @@ export default function Checkout() {
       </section>
 
       {/* 配送方式 */}
-      <section className="mx-4 mt-10 border border-hairline bg-panel p-5 lg:mt-14">
-        <div className="space-y-2">
+      <section className="mx-6 mt-12 border-t border-hairline pt-8 lg:mx-0 lg:mt-16">
+        <h2 className="font-lux text-xs text-ivory">Delivery</h2>
+        <div className="mt-4 space-y-2">
           {DELIVERY.map((d, i) => (
             <button
               key={d.name}
@@ -288,9 +299,10 @@ export default function Checkout() {
       </section>
 
       {/* 藏品清单 */}
-      <section className="mx-4 mt-10 border border-hairline bg-panel p-5 lg:mt-14">
+      <section className="mx-6 mt-12 border-t border-hairline pt-8 lg:mx-0 lg:mt-16">
+        <h2 className="font-lux text-xs text-ivory">The pieces</h2>
         {lines.map((r) => (
-          <div key={r.key} className="flex items-start gap-3 py-1.5">
+          <div key={r.key} className="mt-4 flex items-start gap-3 border-b border-hairline pb-4 last:border-b-0 last:pb-0">
             <ProductImage product={r.product} className="aspect-[3/4] w-10 shrink-0" emojiClass="text-lg" />
             <div className="min-w-0 flex-1">
               <p className="font-lux truncate text-xs text-ivory/90">{r.product.name}</p>
@@ -311,8 +323,9 @@ export default function Checkout() {
       </section>
 
       {/* 心动来源（温柔一问） */}
-      <section className="mx-4 mt-10 border border-hairline bg-panel p-5 lg:mt-14">
-        <p className="text-[10px] text-fog">You want it tonight because... (you needn't say)</p>
+      <section className="mx-6 mt-12 border-t border-hairline pt-8 lg:mx-0 lg:mt-16">
+        <h2 className="font-lux text-xs text-ivory">You want it tonight because</h2>
+        <p className="mt-1 text-[9px] text-fog">(you needn't say)</p>
         <div className="mt-4 flex flex-wrap gap-2">
           {URGE_CHIPS.map((c) => (
             <button
@@ -332,7 +345,7 @@ export default function Checkout() {
       </section>
 
       {/* 礼遇明细 */}
-      <section className="mx-4 mt-10 border border-hairline bg-panel p-5 text-[10px] lg:mt-14">
+      <section className="mx-6 mt-12 border-t border-hairline pt-8 text-[10px] lg:mx-0 lg:mt-16">
         <div className="flex justify-between py-1 text-fog">
           <span>Collection total</span>
           <span className="font-price line-through">{yuan(originalTotal)}</span>
@@ -357,8 +370,14 @@ export default function Checkout() {
         </div>
       </section>
 
-      {/* 支付栏 */}
-      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-4 py-3 lg:max-w-2xl">
+      {/* 支付：手机吸底（app 的好习惯），桌面收进版心（编辑页面不悬浮工具条） */}
+      <div className="mx-6 mt-12 hidden lg:mx-0 lg:block">
+        <button onClick={pay} className="gold-cta w-full py-3.5 text-center text-sm font-semibold tracking-widest">
+          Pay ¥0.00
+          <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">This one keeps {yuan(subtotal)}</span>
+        </button>
+      </div>
+      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-6 py-3 lg:hidden">
         <button
           onClick={pay}
           className="gold-cta w-full py-3.5 text-center text-sm font-semibold tracking-widest"

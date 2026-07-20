@@ -8,16 +8,18 @@ export default function About() {
   const navigate = useNavigate()
 
   return (
-    <div className="pb-20 lg:mx-auto lg:max-w-2xl">
-      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-hairline bg-ink/95 px-6 py-4 backdrop-blur">
-        <button onClick={() => navigate(-1)} className="text-lg text-fog" aria-label="Back">
-          ‹
-        </button>
-        <h1 className="font-lux text-base text-ivory">About</h1>
+    <div className="pb-20 lg:mx-auto lg:max-w-3xl">
+      <header className="px-6 pt-8 lg:pt-12">
+        <nav aria-label="Breadcrumb" className="text-[10px] text-fog">
+          <button onClick={() => navigate(-1)} className="hover:text-ivory">Back</button>
+          <span aria-hidden="true" className="px-1.5">/</span>
+          <span className="text-ivory">About</span>
+        </nav>
+        <h1 className="font-lux mt-8 text-3xl leading-relaxed text-ivory lg:text-4xl">About</h1>
       </header>
 
       {/* 无边框无面板：靠留白与发丝线分栏 */}
-      <section className="px-6 pt-14">
+      <section className="px-6 pt-12">
         <p className="font-lux text-xl leading-relaxed text-ivory lg:text-2xl">LuxuryNeverComes</p>
         <p className="mt-6 text-[11px] leading-loose text-fog">
           A simulated hall of luxury that heals the "can't afford it" ache: subscribe freely to platinum handbags, tourbillons, yachts, private islands, compute clusters.
@@ -74,7 +76,7 @@ export default function About() {
       </section>
 
       {/* 法务小字层级：本店的签名就藏在最小号字里 */}
-      <section className="mt-20 border-t border-hairline px-6 pt-10">
+      <section className="mt-20 border-t border-hairline px-6 pt-12">
         <p className="text-[8px] leading-loose text-fog">
           This site is an entertainment and emotional self-help tool, not a real store. All products, prices, sales figures, reviews, ateliers, and butlers are fictional,
           with no affiliation with or authorization from any real luxury brand; product names are category descriptions. We take no payment, no shipping address, and collect no personal information whatsoever.

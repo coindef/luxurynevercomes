@@ -53,7 +53,7 @@ export default function Maison() {
 
       <section className="mx-auto mt-14 max-w-6xl px-6 lg:mt-20">
         {/* 与目录页同一套网格。CSS 多列会把卡片劈到下一列去，且阅读顺序先竖后横 */}
-        <div className="grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
           {items.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}

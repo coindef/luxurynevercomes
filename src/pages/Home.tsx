@@ -377,10 +377,12 @@ export default function Home() {
             View all {PRODUCTS.length.toLocaleString('en-US')}
           </Link>
         </div>
-        <p className="mx-auto mt-4 max-w-md px-6 text-[11px] text-fog">A dozen to begin with. Everything you can't afford, affordable here.</p>
+        <div className="mx-auto max-w-6xl px-6">
+          <p className="mt-4 max-w-md text-[11px] text-fog">A dozen to begin with. Everything you can't afford, affordable here.</p>
+        </div>
 
         <div className="mx-auto mt-12 max-w-6xl px-6 lg:mt-16">
-          <div className="grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
+          <div className="grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
             {featured.map((p) => (
               <ProductCard key={p!.id} product={p!} />
             ))}

@@ -121,7 +121,7 @@ function OrderCard({ order }: { order: Order }) {
   const revisit = revisitLine(days)
 
   return (
-    <article className="border-t border-hairline px-6 py-10">
+    <article className="border-t border-hairline px-6 py-10 last:border-b">
       <button onClick={() => setExpanded(!expanded)} className="w-full text-left">
         <div className="flex items-baseline justify-between gap-4">
           <span className="font-price text-[10px] text-fog">{orderNo(order.createdAt)}</span>

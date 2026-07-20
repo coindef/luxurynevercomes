@@ -175,7 +175,7 @@ export default function Me() {
             {wishes.length === 1 ? 'One piece, wanted and on file.' : `${wishes.length} pieces, wanted and on file.`}{' '}
             Wanting is kept here at the same temperature as owning.
           </p>
-          <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4 lg:gap-x-8">
+          <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
             {wishes.slice(0, 8).map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}

@@ -32,7 +32,7 @@ function Whisper() {
 
   if (!item) return null
   return (
-    <div className="pointer-events-none fixed bottom-32 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 px-6">
+    <div className="pointer-events-none fixed bottom-32 left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 px-6 lg:left-auto lg:right-[max(1.5rem,calc(50%-36rem))] lg:w-auto lg:max-w-sm lg:translate-x-0 lg:px-0">
       <div key={item.id} className="whisper w-fit bg-[#111111]/85 px-3 py-1.5 text-[9px] tracking-wider text-[#e8e8e8]">
         {item.text}
       </div>
@@ -497,7 +497,7 @@ export default function ProductDetail() {
               The house
             </Link>
           </div>
-          <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8">
+          <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
             {alsoFromHouse.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
