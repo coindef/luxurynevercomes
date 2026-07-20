@@ -5,6 +5,7 @@ import { getProduct } from '../lib/products'
 import { yuan } from '../lib/format'
 import { useCountUp } from '../lib/hooks'
 import { SITE_URL } from '../lib/site'
+import { downloadAppointmentIcs } from '../lib/ics'
 import { saveMonthlyCard } from '../lib/shareCard'
 import { useToast } from '../components/Toast'
 import { useStore } from '../lib/store'
@@ -13,7 +14,7 @@ import EditorialImage from '../components/EditorialImage'
 import ProductCard from '../components/ProductCard'
 
 export default function Me() {
-  const { orders, saved, wishlist, appointments, cancelAppointment } = useStore()
+  const { orders, saved, wishlist, appointments, cancelAppointment, waitlist, leaveWaitlist } = useStore()
   const toast = useToast()
   const wishes = wishlist.map(getProduct).filter((p) => p !== undefined)
   const upcoming = appointments.filter((a) => a.at > Date.now() - 3600_000)
@@ -140,14 +141,57 @@ export default function Me() {
                     {a.productName ? `, regarding ${a.productName.split('·')[0].trim()}` : ''}
                   </p>
                 </div>
-                <button
-                  onClick={() => cancelAppointment(a.id)}
-                  className="quiet-link shrink-0 text-[9px] text-fog hover:text-ivory"
-                >
-                  Cancel
-                </button>
+                <div className="flex shrink-0 items-baseline gap-4">
+                  {/* .ics 是全店唯一真的送达物；订完过几天想要文件，得在这儿能再拿一次 */}
+                  <button
+                    onClick={() => downloadAppointmentIcs(a.productName, a.boutique, new Date(a.at))}
+                    className="quiet-link text-[9px] text-fog hover:text-ivory"
+                  >
+                    Calendar file
+                  </button>
+                  <button
+                    onClick={() => cancelAppointment(a.id)}
+                    className="quiet-link text-[9px] text-fog hover:text-ivory"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* 等候名单：配货旗舰的另一条队。名单不动，排位因此终身优秀 */}
+      {Object.keys(waitlist).length > 0 && (
+        <section className="mt-24 px-6 lg:mt-40">
+          <h2 className="font-lux text-lg text-ivory lg:text-2xl">Waiting Lists</h2>
+          <p className="mt-2 max-w-md text-[11px] leading-loose text-fog">
+            The lists do not move. Your positions are therefore permanently excellent.
+          </p>
+          <div className="mt-6 max-w-md">
+            {Object.entries(waitlist).map(([id, pos]) => {
+              const p = getProduct(id)
+              if (!p) return null
+              return (
+                <div key={id} className="flex items-baseline justify-between gap-4 border-t border-hairline py-4 last:border-b">
+                  <div className="min-w-0">
+                    <Link to={`/product/${id}`} className="block truncate text-[11px] text-ivory hover:underline">
+                      {p.name}
+                    </Link>
+                    <p className="mt-1 text-[10px] text-fog">
+                      No. <span className="font-price text-ivory">{pos.toLocaleString('en-US')}</span> in line, precisely where you stood yesterday
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => leaveWaitlist(id)}
+                    className="quiet-link shrink-0 text-[9px] text-fog hover:text-ivory"
+                  >
+                    Leave
+                  </button>
+                </div>
+              )
+            })}
           </div>
         </section>
       )}

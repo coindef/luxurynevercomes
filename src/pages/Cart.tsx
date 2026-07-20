@@ -12,7 +12,7 @@ import { IconKey } from '../components/icons'
 const PEIHUO_THRESHOLD = 1_000_000
 
 export default function Cart() {
-  const { cart, setQty, removeFromCart } = useStore()
+  const { cart, setQty, removeFromCart, wishlist, toggleWish } = useStore()
   const navigate = useNavigate()
   const toast = useToast()
   const [unchecked, setUnchecked] = useState<Set<string>>(new Set())
@@ -150,6 +150,18 @@ export default function Cart() {
                     +
                   </button>
                 </div>
+                {/* 真店购物车的第二动作（Net-a-Porter：Remove | Move to wish list）。
+                    想要降级为「想着」，热度不减，账面清零 */}
+                <button
+                  onClick={() => {
+                    if (!wishlist.includes(product!.id)) toggleWish(product!.id)
+                    removeFromCart(item.key)
+                    toast('Moved to the wish list. Wanting it there costs the same as reserving it here.')
+                  }}
+                  className="quiet-link mt-2 text-[9px] text-fog hover:text-ivory"
+                >
+                  To the wish list
+                </button>
               </div>
             </div>
           </div>

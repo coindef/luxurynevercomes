@@ -175,6 +175,18 @@ function BespokeSection({
                 </span>
               </div>
               <p className="mt-2 text-[8px] leading-relaxed text-fog">{BESPOKE.textHelper}</p>
+              {/* 打样：LV/卡地亚的刻字配置器都给实时预览。字排出来，笑点才落地 */}
+              {value[g.label] && (
+                <div className="float-up mt-5">
+                  <p className="text-[8px] tracking-wider text-fog">The proof</p>
+                  <p className="font-lux mt-2 text-2xl italic leading-relaxed tracking-[0.2em] text-ivory">
+                    {value[g.label]}
+                  </p>
+                  <p className="mt-2 text-[8px] leading-relaxed text-fog">
+                    Set in the house italic, exactly as the master would strike it. He is ready. He will remain ready.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -243,10 +255,16 @@ export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const product = getProduct(id ?? '')
-  const { addToCart, saved } = useStore()
+  const { addToCart, saved, noteViewed, waitlist, joinWaitlist, leaveWaitlist } = useStore()
   const toast = useToast()
   const reviews = useMemo(() => [...REVIEWS].sort(() => 0.5 - Math.random()).slice(0, 2), [])
   const [custom, setCustom] = useState<Customization>({})
+
+  // 看过即入档（真店的 Recently viewed）。只记 id，个性化全在本机
+  useEffect(() => {
+    if (product) noteViewed(product.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
   if (!product) {
     return (
@@ -396,6 +414,33 @@ export default function ProductDetail() {
                   recorded in your quota file (the same ledger as the down-payment book).
                 </p>
               )}
+              {/* 另一条队：等候名单（Birkin 的那条队，诚实版）。排位从 id 稳定散列，名单不动 */}
+              {!quotaMet &&
+                (waitlist[product.id] ? (
+                  <p className="mt-5 text-[10px] leading-relaxed text-ivory">
+                    On the waiting list, No. <span className="font-price">{waitlist[product.id].toLocaleString('en-US')}</span>.
+                    <span className="text-fog"> The list does not move, so the position is yours for life.</span>{' '}
+                    <button
+                      onClick={() => {
+                        leaveWaitlist(product.id)
+                        toast('Struck from the list. The number will be kept empty in your honour.')
+                      }}
+                      className="quiet-link text-fog hover:text-ivory"
+                    >
+                      Leave the list
+                    </button>
+                  </p>
+                ) : (
+                  <button
+                    onClick={() => {
+                      const pos = joinWaitlist(product.id)
+                      toast(`You are No. ${pos.toLocaleString('en-US')}. The list is long, still, and now partly yours.`)
+                    }}
+                    className="quiet-link mt-5 text-[10px] text-ivory"
+                  >
+                    Or join the waiting list
+                  </button>
+                ))}
             </div>
           )}
 

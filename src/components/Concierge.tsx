@@ -5,6 +5,7 @@ import { MARQUEE_CITIES } from '../lib/copy'
 import { referenceOf } from '../lib/spec'
 import { yuan } from '../lib/format'
 import { useStore } from '../lib/store'
+import { downloadAppointmentIcs } from '../lib/ics'
 import { SITE_URL } from '../lib/site'
 import { savePriceCard } from '../lib/shareCard'
 import { useToast } from './Toast'
@@ -76,36 +77,7 @@ function nextDays(): { label: string; date: Date }[] {
   return out
 }
 
-/** .ics 是全店唯一真的送达物：日历邀请。字段全按 RFC 5545，能进真日历 */
-function downloadIcs(productName: string | undefined, boutique: string, at: Date) {
-  const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,')
-  const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
-  const end = new Date(at.getTime() + 45 * 60000)
-  const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Maison Zero//LuxuryNeverComes//EN',
-    'BEGIN:VEVENT',
-    `UID:${at.getTime()}@luxurynevercomes`,
-    `DTSTAMP:${fmt(new Date())}`,
-    `DTSTART:${fmt(at)}`,
-    `DTEND:${fmt(end)}`,
-    `SUMMARY:${esc(`Private appointment, ${boutique}`)}`,
-    `DESCRIPTION:${esc(
-      `${productName ? `Regarding ${productName}. ` : ''}The salon will be expecting you. The salon does not exist, but the hour is yours.`,
-    )}`,
-    `LOCATION:${esc(boutique)}`,
-    'END:VEVENT',
-    'END:VCALENDAR',
-  ]
-  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'maison-zero-appointment.ics'
-  a.click()
-  URL.revokeObjectURL(url)
-}
+
 
 function AppointmentSheet({ product, onClose }: { product?: Product; onClose: () => void }) {
   const { bookAppointment } = useStore()
@@ -132,7 +104,7 @@ function AppointmentSheet({ product, onClose }: { product?: Product; onClose: ()
           {boutique}. The salon will be expecting you. The salon does not exist, but the hour is yours, and the
           calendar is real.
         </p>
-        <button onClick={() => downloadIcs(product?.name, boutique, done)} className="gold-cta mt-8 w-full py-3 text-xs tracking-[0.2em]">
+        <button onClick={() => downloadAppointmentIcs(product?.name, boutique, done)} className="gold-cta mt-8 w-full py-3 text-xs tracking-[0.2em]">
           Add to calendar
         </button>
         <p className="mt-3 text-[8px] leading-relaxed text-fog">

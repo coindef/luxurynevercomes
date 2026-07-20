@@ -6,6 +6,8 @@ const CART_KEY = 'flgj.cart'
 const ORDERS_KEY = 'flgj.orders'
 const WISHLIST_KEY = 'flgj.wishlist'
 const APPTS_KEY = 'flgj.appointments'
+const RECENT_KEY = 'flgj.recent'
+const WAITLIST_KEY = 'flgj.waitlist'
 const VERSION_KEY = 'flgj.v'
 /** 数据结构不兼容升级时递增此版本号，旧数据会被清掉（守住的钱是真的守住了，这个不会变） */
 const DATA_VERSION = '1'
@@ -40,6 +42,16 @@ function lineKey(productId: string, customization?: Customization): string {
   return `${productId}|${norm}`
 }
 
+/** 等候名单排位：从 id 稳定散列，1,200-9,800 之间。名单不动，所以排位终身有效 */
+function waitlistPosition(id: string): number {
+  let h = 2166136261
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return 1200 + (Math.abs(h) % 8600)
+}
+
 interface StoreValue {
   cart: CartItem[]
   orders: Order[]
@@ -47,6 +59,10 @@ interface StoreValue {
   wishlist: string[]
   /** 预约：真流程真日历，假沙龙 */
   appointments: Appointment[]
+  /** 最近看过的（真店的「Recently viewed」，零后端的个性化原料） */
+  recent: string[]
+  /** 等候名单：id → 排位。配货旗舰的另一条队（Birkin 的那条队，诚实版） */
+  waitlist: Record<string, number>
   /** 所有寂寞订单的累计金额 = 已守住的钱 */
   saved: number
   cartCount: number
@@ -55,6 +71,9 @@ interface StoreValue {
   removeFromCart: (key: string) => void
   clearCart: () => void
   toggleWish: (productId: string) => void
+  noteViewed: (productId: string) => void
+  joinWaitlist: (productId: string) => number
+  leaveWaitlist: (productId: string) => void
   bookAppointment: (a: Omit<Appointment, 'id'>) => Appointment
   cancelAppointment: (id: string) => void
   placeOrder: (items: OrderItem[], total: number, opts?: { urge?: string; giftWrap?: boolean }) => Order
@@ -67,10 +86,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [orders, setOrders] = useState<Order[]>(() => load(ORDERS_KEY, []))
   const [wishlist, setWishlist] = useState<string[]>(() => load(WISHLIST_KEY, []))
   const [appointments, setAppointments] = useState<Appointment[]>(() => load(APPTS_KEY, []))
+  const [recent, setRecent] = useState<string[]>(() => load(RECENT_KEY, []))
+  const [waitlist, setWaitlist] = useState<Record<string, number>>(() => load(WAITLIST_KEY, {}))
 
   useEffect(() => {
     localStorage.setItem(CART_KEY, JSON.stringify(cart))
   }, [cart])
+
+  useEffect(() => {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(recent))
+  }, [recent])
+
+  useEffect(() => {
+    localStorage.setItem(WAITLIST_KEY, JSON.stringify(waitlist))
+  }, [waitlist])
 
   useEffect(() => {
     localStorage.setItem(ORDERS_KEY, JSON.stringify(orders))
@@ -113,6 +142,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setWishlist((prev) => (prev.includes(productId) ? prev.filter((x) => x !== productId) : [...prev, productId]))
   }
 
+  const noteViewed = (productId: string) => {
+    setRecent((prev) => [productId, ...prev.filter((x) => x !== productId)].slice(0, 24))
+  }
+
+  const joinWaitlist = (productId: string): number => {
+    const pos = waitlistPosition(productId)
+    setWaitlist((prev) => ({ ...prev, [productId]: pos }))
+    return pos
+  }
+
+  const leaveWaitlist = (productId: string) => {
+    setWaitlist((prev) => {
+      const next = { ...prev }
+      delete next[productId]
+      return next
+    })
+  }
+
   const bookAppointment = (a: Omit<Appointment, 'id'>): Appointment => {
     const appt: Appointment = { ...a, id: `${Date.now()}` }
     setAppointments((prev) => [...prev, appt].sort((x, y) => x.at - y.at))
@@ -141,7 +188,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <StoreContext.Provider
-      value={{ cart, orders, wishlist, appointments, saved, cartCount, addToCart, setQty, removeFromCart, clearCart, toggleWish, bookAppointment, cancelAppointment, placeOrder }}
+      value={{ cart, orders, wishlist, appointments, recent, waitlist, saved, cartCount, addToCart, setQty, removeFromCart, clearCart, toggleWish, noteViewed, joinWaitlist, leaveWaitlist, bookAppointment, cancelAppointment, placeOrder }}
     >
       {children}
     </StoreContext.Provider>

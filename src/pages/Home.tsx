@@ -255,6 +255,68 @@ function GiftReceived({ productId, from, onDone }: { productId: string; from: st
   )
 }
 
+/** 最近看过：真店的「Recently viewed」。只读本机档案，回访才出现 */
+function RecentlyViewed() {
+  const { recent } = useStore()
+  const pieces = recent.map(getProduct).filter((p) => p !== undefined).slice(0, 4)
+  if (pieces.length < 2) return null
+  return (
+    <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
+      <h2 className="font-lux text-lg text-ivory lg:text-2xl">Recently viewed</h2>
+      <p className="mt-2 max-w-md text-[11px] text-fog">Looking is the first form of keeping.</p>
+      <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
+        {pieces.map((p) => (
+          <ProductCard key={p!.id} product={p!} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/** 心选：从心愿单/订单/浏览档案推品类偏好，日更轮换。个性化的全部原料都在本机 */
+function ChosenForYou() {
+  const { recent, wishlist, orders } = useStore()
+  const pieces = useMemo(() => {
+    const known = new Set<string>([...recent, ...wishlist])
+    for (const o of orders) for (const it of o.items) known.add(it.product.id)
+    if (known.size === 0) return []
+    const counts = new Map<string, number>()
+    for (const id of known) {
+      const p = getProduct(id)
+      if (p) counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
+    }
+    const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([c]) => c)
+    if (top.length === 0) return []
+    const day = new Date().toISOString().slice(0, 10)
+    const h = (s: string) => {
+      let x = 2166136261
+      for (let i = 0; i < s.length; i++) {
+        x ^= s.charCodeAt(i)
+        x = Math.imul(x, 16777619)
+      }
+      return Math.abs(x)
+    }
+    const out = PRODUCTS.filter((p) => top.includes(p.category) && !known.has(p.id) && viewsOf(p).length > 0)
+      .sort((a, b) => h(a.id + day) - h(b.id + day))
+      .slice(0, 4)
+    return out.length === 4 ? out : []
+  }, [recent, wishlist, orders])
+  if (pieces.length === 0) return null
+  return (
+    <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
+      <h2 className="font-lux text-lg text-ivory lg:text-2xl">You may also like</h2>
+      <p className="mt-2 max-w-md text-[11px] text-fog">
+        Drawn from what you have kept and lingered over. The taste is yours; it never leaves this device.
+      </p>
+      <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
+        {pieces.map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function Home() {
   const { saved } = useStore()
   const navigate = useNavigate()
@@ -389,6 +451,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 回访才有的两条私人段落：最近看过 + 心选（原料全在本机，首访一无所知所以一无所示） */}
+      <RecentlyViewed />
+      <ChosenForYou />
 
       {/* Persistent ledger badge (mobile; healing green, the only colour on the site) */}
       {saved > 0 && (

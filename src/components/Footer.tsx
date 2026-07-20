@@ -38,9 +38,18 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
   },
 ]
 
+const LIST_KEY = 'flgj.list'
+
 export default function Footer() {
   const toast = useToast()
   const [email, setEmail] = useState('')
+  const [joined, setJoined] = useState(() => {
+    try {
+      return localStorage.getItem(LIST_KEY) === '1'
+    } catch {
+      return false
+    }
+  })
 
   return (
     <footer className="mt-32 border-t border-hairline lg:mt-40">
@@ -52,28 +61,60 @@ export default function Footer() {
             <p className="mt-3 max-w-xs text-[11px] leading-loose text-fog">
               Be the first to hear about the pieces that will not arrive.
             </p>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                setEmail('')
-                toast('Noted. We will write to you about nothing, at length, and never send it.')
-              }}
-              className="mt-6 flex max-w-xs items-center gap-3 border-b border-hairline pb-2 transition-colors focus-within:border-ivory"
-            >
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email"
-                aria-label="Email address for the mailing list"
-                className="min-w-0 flex-1 bg-transparent py-1 text-xs text-ivory placeholder:text-fog focus:outline-none"
-              />
-              <button type="submit" className="shrink-0 text-[10px] tracking-[0.2em] text-fog hover:text-ivory">
-                Sign up
-              </button>
-            </form>
+            {joined ? (
+              /* 订过就记得（记在本机）：回访不再劝订，这是真店的礼貌 */
+              <p className="mt-6 max-w-xs text-[11px] leading-loose text-ivory">
+                You are on the list. The first letter is being composed, indefinitely.{' '}
+                <button
+                  onClick={() => {
+                    try {
+                      localStorage.removeItem(LIST_KEY)
+                    } catch {
+                      /* 隐私模式下本就没存 */
+                    }
+                    setJoined(false)
+                    toast('Struck from the list. You will now receive even less.')
+                  }}
+                  className="quiet-link text-[10px] text-fog hover:text-ivory"
+                >
+                  Sign off
+                </button>
+              </p>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  if (!email.includes('@')) {
+                    toast('The address wants an @. Even letters that never leave need somewhere not to go.')
+                    return
+                  }
+                  setEmail('')
+                  try {
+                    localStorage.setItem(LIST_KEY, '1')
+                  } catch {
+                    /* 隐私模式：订阅状态不持久化，玩笑照常成立 */
+                  }
+                  setJoined(true)
+                  toast('Noted. We will write to you about nothing, at length, and never send it.')
+                }}
+                className="mt-6 flex max-w-xs items-center gap-3 border-b border-hairline pb-2 transition-colors focus-within:border-ivory"
+              >
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Your email"
+                  aria-label="Email address for the mailing list"
+                  className="min-w-0 flex-1 bg-transparent py-1 text-xs text-ivory placeholder:text-fog focus:outline-none"
+                />
+                <button type="submit" className="shrink-0 text-[10px] tracking-[0.2em] text-fog hover:text-ivory">
+                  Sign up
+                </button>
+              </form>
+            )}
             <p className="mt-3 max-w-xs text-[9px] leading-relaxed text-fog">
-              Nothing is sent and nothing is stored. Your address stays on this device, like your fortune.
+              Nothing is sent and nothing is stored, except one yes or no on this device. Your address goes nowhere,
+              like your fortune.
             </p>
           </div>
 
