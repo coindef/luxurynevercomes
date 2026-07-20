@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
+import { useMoney } from '../lib/currency'
 import { Link } from 'react-router-dom'
 import { CONVERSIONS, memberLevel } from '../lib/copy'
 import { getProduct } from '../lib/products'
-import { yuan } from '../lib/format'
 import { useCountUp } from '../lib/hooks'
 import { SITE_URL } from '../lib/site'
 import { downloadAppointmentIcs } from '../lib/ics'
@@ -14,6 +14,7 @@ import EditorialImage from '../components/EditorialImage'
 import ProductCard from '../components/ProductCard'
 
 export default function Me() {
+  const money = useMoney()
   const { orders, saved, wishlist, appointments, cancelAppointment, waitlist, leaveWaitlist } = useStore()
   const toast = useToast()
   const wishes = wishlist.map(getProduct).filter((p) => p !== undefined)
@@ -67,7 +68,7 @@ export default function Me() {
       <section className="mt-24 px-6 lg:mt-40">
         <h2 className="font-lux text-2xl text-ivory lg:text-4xl">Downpayment Ledger</h2>
         <p className="mt-2 text-[11px] text-fog">Kept safe for you, in total</p>
-        <p className="font-price mt-8 text-4xl font-bold text-jade lg:text-6xl">{yuan(counted)}</p>
+        <p className="font-price mt-8 text-4xl font-bold text-jade lg:text-6xl">{money(counted)}</p>
         <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
           Strictly speaking, this money never existed. But the calm of having kept it, and the joy of counting three rows of commas, are real.
         </p>
@@ -92,7 +93,7 @@ export default function Me() {
         {monthOrders.length > 0 ? (
           <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
             This month your heart raced <span className="font-price text-ivory">{monthOrders.length}</span> times, keeping{' '}
-            <span className="font-price text-jade">{yuan(monthSaved)}</span> safe.
+            <span className="font-price text-jade">{money(monthSaved)}</span> safe.
             <br />
             Rich in solitude. The solitude is fake; the looking was real.
           </p>

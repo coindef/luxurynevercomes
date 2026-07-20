@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom'
+import { useMoney } from '../lib/currency'
 import { IMAGE_CREDITS, UNSPLASH_NOTE } from '../lib/credits'
 import { PRODUCTS, getProduct } from '../lib/products'
 import { MAISONS } from '../lib/maisons'
 import { PRIVACY_FOOTER } from '../lib/copy'
-import { yuan } from '../lib/format'
 import { useStore } from '../lib/store'
 import EditorialImage from '../components/EditorialImage'
 
 export default function About() {
+  const money = useMoney()
   const { saved, orders } = useStore()
 
   return (
@@ -79,7 +80,7 @@ export default function About() {
           </p>
           <p className="text-fog">
             Kept safe for you so far:{' '}
-            <span className="font-price font-semibold text-jade">{yuan(saved)}</span>
+            <span className="font-price font-semibold text-jade">{money(saved)}</span>
             {orders.length === 0 && <span> (the vault opens with your first order)</span>}
           </p>
         </div>

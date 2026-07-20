@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PRIVACY_FOOTER } from '../lib/copy'
 import { PRODUCTS } from '../lib/products'
+import { CURRENCIES, useCurrency } from '../lib/currency'
 import { useToast } from './Toast'
 
 /**
@@ -42,6 +43,7 @@ const LIST_KEY = 'flgj.list'
 
 export default function Footer() {
   const toast = useToast()
+  const { currency, setCode } = useCurrency()
   const [email, setEmail] = useState('')
   const [joined, setJoined] = useState(() => {
     try {
@@ -143,6 +145,23 @@ export default function Footer() {
             Shipping worldwide, to nowhere, equally. {PRODUCTS.length.toLocaleString('en-US')} pieces in stock, 0 in
             existence.
           </p>
+          {/* 币种：按访客地区自动定，此处可改。汇率手工冻结（本店没有任何东西是活动的）。
+              原生 select，安静下划线——真店的页脚也是这么放的 */}
+          <label className="flex items-baseline gap-2 text-[9px] text-fog">
+            Prices in
+            <select
+              value={currency.code}
+              onChange={(e) => setCode(e.target.value)}
+              className="cursor-pointer border-b border-hairline bg-transparent py-0.5 text-[10px] text-ivory focus:border-ivory focus:outline-none"
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.code}, {c.label}
+                </option>
+              ))}
+            </select>
+            <span className="hidden lg:inline">frozen mid-market rates; the payable sum survives conversion</span>
+          </label>
         </div>
 
         {/* 反承诺放最小字号（法务小字层级），本店签名 */}

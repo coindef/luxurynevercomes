@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { useMoney } from '../lib/currency'
 import { Link, useNavigate } from 'react-router-dom'
 import { getProduct } from '../lib/products'
 import { EMPTY_CART } from '../lib/copy'
-import { yuan } from '../lib/format'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductImage from '../components/ProductImage'
@@ -12,6 +12,7 @@ import { IconKey } from '../components/icons'
 const PEIHUO_THRESHOLD = 1_000_000
 
 export default function Cart() {
+  const money = useMoney()
   const { cart, setQty, removeFromCart, wishlist, toggleWish } = useStore()
   const navigate = useNavigate()
   const toast = useToast()
@@ -86,9 +87,9 @@ export default function Cart() {
         <p className="max-w-md text-[10px] leading-relaxed text-fog">
           {gap > 0 ? (
             <>
-              Quota progress: select another <span className="font-price font-semibold text-ivory">{yuan(gap)}</span>{' '}
+              Quota progress: select another <span className="font-price font-semibold text-ivory">{money(gap)}</span>{' '}
               of scarves or objets to unlock reservation rights for the flagship bag.
-              <span className="mt-1 block text-[9px] text-fog">Quota here is also ¥0.00, so earn it to your heart's content.</span>
+              <span className="mt-1 block text-[9px] text-fog">Quota here is also {'\u00A5'}0.00 in any currency, so earn it to your heart's content.</span>
             </>
           ) : (
             <span className="font-semibold text-jade">Quota met. Reservation rights for the flagship bag are unlocked, with a complimentary canvas tote (which, like the main item, does not ship).</span>
@@ -132,7 +133,7 @@ export default function Cart() {
                 )}
               </div>
               <div className="shrink-0 text-right">
-                <p className="font-price text-sm font-semibold text-ivory">{yuan(product!.price)}</p>
+                <p className="font-price text-sm font-semibold text-ivory">{money(product!.price)}</p>
                 <div className="mt-2 flex items-center justify-end gap-2">
                   <button
                     onClick={() => (item.qty <= 1 ? removeFromCart(item.key) : setQty(item.key, item.qty - 1))}
@@ -173,8 +174,8 @@ export default function Cart() {
       {/* 结算：桌面收进版心（编辑页面不悬浮工具条），手机保留吸底（离拇指近是 app 的好习惯） */}
       <div className="mx-6 mt-12 hidden items-center justify-between gap-3 border-t border-hairline pt-6 lg:mx-0 lg:flex">
         <div className="min-w-0">
-          <p className="font-price truncate text-lg font-semibold text-ivory">{yuan(subtotal)}</p>
-          <p className="text-[9px] font-semibold text-jade">This order keeps {yuan(subtotal)}</p>
+          <p className="font-price truncate text-lg font-semibold text-ivory">{money(subtotal)}</p>
+          <p className="text-[9px] font-semibold text-jade">This order keeps {money(subtotal)}</p>
         </div>
         <button onClick={goCheckout} className="gold-cta shrink-0 px-10 py-2.5 text-sm tracking-widest">
           Checkout ({checkedCount})
@@ -183,8 +184,8 @@ export default function Cart() {
       <div className="fixed bottom-12 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-6 py-3 lg:hidden">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-price truncate text-base font-semibold text-ivory">{yuan(subtotal)}</p>
-            <p className="text-[9px] font-semibold text-jade">This order keeps {yuan(subtotal)}</p>
+            <p className="font-price truncate text-base font-semibold text-ivory">{money(subtotal)}</p>
+            <p className="text-[9px] font-semibold text-jade">This order keeps {money(subtotal)}</p>
           </div>
           <button onClick={goCheckout} className="gold-cta shrink-0 px-10 py-2.5 text-sm tracking-widest">
             Checkout ({checkedCount})

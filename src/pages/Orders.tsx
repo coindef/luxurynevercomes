@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useMoney } from '../lib/currency'
 import { Link } from 'react-router-dom'
 import type { Order } from '../lib/types'
 import {
@@ -8,7 +9,7 @@ import {
   TRACKING_SCRIPT,
   revisitLine,
 } from '../lib/copy'
-import { orderNo, yuan } from '../lib/format'
+import { orderNo } from '../lib/format'
 import { useLongPress } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
@@ -114,6 +115,7 @@ function ConfirmButton({ order }: { order: Order }) {
 }
 
 function OrderCard({ order }: { order: Order }) {
+  const money = useMoney()
   const [expanded, setExpanded] = useState(false)
   const [butlerOpen, setButlerOpen] = useState(false)
   const days = daysSince(order.createdAt)
@@ -145,7 +147,7 @@ function OrderCard({ order }: { order: Order }) {
 
         <p className="mt-6 text-[11px] leading-loose text-fog">
           {order.items.reduce((s, i) => s + i.qty, 0)} pieces in all, kept safe{' '}
-          <span className="font-price text-ivory">{yuan(order.total)}</span>
+          <span className="font-price text-ivory">{money(order.total)}</span>
         </p>
         <p className="mt-2 text-[10px] leading-loose text-fog">
           This order has been {days} days by your side{order.urge && `, because "${order.urge}"`}

@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
-import { yuan } from '../lib/format'
+import { useMoney } from '../lib/currency'
 import { useStore } from '../lib/store'
 
 const LINKS = [
@@ -13,6 +13,7 @@ const LINKS = [
 
 /** 桌面端顶部导航（移动端隐藏，走底部 TabBar） */
 export default function SiteNav() {
+  const money = useMoney()
   const { cartCount, saved } = useStore()
 
   return (
@@ -39,7 +40,7 @@ export default function SiteNav() {
           ))}
           {saved > 0 && (
             <Link to="/me" className="border border-jade/40 px-3 py-1.5 text-[10px] font-semibold text-jade">
-              Kept {yuan(saved)}
+              Kept {money(saved)}
             </Link>
           )}
         </div>

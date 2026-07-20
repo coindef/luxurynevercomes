@@ -1,7 +1,7 @@
 import { useState } from 'react'
+import { useMoney } from '../lib/currency'
 import { Link } from 'react-router-dom'
 import type { Product } from '../lib/types'
-import { yuan } from '../lib/format'
 import { viewsOf } from '../lib/products'
 import { maisonOf } from '../lib/maisons'
 import { colourwayOf, materialOf } from '../lib/spec'
@@ -16,6 +16,7 @@ import ProductImage from './ProductImage'
  * 等 onLoad 之后才允许淡入，否则首次 hover 会「啪」地跳出来，而不是淡进来。
  */
 export default function ProductCard({ product }: { product: Product }) {
+  const money = useMoney()
   const maison = maisonOf(product)
   const alt = viewsOf(product)[1]
   const [seen, setSeen] = useState(false) // 第一次 hover 后就一直挂着，来回 hover 都有动画
@@ -60,7 +61,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {product.easterEgg && <span className="mr-1 text-ivory">◆</span>}
           {product.name}
         </p>
-        <p className="font-price mt-1.5 text-[13px] text-ivory">{yuan(product.price)}</p>
+        <p className="font-price mt-1.5 text-[13px] text-ivory">{money(product.price)}</p>
         {/* Hermès / Cartier 在价格下面放的是这件商品**自己**的材质与色号，不是通用文案 */}
         <p className="mt-1.5 truncate text-[9px] leading-relaxed text-fog">
           {product.quota ? 'By quota only' : `${materialOf(product)}, ${colourwayOf(product)}`}

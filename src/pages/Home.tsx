@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useMoney } from '../lib/currency'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { CATEGORIES, PRODUCTS, getProduct, viewsOf } from '../lib/products'
 import { MARQUEE_CITIES, SEARCH_PLACEHOLDERS, SLOGAN, SUB_SLOGAN, pick } from '../lib/copy'
 import { MAISONS, maisonOf } from '../lib/maisons'
-import { yuan } from '../lib/format'
 import { bespokeOffered } from '../lib/bespoke'
 import { colourwayOf, materialOf } from '../lib/spec'
 import { useRotating, useSeckillCountdown } from '../lib/hooks'
@@ -129,6 +129,7 @@ function Ticker({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
 
 /** Today's Salon: a tight showcase of photographed flagships. */
 function SalonPrive() {
+  const money = useMoney()
   const countdown = useSeckillCountdown()
   const items = dailySalon()
 
@@ -157,7 +158,7 @@ function SalonPrive() {
             <div className="pt-5">
               <p className="truncate text-[10px] text-fog">{maisonOf(p!).name}</p>
               <p className="font-lux mt-1 text-[15px] leading-snug text-ivory">{p!.name}</p>
-              <p className="font-price mt-2 text-[13px] text-ivory">{yuan(p!.price)}</p>
+              <p className="font-price mt-2 text-[13px] text-ivory">{money(p!.price)}</p>
               <p className="mt-1.5 truncate text-[9px] leading-relaxed text-fog">
                 {materialOf(p!)}, {colourwayOf(p!)}
               </p>
@@ -199,6 +200,7 @@ function HousesDirectory() {
 
 /** 收礼页：/?gift=<id>&from=<name>。接受后整单入账进收礼人的账本——链接就是包裹 */
 function GiftReceived({ productId, from, onDone }: { productId: string; from: string; onDone: () => void }) {
+  const money = useMoney()
   const { placeOrder } = useStore()
   const product = getProduct(productId)
   const [accepted, setAccepted] = useState(false)
@@ -215,7 +217,7 @@ function GiftReceived({ productId, from, onDone }: { productId: string; from: st
         {accepted ? (
           <div className="float-up">
             <p className="font-lux text-sm leading-loose text-ivory">
-              It is yours. <span className="font-price text-jade">{yuan(product.price)}</span> has been kept safe on
+              It is yours. <span className="font-price text-jade">{money(product.price)}</span> has been kept safe on
               your behalf, and the butler has set out already.
             </p>
             <p className="mt-3 text-[10px] leading-relaxed text-fog">He will not arrive. The gift, however, stays given.</p>
@@ -235,7 +237,7 @@ function GiftReceived({ productId, from, onDone }: { productId: string; from: st
               <ProductImage product={product} className="aspect-[3/4] w-full" emojiClass="text-6xl" plaque />
             </div>
             <p className="font-lux mt-5 text-base leading-snug text-ivory">{product.name}</p>
-            <p className="font-price mt-2 text-sm text-ivory">{yuan(product.price)}</p>
+            <p className="font-price mt-2 text-sm text-ivory">{money(product.price)}</p>
             <p className="mt-4 text-[10px] leading-loose text-fog">
               Wrapped in the house box, ribbon tied by hand. It will never arrive, which keeps it forever on the way to
               you.
@@ -318,6 +320,7 @@ function ChosenForYou() {
 }
 
 export default function Home() {
+  const money = useMoney()
   const { saved } = useStore()
   const navigate = useNavigate()
   const placeholder = useRotating(SEARCH_PLACEHOLDERS, 3600)
@@ -462,7 +465,7 @@ export default function Home() {
           to="/me"
           className="fixed bottom-20 right-3 z-30 border border-jade/40 bg-ink px-3 py-2 text-[10px] font-semibold text-jade lg:hidden"
         >
-          Kept safe: {yuan(saved)}
+          Kept safe: {money(saved)}
         </Link>
       )}
     </div>

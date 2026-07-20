@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { StoreProvider } from './lib/store'
+import { CurrencyProvider } from './lib/currency'
 import { ToastProvider } from './components/Toast'
 import ErrorBoundary from './components/ErrorBoundary'
 import SiteNav from './components/SiteNav'
@@ -44,6 +45,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <StoreProvider>
+        <CurrencyProvider>
         <ToastProvider>
           <BrowserRouter>
             <ScrollToTop />
@@ -68,6 +70,7 @@ export default function App() {
             </Suspense>
           </BrowserRouter>
         </ToastProvider>
+        </CurrencyProvider>
       </StoreProvider>
     </ErrorBoundary>
   )

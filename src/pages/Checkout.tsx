@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useMoney } from '../lib/currency'
 import { Link, useLocation } from 'react-router-dom'
 import type { CustomGroup, Order, OrderItem } from '../lib/types'
 import { getProduct } from '../lib/products'
 import { customFor } from '../lib/bespoke'
 import { BESPOKE, SOOTHING_BY_URGE, SOOTHING_GENERIC, URGE_CHIPS, pick } from '../lib/copy'
-import { orderNo, yuan } from '../lib/format'
+import { orderNo } from '../lib/format'
 import { useCountUp } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
@@ -48,6 +49,7 @@ function Confetti() {
 }
 
 function SavedFlip({ total }: { total: number }) {
+  const money = useMoney()
   const [flipped, setFlipped] = useState(false)
   const counted = useCountUp(flipped ? total : 0, 1600)
 
@@ -60,7 +62,7 @@ function SavedFlip({ total }: { total: number }) {
     <div className="text-center">
       {flipped ? (
         <p className="font-price float-up text-3xl font-bold text-jade">
-          +{yuan(counted)}
+          +{money(counted)}
           <span className="mt-1.5 block text-[10px] font-normal tracking-widest text-jade/90">Deposited to your down-payment book</span>
         </p>
       ) : (
@@ -72,6 +74,7 @@ function SavedFlip({ total }: { total: number }) {
 
 /** 小票上的定制块：加价与减免互相抵消，像极了生活 */
 function ReceiptBespoke({ item }: { item: OrderItem }) {
+  const money = useMoney()
   if (!item.customization) return null
   // 必须和详情页用同一个查找（customFor = 子品类优先）。
   // 这里曾经直接查 CATEGORY_CUSTOM[分类]，于是 978/1009 件商品的定制在小票上
@@ -94,11 +97,11 @@ function ReceiptBespoke({ item }: { item: OrderItem }) {
           <span className="truncate">
             {r.label}　{r.v.length > 10 ? `${r.v.slice(0, 10)}…` : r.v}
           </span>
-          <span className="font-price shrink-0">+{yuan(r.surcharge)}</span>
+          <span className="font-price shrink-0">+{money(r.surcharge)}</span>
         </div>
       ))}
-      <div className="flex justify-between"><span>Bespoke surcharge total</span><span className="font-price">+{yuan(total)}</span></div>
-      <div className="flex justify-between"><span>Bespoke surcharge waiver</span><span className="font-price">-{yuan(total)}</span></div>
+      <div className="flex justify-between"><span>Bespoke surcharge total</span><span className="font-price">+{money(total)}</span></div>
+      <div className="flex justify-between"><span>Bespoke surcharge waiver</span><span className="font-price">-{money(total)}</span></div>
       <p className="text-fog">(This line cancels the one above, much like life.)</p>
     </div>
   )
@@ -186,6 +189,7 @@ function SuccessView({ order }: { order: Order }) {
 }
 
 export default function Checkout() {
+  const money = useMoney()
   const { cart, removeFromCart, placeOrder } = useStore()
   const location = useLocation()
   const toast = useToast()
@@ -316,7 +320,7 @@ export default function Checkout() {
             </div>
             <div className="shrink-0 text-right">
               <p className="text-[9px] text-fog">×{r.qty}</p>
-              <p className="font-price text-xs font-semibold text-ivory">{yuan(r.product.price * r.qty)}</p>
+              <p className="font-price text-xs font-semibold text-ivory">{money(r.product.price * r.qty)}</p>
             </div>
           </div>
         ))}
@@ -348,11 +352,11 @@ export default function Checkout() {
       <section className="mx-6 mt-12 border-t border-hairline pt-8 text-[10px] lg:mx-0 lg:mt-16">
         <div className="flex justify-between py-1 text-fog">
           <span>Collection total</span>
-          <span className="font-price line-through">{yuan(originalTotal)}</span>
+          <span className="font-price line-through">{money(originalTotal)}</span>
         </div>
         <div className="flex justify-between py-1 text-fog">
           <span>Private client courtesy</span>
-          <span className="font-price">-{yuan(priveOff)}</span>
+          <span className="font-price">-{money(priveOff)}</span>
         </div>
         {subtotal >= 1_000_000 && (
           <div className="flex justify-between gap-4 py-1 text-fog">
@@ -362,7 +366,7 @@ export default function Checkout() {
         )}
         <div className="flex justify-between py-1 text-fog">
           <span>Black-card credit (unlimited balance, not that you'll ever use it)</span>
-          <span className="font-price">-{yuan(subtotal)}</span>
+          <span className="font-price">-{money(subtotal)}</span>
         </div>
         <div className="mt-4 flex items-baseline justify-between border-t border-hairline pt-4">
           <span className="font-lux text-ivory">Amount paid</span>
@@ -374,7 +378,7 @@ export default function Checkout() {
       <div className="mx-6 mt-12 hidden lg:mx-0 lg:block">
         <button onClick={pay} className="gold-cta w-full py-3.5 text-center text-sm font-semibold tracking-widest">
           Pay ¥0.00
-          <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">This one keeps {yuan(subtotal)}</span>
+          <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">This one keeps {money(subtotal)}</span>
         </button>
       </div>
       <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-6 py-3 lg:hidden">
@@ -383,7 +387,7 @@ export default function Checkout() {
           className="gold-cta w-full py-3.5 text-center text-sm font-semibold tracking-widest"
         >
           Pay ¥0.00
-          <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">This one keeps {yuan(subtotal)}</span>
+          <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">This one keeps {money(subtotal)}</span>
         </button>
       </div>
 

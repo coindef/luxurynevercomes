@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useMoney } from '../lib/currency'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Customization, CustomGroup, Product } from '../lib/types'
 import { catLabel, getProduct } from '../lib/products'
@@ -6,7 +7,6 @@ import { maisonOf, productsOfMaison } from '../lib/maisons'
 import { bespokeOffered, customFor, subtypeOf } from '../lib/bespoke'
 import { IDENTITY_LABELS, referenceOf, specsOf } from '../lib/spec'
 import { BESPOKE, MARQUEE_CITIES, REVIEWS, pick } from '../lib/copy'
-import { yuan } from '../lib/format'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductGallery from '../components/ProductGallery'
@@ -114,6 +114,7 @@ function BespokeSection({
   value: Customization
   onChange: (v: Customization) => void
 }) {
+  const money = useMoney()
   const toast = useToast()
 
   const surcharge = groups.reduce((sum, g) => {
@@ -148,7 +149,7 @@ function BespokeSection({
                   >
                     {c.name}
                     <span className={`ml-1.5 text-[8px] ${selected ? 'text-ivory' : 'text-fog'}`}>
-                      {c.surcharge > 0 ? `+${yuan(c.surcharge)}` : BESPOKE.baseTag}
+                      {c.surcharge > 0 ? `+${money(c.surcharge)}` : BESPOKE.baseTag}
                     </span>
                   </button>
                 )
@@ -171,7 +172,7 @@ function BespokeSection({
                     免费就写 complimentary，别写 +¥0.00——加价那笑点留给真加价的项 */}
                 <span className="shrink-0 text-[8px] text-fog">
                   {(value[g.label] ?? '').length}/12,{' '}
-                  {(g.choices?.[0]?.surcharge ?? 0) > 0 ? `+${yuan(g.choices?.[0]?.surcharge ?? 0)}` : 'complimentary'}
+                  {(g.choices?.[0]?.surcharge ?? 0) > 0 ? `+${money(g.choices?.[0]?.surcharge ?? 0)}` : 'complimentary'}
                 </span>
               </div>
               <p className="mt-2 text-[8px] leading-relaxed text-fog">{BESPOKE.textHelper}</p>
@@ -195,9 +196,9 @@ function BespokeSection({
       {/* 合计条：加价划掉，实付归零——归零那一刻是绿的 */}
       <div className="mt-8 flex items-baseline justify-between border-t border-hairline pt-5">
         <span className="text-[9px] text-fog">
-          Bespoke surcharge total <span className="font-price text-fog line-through">+{yuan(surcharge)}</span>
+          Bespoke surcharge total <span className="font-price text-fog line-through">+{money(surcharge)}</span>
         </span>
-        <span className="font-price text-base font-semibold text-jade">Payable ¥0.00</span>
+        <span className="font-price text-base font-semibold text-jade">Payable {money(0)}</span>
       </div>
       {complete && <p className="font-lux float-up mt-3 text-[10px] leading-relaxed text-jade">{BESPOKE.completeLine}</p>}
       <p className="mt-5 text-[8px] leading-relaxed text-fog">{BESPOKE.footnote}</p>
@@ -252,6 +253,7 @@ const CARE_FALLBACK =
   'Keep away from direct sun, radiators and salt water. Have it seen by the house every five years. None of this will be necessary, but the instructions are real and we would rather you had them.'
 
 export default function ProductDetail() {
+  const money = useMoney()
   const { id } = useParams()
   const navigate = useNavigate()
   const product = getProduct(id ?? '')
@@ -349,12 +351,12 @@ export default function ProductDetail() {
           <h1 className="font-lux mt-2 text-xl leading-relaxed text-ivory lg:text-3xl">{product.name}</h1>
 
           <div className="mt-6 flex items-baseline gap-3">
-            <span className="font-price text-3xl font-semibold text-ivory lg:text-4xl">{yuan(product.price)}</span>
+            <span className="font-price text-3xl font-semibold text-ivory lg:text-4xl">{money(product.price)}</span>
             {product.originalPrice && (
-              <span className="font-price text-xs text-fog line-through">{yuan(product.originalPrice)}</span>
+              <span className="font-price text-xs text-fog line-through">{money(product.originalPrice)}</span>
             )}
           </div>
-          <p className="mt-2 text-[9px] text-fog">Tax included. The tax is also ¥0.00.</p>
+          <p className="mt-2 text-[9px] text-fog">Tax included. The tax is also {money(0)}.</p>
 
           {/* 散文只讲来历与材质，数字全在下面的图录小注里——两者从不混排（Cartier 的写法） */}
           <p className="mt-6 max-w-md text-xs leading-loose text-fog">{product.description}</p>
@@ -399,10 +401,10 @@ export default function ProductDetail() {
               </p>
               <div className="mt-5 flex items-baseline justify-between text-[10px]">
                 <span className="text-fog">
-                  Earned <span className="font-price text-jade">{yuan(saved)}</span>
+                  Earned <span className="font-price text-jade">{money(saved)}</span>
                 </span>
                 <span className="text-fog">
-                  Threshold <span className="font-price text-ivory">{yuan(quota)}</span>
+                  Threshold <span className="font-price text-ivory">{money(quota)}</span>
                 </span>
               </div>
               <div className="mt-2 h-px w-full bg-hairline">
@@ -410,7 +412,7 @@ export default function ProductDetail() {
               </div>
               {!quotaMet && (
                 <p className="mt-3 text-[9px] leading-relaxed text-fog">
-                  <span className="font-price text-ivory">{yuan(quotaLeft)}</span> of quota to go. Every reservation is
+                  <span className="font-price text-ivory">{money(quotaLeft)}</span> of quota to go. Every reservation is
                   recorded in your quota file (the same ledger as the down-payment book).
                 </p>
               )}

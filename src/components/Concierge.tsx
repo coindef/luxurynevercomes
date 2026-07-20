@@ -5,6 +5,7 @@ import { MARQUEE_CITIES } from '../lib/copy'
 import { referenceOf } from '../lib/spec'
 import { yuan } from '../lib/format'
 import { useStore } from '../lib/store'
+import { useMoney } from '../lib/currency'
 import { downloadAppointmentIcs } from '../lib/ics'
 import { SITE_URL } from '../lib/site'
 import { savePriceCard } from '../lib/shareCard'
@@ -506,6 +507,7 @@ export function ButlerDrawer({ onClose }: { onClose: () => void }) {
  * 接受后整单入账进对方的账本——每个用户都成了发行渠道。
  */
 function GiftSheet({ product, onClose }: { product: Product; onClose: () => void }) {
+  const money = useMoney()
   const [from, setFrom] = useState('')
   const [copied, setCopied] = useState(false)
   const link = `${SITE_URL}/?gift=${product.id}${from.trim() ? `&from=${encodeURIComponent(from.trim().slice(0, 20))}` : ''}`
@@ -525,7 +527,7 @@ function GiftSheet({ product, onClose }: { product: Product; onClose: () => void
   return (
     <Sheet title="Send as a gift" onClose={onClose}>
       <p className="mt-2 max-w-sm text-[10px] leading-loose text-fog">
-        {product.name.split('·')[0].trim()}, {yuan(product.price)}, wrapped and sent for ¥0.00. It will never arrive,
+        {product.name.split('·')[0].trim()}, {money(product.price)}, wrapped and sent for {money(0)}. It will never arrive,
         which keeps it forever on the way to them.
       </p>
       <div className="mt-6 flex items-center gap-3 border-b border-hairline pb-2 transition-colors focus-within:border-ivory">
@@ -561,6 +563,7 @@ function GiftSheet({ product, onClose }: { product: Product; onClose: () => void
 /* ------------------------------------------------------------------ 问价 */
 
 function PriceSheet({ product, onClose }: { product: Product; onClose: () => void }) {
+  const money = useMoney()
   return (
     <Sheet title="Price, confirmed in writing" onClose={onClose}>
       <div className="mt-6 border border-hairline p-6">
@@ -570,9 +573,9 @@ function PriceSheet({ product, onClose }: { product: Product; onClose: () => voi
         <p className="max-w-sm text-[11px] leading-loose text-fog">
           Further to your enquiry regarding <span className="text-ivory">{product.name.split('·')[0].trim()}</span>{' '}
           (Ref. {referenceOf(product)}), the house confirms the price as{' '}
-          <span className="font-price text-ivory">{yuan(product.price)}</span>, of which the payable portion is
+          <span className="font-price text-ivory">{money(product.price)}</span>, of which the payable portion is
         </p>
-        <p className="font-price mt-4 text-3xl font-semibold text-jade">¥0.00</p>
+        <p className="font-price mt-4 text-3xl font-semibold text-jade">{money(0)}</p>
         <p className="mt-4 max-w-sm text-[9px] leading-relaxed text-fog">
           This confirmation is binding. The figure will not rise; it has nowhere to go. Issued{' '}
           {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}, valid in
@@ -638,7 +641,9 @@ export default function ConciergeRow({ product }: { product: Product }) {
 
   return (
     <>
-      <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3">
+      {/* 客务台：与真店同款的「服务栈」——一列发丝线行，不再是一把散落的内联链接
+          （六个下划线词挤成两行，末尾还悬一个孤儿）。行款借预约/门店表的现成语言 */}
+      <div className="mt-10 max-w-md">
         <button
           onClick={() => {
             toggleWish(product.id)
@@ -648,25 +653,36 @@ export default function ConciergeRow({ product }: { product: Product }) {
                 : 'Added to the wish list. Wanting, now on file. The file is kept in your browser, like your fortune.',
             )
           }}
-          className={`quiet-link text-[10px] ${wished ? 'text-jade' : 'text-ivory'}`}
+          className="group flex w-full items-center justify-between gap-4 border-t border-hairline py-3.5 text-left"
         >
-          {wished ? 'In your wish list' : 'Add to wish list'}
+          <span className={`text-[11px] ${wished ? 'text-jade' : 'text-ivory'}`}>
+            {wished ? 'In your wish list' : 'Add to wish list'}
+          </span>
+          <span aria-hidden="true" className={`text-[11px] ${wished ? 'text-jade' : 'text-fog'}`}>
+            {wished ? '✓' : '+'}
+          </span>
         </button>
-        <button onClick={() => setOpen('ambassador')} className="quiet-link text-[10px] text-ivory">
-          Contact an ambassador
-        </button>
-        <button onClick={() => setOpen('appointment')} className="quiet-link text-[10px] text-ivory">
-          Book an appointment
-        </button>
-        <button onClick={() => setOpen('boutique')} className="quiet-link text-[10px] text-ivory">
-          Find in boutique
-        </button>
-        <button onClick={() => setOpen('price')} className="quiet-link text-[10px] text-ivory">
-          Request price
-        </button>
-        <button onClick={() => setOpen('gift')} className="quiet-link text-[10px] text-ivory">
-          Send as a gift
-        </button>
+        {(
+          [
+            ['ambassador', 'Contact an ambassador', 'She is at her desk'],
+            ['appointment', 'Book an appointment', 'The hours are real'],
+            ['boutique', 'Find in boutique', '0 in all eight'],
+            ['price', 'Request price', 'Confirmed in writing'],
+            ['gift', 'Send as a gift', 'Arrives for no one'],
+          ] as const
+        ).map(([key, label, note]) => (
+          <button
+            key={key}
+            onClick={() => setOpen(key)}
+            className="group flex w-full items-center justify-between gap-4 border-t border-hairline py-3.5 text-left last:border-b"
+          >
+            <span className="text-[11px] text-ivory">{label}</span>
+            <span className="flex shrink-0 items-baseline gap-2 text-[9px] text-fog">
+              <span className="hidden sm:inline">{note}</span>
+              <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5">›</span>
+            </span>
+          </button>
+        ))}
       </div>
 
       {open === 'appointment' && <AppointmentSheet product={product} onClose={() => setOpen(null)} />}
