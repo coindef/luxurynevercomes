@@ -101,7 +101,9 @@ const DIRECTION = {
     scene: 'on a plain museum wall of neutral stone-grey, gallery spotlighting, deep quiet',
     views: [
       { lead: 'Straight-on frontal view, centred, the complete piece in frame, of a', caption: 'Full view' },
-      { lead: 'Three-quarter view under raking light, showing surface relief, of a', caption: 'Raking light' },
+      // 「showing surface relief」踩了铁律 4：surface 成了主语，模型画了一面被侧光扫过的空墙，
+      // 把青铜簋/纸莎草/丝网版画整个丢了。主语必须始终是作品本身
+      { lead: 'Three-quarter view under raking side light, the complete work centred and filling the frame, of a', caption: 'Raking light' },
       { lead: 'Installation view from across a vacant gallery room, seen at a distance, of a', caption: 'In situ' },
     ],
   },
