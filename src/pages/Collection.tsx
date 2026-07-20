@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { CATEGORIES, PRODUCTS, catLabel } from '../lib/products'
+import { CATEGORIES, PRODUCTS, catLabel, getProduct } from '../lib/products'
 import { SEARCH_PLACEHOLDERS } from '../lib/copy'
 import { emptyLine, searchProducts } from '../lib/search'
 import { useRotating } from '../lib/hooks'
@@ -34,6 +34,9 @@ export default function Collection() {
   const category = params.get('cat')
   const sort = params.get('sort') ?? ''
   const quotaOnly = params.get('quota') === '1'
+  /** 别人分享来的心愿单：/collection?ids=a,b,c（纯 URL，零后端） */
+  const sharedIds = (params.get('ids') ?? '').split(',').filter(Boolean)
+  const sharedWish = sharedIds.length > 0
 
   const [visible, setVisible] = useState(PAGE_SIZE)
   const placeholder = useRotating(SEARCH_PLACEHOLDERS, 3600)
@@ -50,9 +53,14 @@ export default function Collection() {
 
   /** 品类筛选**之前**的结果集：品类计数要按它算，才是「活的」计数 */
   const base = useMemo(() => {
+    if (sharedWish) {
+      const picked = sharedIds.map(getProduct).filter((p) => p !== undefined)
+      return quotaOnly ? picked.filter((p) => p.quota) : picked
+    }
     const b = search ? search.items : PRODUCTS
     return quotaOnly ? b.filter((p) => p.quota) : b
-  }, [search, quotaOnly])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, quotaOnly, params.get('ids')])
 
   const list = useMemo(() => {
     const filtered = category ? base.filter((p) => p.category === category) : base
@@ -76,9 +84,9 @@ export default function Collection() {
   // 无限滚动会吃掉页脚，也让人永远不知道自己在 1009 件里走到了哪
 
   const shown = list.slice(0, visible)
-  const heading = q ? 'Search' : quotaOnly ? 'By quota only' : category ? catLabel(category) : 'The Collection'
+  const heading = q ? 'Search' : sharedWish ? 'A shared wish list' : quotaOnly ? 'By quota only' : category ? catLabel(category) : 'The Collection'
   /** 只有「逛全部、图录序」时才分章：搜索按相关度、按价格排序时，品类是乱的，硬分章只会更乱 */
-  const sectioned = !q && !category && !quotaOnly && sort === ''
+  const sectioned = !q && !category && !quotaOnly && !sharedWish && sort === ''
   /** 每个品类**在当前结果里**有多少件。Hermès 的每个筛选值后面都挂着实时计数（「Black (5)」） */
   const counts = useMemo(() => {
     const n: Record<string, number> = {}
@@ -114,6 +122,12 @@ export default function Collection() {
             <>
               <span className="font-price text-ivory">{list.length.toLocaleString('en-US')}</span>
               {list.length === 1 ? ' piece matches ' : ' pieces match '}“{q}”
+            </>
+          ) : sharedWish ? (
+            <>
+              <span className="font-price text-ivory">{list.length.toLocaleString('en-US')}</span>
+              {list.length === 1 ? ' piece someone' : ' pieces someone'} wanted enough to send you the list. Wanting,
+              forwarded, is still free.
             </>
           ) : quotaOnly ? (
             <>

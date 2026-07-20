@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { PRODUCTS, getProduct } from '../lib/products'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { CATEGORIES, PRODUCTS, getProduct, viewsOf } from '../lib/products'
 import { MARQUEE_CITIES, SEARCH_PLACEHOLDERS, SLOGAN, SUB_SLOGAN, pick } from '../lib/copy'
 import { MAISONS, maisonOf } from '../lib/maisons'
 import { yuan } from '../lib/format'
@@ -39,6 +39,28 @@ const FEATURED_IDS = [
   'lx-croc-cardcase',
   'lx-royal-sapphire',
 ]
+
+/**
+ * 今日沙龙：按日期播种的轮换。此前是写死的六件——「Today's Salon」名不副实，
+ * 回头客每天看到同一面墙。现在每天午夜换展：每个品类取最贵的八件有照片的，
+ * 按「日期+品类」稳定抽一件，再抽六个品类上墙。确定性的：同一天所有人看到同一面墙。
+ */
+function dailySalon() {
+  const d = new Date()
+  const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+  const h = (s: string) => {
+    let x = 0
+    for (let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0
+    return x
+  }
+  const picks = CATEGORIES.map((c) => {
+    const pool = PRODUCTS.filter((p) => p.category === c.name && viewsOf(p).length > 0)
+      .sort((a, b) => b.price - a.price)
+      .slice(0, 8)
+    return pool.length ? pool[h(key + c.name) % pool.length] : null
+  }).filter((p) => p !== null)
+  return picks.sort((a, b) => h(key + a.id) - h(key + b.id)).slice(0, 6)
+}
 
 /** 工坊开着的展示件：优先从首页已亮相的藏品里挑，保证「Book the atelier」说到做到 */
 const atelierPieceId =
@@ -108,7 +130,7 @@ function Ticker({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
 /** Today's Salon: a tight showcase of photographed flagships. */
 function SalonPrive() {
   const countdown = useSeckillCountdown()
-  const items = SHOWCASE_IDS.map(getProduct).filter(Boolean)
+  const items = dailySalon()
 
   return (
     <section className="mt-24 lg:mt-40">
@@ -116,7 +138,7 @@ function SalonPrive() {
         <h2 className="font-lux text-2xl text-ivory lg:text-4xl">Today's Salon</h2>
         <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
           The booking window closes in <span className="font-price text-ivory">{countdown}</span>. Every refresh, we
-          quietly reserve it for you again.
+          quietly reserve it for you again. The wall is rehung at midnight.
         </p>
       </div>
       <div className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-2 [-webkit-overflow-scrolling:touch] lg:mx-auto lg:mt-16 lg:grid lg:max-w-6xl lg:grid-cols-3 lg:gap-14 lg:overflow-visible">
@@ -175,16 +197,79 @@ function HousesDirectory() {
   )
 }
 
+/** 收礼页：/?gift=<id>&from=<name>。接受后整单入账进收礼人的账本——链接就是包裹 */
+function GiftReceived({ productId, from, onDone }: { productId: string; from: string; onDone: () => void }) {
+  const { placeOrder } = useStore()
+  const product = getProduct(productId)
+  const [accepted, setAccepted] = useState(false)
+  if (!product) return null
+
+  const accept = () => {
+    placeOrder([{ product, qty: 1 }], product.price, { urge: from ? `A gift from ${from}` : 'A gift' })
+    setAccepted(true)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-8">
+      <div className="pop-in max-h-[88dvh] w-full max-w-80 overflow-y-auto bg-white p-8">
+        {accepted ? (
+          <div className="float-up">
+            <p className="font-lux text-sm leading-loose text-ivory">
+              It is yours. <span className="font-price text-jade">{yuan(product.price)}</span> has been kept safe on
+              your behalf, and the butler has set out already.
+            </p>
+            <p className="mt-3 text-[10px] leading-relaxed text-fog">He will not arrive. The gift, however, stays given.</p>
+            <div className="mt-8 flex items-center gap-6">
+              <Link to="/orders" onClick={onDone} className="gold-cta px-8 py-2.5 text-[11px] tracking-[0.2em]">
+                See it in his care
+              </Link>
+              <button onClick={onDone} className="quiet-link text-[10px] text-fog hover:text-ivory">
+                Keep browsing
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="text-[10px] text-fog">{from ? `${from} has sent you` : 'Someone has sent you'}</p>
+            <div className="mt-4 overflow-hidden bg-panel">
+              <ProductImage product={product} className="aspect-[3/4] w-full" emojiClass="text-6xl" plaque />
+            </div>
+            <p className="font-lux mt-5 text-base leading-snug text-ivory">{product.name}</p>
+            <p className="font-price mt-2 text-sm text-ivory">{yuan(product.price)}</p>
+            <p className="mt-4 text-[10px] leading-loose text-fog">
+              Wrapped in the house box, ribbon tied by hand. It will never arrive, which keeps it forever on the way to
+              you.
+            </p>
+            <div className="mt-7 flex items-center gap-6">
+              <button onClick={accept} className="gold-cta px-8 py-2.5 text-[11px] tracking-[0.2em]">
+                Accept the gift
+              </button>
+              <button onClick={onDone} className="quiet-link text-[10px] text-fog hover:text-ivory">
+                Decline
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const { saved } = useStore()
   const navigate = useNavigate()
   const placeholder = useRotating(SEARCH_PLACEHOLDERS, 3600)
   const [showWelcome, setShowWelcome] = useState(false)
   const [query, setQuery] = useState('')
+  const [params] = useSearchParams()
+  const giftId = params.get('gift')
+  const giftFrom = (params.get('from') ?? '').replace(/[<>]/g, '').slice(0, 20)
+  const [gift, setGift] = useState<string | null>(() => (giftId && getProduct(giftId) ? giftId : null))
 
   useEffect(() => {
-    if (!localStorage.getItem(WELCOME_KEY)) setShowWelcome(true)
-  }, [])
+    // 收礼优先于开卡仪式：一个访客一次只该有一件大事
+    if (!gift && !localStorage.getItem(WELCOME_KEY)) setShowWelcome(true)
+  }, [gift])
 
   const closeWelcome = () => {
     localStorage.setItem(WELCOME_KEY, '1')
@@ -195,6 +280,16 @@ export default function Home() {
 
   return (
     <div className="pb-28">
+      {gift && (
+        <GiftReceived
+          productId={gift}
+          from={giftFrom}
+          onDone={() => {
+            setGift(null)
+            window.history.replaceState({}, '', '/')
+          }}
+        />
+      )}
       {showWelcome && <BlackCardModal onClose={closeWelcome} />}
 
       {/* Cinematic hero: an empty grand gallery, the showroom for a store that ships nothing.

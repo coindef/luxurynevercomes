@@ -130,6 +130,15 @@ npm run lint       # oxlint
 
 ## 其他
 
+- **对外身份**：站点地址常量在 `src/lib/site.ts`（分享卡、赠礼链接、心愿单链接都从它拼）；
+  `index.html` 里 og:image / og:url 是写死的绝对地址（爬虫不解析相对路径）。**换自定义域名改这两处。**
+  注意本站是纯 SPA、所有路由共用一份 HTML，分享出去的任何链接都用同一张 og 卡（`public/og-card.jpg`）；
+  要做每件商品各自的分享卡需要 SSR/边缘中间件，属于之后的架构题
+- **分享卡**：`src/lib/shareCard.ts` 手绘 canvas（1080×1350 竖幅），三张：鉴定证书（深）、
+  书面价格确认（纸白）、本月小结（纸白+绿）。零依赖，别引 html2canvas
+- **赠礼链接**：`/?gift=<id>&from=<name>` 纯 URL 零后端，接受即 placeOrder 入账；
+  心愿单分享 `/collection?ids=a,b,c` 同理
+
 - 手机宽度容器（#root 480px 居中），吸底元素留 padding-bottom
 - 详情/结算页无 TabBar（自带吸底操作栏），路由分组见 App.tsx
 - 姊妹站仓库：github.com/coindef/parcelnevercomes（改共享概念时注意两站一致性）

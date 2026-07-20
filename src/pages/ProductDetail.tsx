@@ -531,8 +531,8 @@ export default function ProductDetail() {
         ) : (
           <button
             onClick={() => {
-              toast('Quota is the only threshold, and the easiest one to cross. Go reserve something else. It all counts, and it is all ¥0.00.')
-              navigate('/')
+              toast('Quota is the easiest threshold in retail. Start small, a card holder counts. It all counts, and it is all ¥0.00.')
+              navigate('/collection?sort=price-asc')
             }}
             className="gold-cta flex-1 py-3.5 text-center text-xs font-semibold tracking-[0.2em] lg:w-56 lg:flex-none"
           >

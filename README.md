@@ -54,6 +54,12 @@ order is delivered to the showroom of your heart, climate-controlled, never depr
 the butler replies. Long-press the forever-greyed "confirm receipt" for a Certificate of Genuine
 Solitude.
 
+**Send it onward.** Any piece can be sent as a gift: a plain link (`/?gift=...&from=You`) that opens as
+a wrapped parcel on the recipient's screen, enters their ledger when accepted, and never arrives for
+either of you. Wish lists share the same way. The certificate, the written price confirmation and the
+monthly ledger summary all export as portrait cards sized for posting, because a shop like this spreads
+by screenshot, and the screenshots should come pre-composed.
+
 **Look back.** The Ledger totals everything *kept safe* (`¥380,000,000.00`, every comma spelled out),
 converted into "≈ 190 first-tier downpayments" or "≈ many years of you, unharmed." Your first visit
 hands you a *Carte Noire*, limit none, valid forever, not that checkout will ever need it.

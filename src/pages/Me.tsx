@@ -4,6 +4,9 @@ import { CONVERSIONS, memberLevel } from '../lib/copy'
 import { getProduct } from '../lib/products'
 import { yuan } from '../lib/format'
 import { useCountUp } from '../lib/hooks'
+import { SITE_URL } from '../lib/site'
+import { saveMonthlyCard } from '../lib/shareCard'
+import { useToast } from '../components/Toast'
 import { useStore } from '../lib/store'
 import { IconCandle, IconHat } from '../components/icons'
 import EditorialImage from '../components/EditorialImage'
@@ -11,6 +14,7 @@ import ProductCard from '../components/ProductCard'
 
 export default function Me() {
   const { orders, saved, wishlist, appointments, cancelAppointment } = useStore()
+  const toast = useToast()
   const wishes = wishlist.map(getProduct).filter((p) => p !== undefined)
   const upcoming = appointments.filter((a) => a.at > Date.now() - 3600_000)
   const counted = useCountUp(saved, 1800)
@@ -94,6 +98,21 @@ export default function Me() {
         ) : (
           <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">No heart-flutters this month yet. That's fine too. The hall is always open, come anytime.</p>
         )}
+        {monthOrders.length > 0 && (
+          <button
+            onClick={() =>
+              saveMonthlyCard({
+                month: now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+                flutters: monthOrders.length,
+                kept: monthSaved,
+                downpayments: Math.floor(monthSaved / 2_000_000),
+              })
+            }
+            className="quiet-link mt-6 inline-block text-[11px] text-jade"
+          >
+            Save this month as a card
+          </button>
+        )}
         {topUrge && (
           <p className="mt-6 max-w-md border-l border-hairline pl-5 text-[10px] leading-loose text-fog">
             Your heart races most often over "{topUrge}". Just keeping note, nothing more by it.
@@ -136,7 +155,22 @@ export default function Me() {
       {/* 心愿单：想要而未认购的。想要本身就值得建档 */}
       {wishes.length > 0 && (
         <section className="mt-24 px-6 lg:mt-40">
-          <h2 className="font-lux text-lg text-ivory lg:text-2xl">The Wish List</h2>
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-lux text-lg text-ivory lg:text-2xl">The Wish List</h2>
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(`${SITE_URL}/collection?ids=${wishlist.join(',')}`)
+                  toast('The list is on your clipboard. Wanting, forwarded, is still free.')
+                } catch {
+                  toast('The clipboard declined. The wanting remains yours alone.')
+                }
+              }}
+              className="quiet-link shrink-0 text-[10px] text-fog hover:text-ivory"
+            >
+              Copy share link
+            </button>
+          </div>
           <p className="mt-2 max-w-md text-[11px] leading-loose text-fog">
             {wishes.length === 1 ? 'One piece, wanted and on file.' : `${wishes.length} pieces, wanted and on file.`}{' '}
             Wanting is kept here at the same temperature as owning.

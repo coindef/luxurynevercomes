@@ -3,11 +3,9 @@ import { Link } from 'react-router-dom'
 import type { Order } from '../lib/types'
 import {
   BESPOKE_TRACKING_TEXT,
-  BUTLER_REPLIES,
   CONFIRM_RECEIPT_HINT,
   EMPTY_ORDERS,
   TRACKING_SCRIPT,
-  pick,
   revisitLine,
 } from '../lib/copy'
 import { orderNo, yuan } from '../lib/format'
@@ -15,6 +13,8 @@ import { useLongPress } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductImage from '../components/ProductImage'
+import { ButlerDrawer } from '../components/Concierge'
+import { saveCertificateCard } from '../lib/shareCard'
 import { IconHat, IconPlane } from '../components/icons'
 
 function daysSince(ts: number): number {
@@ -72,9 +72,20 @@ function Certificate({ order, onClose }: { order: Order; onClose: () => void }) 
           Authenticated by: LuxuryNeverComes, White-Glove Assay Office
         </p>
         <p className="mt-6 text-[8px] leading-relaxed tracking-widest text-[#8f8f8f]">This certificate, like the money you kept, is real.</p>
-        <button onClick={onClose} className="quiet-link mt-8 inline-block text-[10px] tracking-widest text-[#c9c9c9]">
-          Accept
-        </button>
+        <div className="mt-8 flex items-center gap-8">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              saveCertificateCard(order)
+            }}
+            className="quiet-link text-[10px] tracking-widest text-[#e8e8e8]"
+          >
+            Save as image
+          </button>
+          <button onClick={onClose} className="quiet-link text-[10px] tracking-widest text-[#c9c9c9]">
+            Accept
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -103,9 +114,8 @@ function ConfirmButton({ order }: { order: Order }) {
 }
 
 function OrderCard({ order }: { order: Order }) {
-  const toast = useToast()
   const [expanded, setExpanded] = useState(false)
-  const [replies, setReplies] = useState<string[]>([])
+  const [butlerOpen, setButlerOpen] = useState(false)
   const days = daysSince(order.createdAt)
   const arrived = days >= 7
   const revisit = revisitLine(days)
@@ -169,7 +179,7 @@ function OrderCard({ order }: { order: Order }) {
               <p className="mt-1 text-[10px] text-fog">Selecting gloves worthy of your doorbell</p>
             </div>
             <button
-              onClick={() => toast('The butler is ironing his gloves and cannot take the call. He assures you: no news is simply no news.')}
+              onClick={() => setButlerOpen(true)}
               className="quiet-link text-[11px] tracking-wider text-fog transition-opacity hover:text-ivory"
             >
               Call
@@ -178,25 +188,14 @@ function OrderCard({ order }: { order: Order }) {
 
           <Timeline order={order} />
 
-          {replies.length > 0 && (
-            <div className="mt-10 border-l border-hairline pl-6">
-              {replies.map((r, i) => (
-                <p key={i} className="float-up mt-3 text-[11px] leading-loose text-ivory first:mt-0">
-                  {r}
-                </p>
-              ))}
-            </div>
-          )}
-
+          {/* 摇铃 = 打开管家的通信间（与大使同一套抽屉，另一副手套；线程全局持续） */}
           <div className="mt-12 flex items-center gap-10">
-            <button
-              onClick={() => setReplies((prev) => [...prev, pick(BUTLER_REPLIES)])}
-              className="quiet-link text-[11px] tracking-widest text-ivory"
-            >
+            <button onClick={() => setButlerOpen(true)} className="quiet-link text-[11px] tracking-widest text-ivory">
               Ring for the butler
             </button>
             <ConfirmButton order={order} />
           </div>
+          {butlerOpen && <ButlerDrawer onClose={() => setButlerOpen(false)} />}
         </div>
       )}
     </article>

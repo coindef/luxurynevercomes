@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { StoreProvider } from './lib/store'
 import { ToastProvider } from './components/Toast'
@@ -7,16 +7,19 @@ import SiteNav from './components/SiteNav'
 import TabBar from './components/TabBar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
-import Collection from './pages/Collection'
-import Maisons from './pages/Maisons'
-import Maison from './pages/Maison'
-import ProductDetail from './pages/ProductDetail'
-import Cart from './pages/Cart'
-import Checkout from './pages/Checkout'
-import Orders from './pages/Orders'
-import Me from './pages/Me'
-import About from './pages/About'
-import NotFound from './pages/NotFound'
+
+// 除首页外全部按路由切包：单包 645KB 对一个内容站太重，首跳只该付首页的钱。
+// fallback 是一块安静的纸白——加载本身也要「昂贵地慢」，不闪骨架屏
+const Collection = lazy(() => import('./pages/Collection'))
+const Maisons = lazy(() => import('./pages/Maisons'))
+const Maison = lazy(() => import('./pages/Maison'))
+const ProductDetail = lazy(() => import('./pages/ProductDetail'))
+const Cart = lazy(() => import('./pages/Cart'))
+const Checkout = lazy(() => import('./pages/Checkout'))
+const Orders = lazy(() => import('./pages/Orders'))
+const Me = lazy(() => import('./pages/Me'))
+const About = lazy(() => import('./pages/About'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -45,6 +48,7 @@ export default function App() {
           <BrowserRouter>
             <ScrollToTop />
             <SiteNav />
+            <Suspense fallback={<div className="min-h-dvh" />}>
             <Routes>
               <Route element={<TabLayout />}>
                 <Route path="/" element={<Home />} />
@@ -61,6 +65,7 @@ export default function App() {
               <Route path="/about" element={<About />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
           </BrowserRouter>
         </ToastProvider>
       </StoreProvider>
