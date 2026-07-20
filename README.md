@@ -6,6 +6,8 @@
 
 *Finally affordable. Forever undelivered.*
 
+**[Enter the maison](https://luxurynevercomes.vercel.app)**
+
 ![The salon](docs/home.jpg)
 
 </div>
@@ -21,13 +23,15 @@ browser, with no backend and nothing charged. The name is the promise; the tagli
 halves of *Buy everything. Keep everything.* are literally true, because everything costs ¥0.00: you
 walk out with the whole cart and every cent.
 
+The maison is open at **[luxurynevercomes.vercel.app](https://luxurynevercomes.vercel.app)**, no
+appointment needed. Or run it at home:
+
 ```bash
 npm install && npm run dev      # http://localhost:5173
 ```
 
-No hosted demo; clone to preview. Sister site:
-[ParcelNeverComes](https://github.com/coindef/parcelnevercomes) for everyday goods, in the tradition of
-dopamine shops like [FoodNeverComes](https://foodnevercomes.com).
+Sister site: [ParcelNeverComes](https://github.com/coindef/parcelnevercomes) for everyday goods, in the
+tradition of dopamine shops like [FoodNeverComes](https://foodnevercomes.com).
 
 ---
 
@@ -44,9 +48,11 @@ shared link both behave.
 
 **Reserve.** Add to your reserve, meet a quota, claim it now. The most coveted pieces refuse a direct
 order: you must first reserve *other* things to build allocation, and the allocation is also ¥0.00, so
-you spend nothing, repeatedly, to earn the right to spend nothing on the bag. Bespoke is offered on a
-selection, tucked into an accordion where personalisation belongs, its surcharges shown and then struck
-through to ¥0.00.
+you spend nothing, repeatedly, to earn the right to spend nothing on the bag. Beside the quota bar sits a
+waiting list; joining assigns a number in the low thousands, yours for life, because the list does not
+move. Bespoke is offered on a selection, tucked into an accordion where personalisation belongs, its
+surcharges shown and then struck through to ¥0.00. Type an engraving and a proof appears, set live in the
+house italic: the master is ready to strike it, and will remain ready.
 
 **Wait.** A white-glove butler files nine dispatch notes that unlock by real elapsed time: he pauses at
 an Alpine pass to watch the snow for you, the captain waits for weather worthy of the cargo, and the
@@ -59,6 +65,12 @@ a wrapped parcel on the recipient's screen, enters their ledger when accepted, a
 either of you. Wish lists share the same way. The certificate, the written price confirmation and the
 monthly ledger summary all export as portrait cards sized for posting, because a shop like this spreads
 by screenshot, and the screenshots should come pre-composed.
+
+**Be remembered.** A return visit is greeted the way a good boutique greets a regular: a Recently viewed
+row, and a "You may also like" drawn from what you have kept, wanted and lingered over. The recommender
+is a seeded hash over your own history; your taste never leaves the device. The mailing list remembers
+you signed up and composes the first letter indefinitely, and the site installs to a home screen, where
+its icon sits among apps that deliver things.
 
 **Look back.** The Ledger totals everything *kept safe* (`¥380,000,000.00`, every comma spelled out),
 converted into "≈ 190 first-tier downpayments" or "≈ many years of you, unharmed." Your first visit
@@ -100,7 +112,9 @@ Also adopted, each because a real house does it: breadcrumbs; a live count on ev
 empty categories hidden; a single "Clear all" rather than filter chips; house, name and price on the
 card with the piece's own material beneath. A CTA stack routes to a human four ways, because in real
 luxury the sale rarely closes online, and here none of them close. Pagination is **load more with a
-viewed count, not infinite scroll**.
+viewed count, not infinite scroll**. And specification rows appear only where their logic is real: a
+yacht has a yard and a hull colour, but a 1691 oil is not "Made in Germany", a violin has no colourway,
+and a gem's origin is a mine, never a factory.
 
 The counter-evidence was kept too. The Nielsen Norman Group documents shoppers *punishing* maisons for
 withholding information, and found Tom Ford's light-grey all-caps text undermined its luxury positioning:
@@ -116,8 +130,9 @@ photography show a paper catalogue plaque rather than a gap.*
 
 ![A product page](docs/product.jpg)
 
-*One decision, then the numbers. Each size carries its own availability; the reference number sits small
-and unexplained at the foot of the page, where Cartier puts it.*
+*One decision, then the numbers. Each size carries its own availability, and this one is quota-gated
+besides: reserve other things first, or take a number on a waiting list that does not move. The
+reference sits small and unexplained at the foot of the page, where Cartier puts it.*
 
 </div>
 
@@ -128,7 +143,9 @@ lane ([Pollinations](https://pollinations.ai), Flux, no key) allows **one reques
 throttles the longer it runs, from ~40s an image toward several minutes, so the full set is a job of
 days and being unfinished is its normal state, not a fault. The pipeline is therefore prioritised by
 visibility and fully resumable: it skips whatever is on disk, and the seed is a pure function of the
-product id, so a view made today still matches one made next week.
+product id, so a view made today still matches one made next week. At the time of writing, 570 of the
+1,009 pieces are photographed and 176 carry a multi-view gallery; the number climbs whenever the
+pipeline is left running.
 
 ```bash
 npm run images:plan      # what it would make, and in what order
@@ -146,7 +163,9 @@ obvious alternative failed:
    render: "hand stitching" put a literal hand in the frame. Catalogue names hid roughly ninety of these
    (`Hand-Built`, "A Global Handful", "Logo-Free Edition", a clock's "Hands"); all are scrubbed.
 4. **Whole objects only, no macro details.** Make "the clasp" the subject and the model forgets the bag
-   and draws a ring.
+   and draws a ring. The rule keeps collecting evidence: an art view briefed as "raking light, showing
+   surface relief" produced a beautifully lit empty wall, the artwork gone, because *surface* had become
+   the subject.
 
 Pieces that *are* a person (a butler, a coach, a chef) are never generated, because that means generating
 a face; they keep the plaque. Real photography (Unsplash, CC BY) is kept too, **but only where it fits
@@ -190,8 +209,8 @@ Vite, React 19, TypeScript, Tailwind CSS v4, React Router. State lives entirely 
 exists only on this device; we cannot see it, and neither can your relatives.*
 
 Which pieces have photographs, and how many views each, is settled at build time in
-[src/lib/imageManifest.ts](src/lib/imageManifest.ts) (generated and committed). Four in five pieces have
-no photograph yet, so letting the browser discover that through failed requests would mean hundreds of
+[src/lib/imageManifest.ts](src/lib/imageManifest.ts) (generated and committed). Not every piece has its
+photograph yet, so letting the browser discover the gaps through failed requests would mean hundreds of
 doomed 404s on every visit to the catalogue. Any static host works: Vercel imports as-is
 ([vercel.json](vercel.json) sets the SPA fallback and image caching), Netlify uses
 [public/_redirects](public/_redirects), and elsewhere you route all paths back to `index.html`.
