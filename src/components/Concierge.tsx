@@ -198,14 +198,72 @@ interface AmbMsg {
 
 const AMB_KEY = 'flgj.ambassador'
 
-const AMB_REPLIES = [
-  'Your message has been read aloud in the salon, to general approval. Nothing further was decided.',
-  'The ambassador thanks you for writing. He has filed your letter under Correspondence, Cherished.',
-  'Noted with pleasure. Your enquiry has been passed upward, where it will be admired rather than answered.',
-  'The house is delighted to hear from you. Deliveries remain as scheduled, which is to say, remain.',
-  'A considered reply is being drafted. Drafting is, as you know from our deliveries, a long art.',
-  'The ambassador read your message twice, the second time for the pleasure of it.',
+/**
+ * 大使听得懂你在说什么（在「彬彬有礼地答非所问」的限度内）。
+ * 关键词路由 → 各自的回信小池；都不匹配才落回通用池。
+ * 这是让通信「像真的」的最便宜也最有效的一层：问价真的报价，问货真的报进度。
+ */
+const AMB_ROUTES: { re: RegExp; make: (p?: Product) => string[] }[] = [
+  {
+    re: /price|cost|how much|expensive|afford|pay/i,
+    make: (p) =>
+      p
+        ? [
+            `The ${p.name.split('·')[0].trim()} is ${yuan(p.price)}, of which the payable portion is ¥0.00. Both figures are final; only one will ever trouble you.`,
+            `${yuan(p.price)}, in full. Payable, ¥0.00. The difference is our gift, and our entire business model.`,
+          ]
+        : ['Every price in the house is confirmed at ¥0.00 payable. The figures above it are for atmosphere.'],
+  },
+  {
+    re: /ship|deliver|arriv|track|when|where.*order|status/i,
+    make: () => [
+      'Your order is under white-glove escort. At this hour the butler is at the Alpine pass, watching the snow on your behalf. Arrival is scheduled for the moment after always.',
+      'It is in transit, and will remain so with great dignity. Transit is the finest room in the house.',
+    ],
+  },
+  {
+    re: /return|refund|cancel|money back/i,
+    make: () => [
+      'Returns are accepted within thirty days. In our history nothing has ever been returned, there being nothing to send back. Our satisfaction rate is therefore perfect.',
+    ],
+  },
+  {
+    re: /appointment|book|visit|come in|see it|salon|boutique/i,
+    make: () => ['With the greatest pleasure. I shall fetch the appointment book. It is bound in leather and entirely blank.'],
+  },
+  {
+    re: /real|exist|actually|true|scam|fake|joke/i,
+    make: () => [
+      'Everything here is real except the goods. The wanting is real, the calm is real, and the ¥0.00 is extremely real.',
+      'The house is entirely sincere about being entirely fictional. Few establishments can say as much.',
+    ],
+  },
+  {
+    re: /\b(hi|hello|hey|good (morning|afternoon|evening)|bonjour)\b/i,
+    make: () => ['A very good day to you. You are most welcome here. May I confirm that nothing is available?'],
+  },
+  {
+    re: /thank|merci|appreciated/i,
+    make: () => ['It is nothing. Quite literally, it is nothing, and it was our honour to provide it.'],
+  },
+  {
+    re: /\b(bye|goodbye|farewell|good night)\b/i,
+    make: () => ['Until next time. The house never closes, having never quite opened.'],
+  },
+  {
+    re: /love|beautiful|gorgeous|stunning|want (it|this)|wish/i,
+    make: () => ['Taste of this calibre is rare, if I may say so. I have noted it in your file, in ink.'],
+  },
 ]
+
+const AMB_FALLBACK = [
+  'Your message has been read aloud in the salon, to general approval. Nothing further was decided.',
+  'Noted with pleasure. Your enquiry has been passed upward, where it will be admired rather than answered.',
+  'A considered reply is being drafted. Drafting is, as you know from our deliveries, a long art.',
+  'The ambassador read your message twice, the second time purely for the pleasure of it.',
+]
+
+const QUICK_ASKS = ['Will it ever ship?', 'Confirm the price', 'Book an appointment', 'Is any of this real?']
 
 function loadThread(): AmbMsg[] {
   try {
@@ -215,69 +273,173 @@ function loadThread(): AmbMsg[] {
   }
 }
 
-function AmbassadorSheet({ product, onClose }: { product?: Product; onClose: () => void }) {
+const hhmm = (t: number) => new Date(t).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+
+function replyFor(text: string, product?: Product): { reply: string; book: boolean } {
+  const route = AMB_ROUTES.find((r) => r.re.test(text))
+  const pool = route ? route.make(product) : AMB_FALLBACK
+  return { reply: pool[Math.floor(Math.random() * pool.length)], book: route?.re.source.includes('appointment') ?? false }
+}
+
+/**
+ * 大使的通信间：整高侧滑抽屉（移动端全屏）。
+ * 首次进门大使先开口；回信前有「正在提笔」；问什么答什么（见 AMB_ROUTES）；
+ * 快捷问句一排；线程带时刻与「已读」；提到预约会真的去取预约簿（交接到预约弹层）。
+ */
+function AmbassadorDrawer({ product, onBook, onClose }: { product?: Product; onBook: () => void; onClose: () => void }) {
   const [thread, setThread] = useState<AmbMsg[]>(loadThread)
   const [draft, setDraft] = useState('')
   const [composing, setComposing] = useState(false)
   const bottom = useRef<HTMLDivElement>(null)
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
 
   useEffect(() => {
-    localStorage.setItem(AMB_KEY, JSON.stringify(thread.slice(-40)))
-    bottom.current?.scrollIntoView({ block: 'nearest' })
+    localStorage.setItem(AMB_KEY, JSON.stringify(thread.slice(-60)))
+    bottom.current?.scrollIntoView({ block: 'end' })
   }, [thread])
 
-  const send = () => {
-    const text = draft.trim()
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      timers.current.forEach(clearTimeout)
+    }
+  }, [onClose])
+
+  // 首次进门：大使先开口（真实通信的礼数），只在线程为空时发生一次，且会被存档
+  useEffect(() => {
+    if (thread.length > 0) return
+    setComposing(true)
+    const h = new Date().getHours()
+    const tod = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'
+    const hello = product
+      ? `Good ${tod}. I see the ${product.name.split('·')[0].trim()} has caught your eye. An excellent thing to be caught by. How may I be of no help?`
+      : `Good ${tod}. You are most welcome. How may I be of no help?`
+    timers.current.push(
+      setTimeout(() => {
+        setComposing(false)
+        setThread([{ who: 'amb', text: hello, at: Date.now() }])
+      }, 1100),
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const send = (raw?: string) => {
+    const text = (raw ?? draft).trim()
     if (!text) return
     setDraft('')
     setThread((t) => [...t, { who: 'you', text, at: Date.now() }])
+    const { reply, book } = replyFor(text, product)
     setComposing(true)
-    const reply = AMB_REPLIES[Math.floor(Math.random() * AMB_REPLIES.length)]
-    setTimeout(() => {
-      setComposing(false)
-      setThread((t) => [...t, { who: 'amb', text: reply, at: Date.now() }])
-    }, 1800 + Math.random() * 1600)
+    timers.current.push(
+      setTimeout(() => {
+        setComposing(false)
+        setThread((t) => [...t, { who: 'amb', text: reply, at: Date.now() }])
+        if (book) timers.current.push(setTimeout(onBook, 1200))
+      }, 1600 + Math.random() * 1600),
+    )
   }
 
-  return (
-    <Sheet title="Contact an ambassador" onClose={onClose}>
-      {product && <p className="mt-2 text-[10px] text-fog">Regarding {product.name.split('·')[0].trim()}</p>}
+  const lastYou = [...thread].reverse().find((m) => m.who === 'you')
+  const answered = lastYou && thread.some((m) => m.who === 'amb' && m.at > lastYou.at)
 
-      <div className="mt-6 max-h-64 space-y-4 overflow-y-auto">
-        {thread.length === 0 && (
-          <p className="max-w-sm text-[10px] leading-loose text-fog">
-            The ambassador is at his desk. He answers every letter, and answers nothing in them.
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Correspondence with the ambassador"
+        onClick={(e) => e.stopPropagation()}
+        className="drawer-in absolute right-0 top-0 flex h-full w-full flex-col border-l border-hairline bg-ink lg:max-w-[420px]"
+      >
+        {/* 抬头：在场感。不用绿点做在线灯——绿只属于省钱与安抚 */}
+        <div className="flex items-baseline justify-between border-b border-hairline px-6 py-4">
+          <div>
+            <p className="font-lux text-sm text-ivory">The Ambassador</p>
+            <p className="mt-0.5 text-[9px] text-fog">Present, as always. Replies in ink.</p>
+          </div>
+          <button onClick={onClose} className="quiet-link text-[10px] text-fog hover:text-ivory">
+            Close
+          </button>
+        </div>
+
+        {product && (
+          <p className="border-b border-hairline px-6 py-2.5 text-[9px] text-fog">
+            Regarding {product.name.split('·')[0].trim()}, Ref. {referenceOf(product)}
           </p>
         )}
-        {thread.map((m, i) => (
-          <div key={i} className={m.who === 'you' ? 'text-right' : ''}>
-            <p className="text-[8px] text-fog">{m.who === 'you' ? 'You' : 'The Ambassador'}</p>
-            <p className={`mt-1 inline-block max-w-[85%] text-left text-[11px] leading-relaxed ${m.who === 'you' ? 'border border-hairline px-3 py-2 text-ivory' : 'text-ivory'}`}>
-              {m.text}
-            </p>
-          </div>
-        ))}
-        {composing && <p className="text-[9px] text-fog">The ambassador is composing, with a fountain pen, slowly</p>}
-        <div ref={bottom} />
-      </div>
 
-      <div className="mt-6 flex items-center gap-3 border-b border-hairline pb-2 transition-colors focus-within:border-ivory">
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && send()}
-          placeholder="Write to the house"
-          aria-label="Message to the ambassador"
-          className="min-w-0 flex-1 bg-transparent py-1 text-xs text-ivory placeholder:text-fog focus:outline-none"
-        />
-        <button onClick={send} className="quiet-link shrink-0 text-[10px] text-ivory">
-          Send
-        </button>
+        {/* 线程 */}
+        <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
+          {thread.map((m, i) => {
+            const prev = thread[i - 1]
+            const newDay = !prev || new Date(prev.at).toDateString() !== new Date(m.at).toDateString()
+            return (
+              <div key={m.at + m.who + i}>
+                {newDay && (
+                  <p className="mb-5 text-center text-[8px] tracking-wider text-fog">
+                    {new Date(m.at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                  </p>
+                )}
+                <div className={m.who === 'you' ? 'text-right' : ''}>
+                  <p className="text-[8px] text-fog">
+                    {m.who === 'you' ? 'You' : 'The Ambassador'}, {hhmm(m.at)}
+                  </p>
+                  <p
+                    className={`mt-1.5 inline-block max-w-[85%] text-left text-[11px] leading-relaxed ${
+                      m.who === 'you' ? 'border border-hairline px-3.5 py-2.5 text-ivory' : 'text-ivory'
+                    }`}
+                  >
+                    {m.text}
+                  </p>
+                  {m.who === 'you' && lastYou && m.at === lastYou.at && answered && (
+                    <p className="mt-1 text-[8px] text-fog">Read, on a silver tray</p>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+          {composing && (
+            <p className="text-[10px] text-fog" aria-live="polite">
+              The ambassador is writing
+              <span className="quill-dot">.</span>
+              <span className="quill-dot">.</span>
+              <span className="quill-dot">.</span>
+            </p>
+          )}
+          <div ref={bottom} />
+        </div>
+
+        {/* 快捷问句 + 输入 */}
+        <div className="border-t border-hairline px-6 pb-6 pt-4">
+          <div className="flex flex-wrap gap-2">
+            {QUICK_ASKS.map((q) => (
+              <button key={q} onClick={() => send(q)} className={chip(false)}>
+                {q}
+              </button>
+            ))}
+          </div>
+          <div className="mt-4 flex items-center gap-3 border-b border-hairline pb-2 transition-colors focus-within:border-ivory">
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && send()}
+              placeholder="Write to the house"
+              aria-label="Message to the ambassador"
+              autoFocus
+              className="min-w-0 flex-1 bg-transparent py-1 text-xs text-ivory placeholder:text-fog focus:outline-none"
+            />
+            <button onClick={() => send()} className="quiet-link shrink-0 text-[10px] text-ivory">
+              Send
+            </button>
+          </div>
+          <p className="mt-3 text-[8px] leading-relaxed text-fog">
+            Correspondence is kept on this device, in full, forever. It is the most reliable archive we operate.
+          </p>
+        </div>
       </div>
-      <p className="mt-3 text-[8px] leading-relaxed text-fog">
-        Correspondence is kept on this device, in full, forever. It is the most reliable archive we operate.
-      </p>
-    </Sheet>
+    </div>
   )
 }
 
@@ -385,7 +547,9 @@ export default function ConciergeRow({ product }: { product: Product }) {
       </div>
 
       {open === 'appointment' && <AppointmentSheet product={product} onClose={() => setOpen(null)} />}
-      {open === 'ambassador' && <AmbassadorSheet product={product} onClose={() => setOpen(null)} />}
+      {open === 'ambassador' && (
+        <AmbassadorDrawer product={product} onBook={() => setOpen('appointment')} onClose={() => setOpen(null)} />
+      )}
       {open === 'price' && <PriceSheet product={product} onClose={() => setOpen(null)} />}
       {open === 'boutique' && <BoutiqueSheet product={product} onClose={() => setOpen(null)} />}
     </>

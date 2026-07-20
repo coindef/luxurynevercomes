@@ -157,6 +157,29 @@ body {
   pointer-events: none;
 }
 
+/* 礼宾侧滑抽屉：从右缓入，不弹跳（大使的通信间） */
+@keyframes drawer-in {
+  0% { transform: translateX(28px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+.drawer-in {
+  animation: drawer-in 0.5s var(--ease-out-expo) both;
+}
+
+/* 「正在提笔」指示：三个点先后浮现。是信息态不是装饰灯，节奏放慢到墨水的速度 */
+@keyframes quill-dot {
+  0%, 55%, 100% { opacity: 0.25; }
+  25% { opacity: 1; }
+}
+
+.quill-dot {
+  animation: quill-dot 1.4s ease-in-out infinite;
+}
+
+.quill-dot:nth-child(2) { animation-delay: 0.18s; }
+.quill-dot:nth-child(3) { animation-delay: 0.36s; }
+
 /* 详情页认购动态（弹幕的优雅版：单条淡入淡出） */
 @keyframes whisper {
   0% { opacity: 0; transform: translateY(6px); }
@@ -197,7 +220,9 @@ body {
   .confetti,
   .whisper,
   .emoji-float,
-  .truck-move {
+  .truck-move,
+  .drawer-in,
+  .quill-dot {
     animation: none;
   }
 }
