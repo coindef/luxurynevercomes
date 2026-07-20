@@ -417,8 +417,14 @@ const GENERIC = (p: Product): SpecRow[] => [
 /**
  * 不给这些子品类附「色号/产地」：星系命名权没有色号，赛马不是 Made in France。
  * 通栏追加曾把这两行盖到所有 1009 件上——真店的规格是按商品拼的，不是模板打的。
+ * 二审补入（实测出的荒腔走板）：1691 年的油画 Made in Germany、克雷莫纳小提琴
+ * Made in Switzerland、顶层公寓带色号、宋瓷 Made in Japan——凡自带年代/落款/产地
+ * 叙事的品类，两行通用尾巴只会拆台。游艇/汽车/腕表保留（船厂与表厂是真实产地逻辑）。
  */
-const NO_EXTRAS = new Set(['naming', 'experience', 'animal', 'venue', 'land'])
+const NO_EXTRAS = new Set([
+  'naming', 'experience', 'animal', 'venue', 'land',
+  'home', 'painting', 'sculpture', 'antiquity', 'instrument', 'wine', 'spirit', 'food',
+])
 
 /**
  * 首行是「身份行」：Cartier 的做法是把材质当第一句陈述而不是键值对
@@ -439,6 +445,7 @@ export function specsOf(product: Product): SpecRow[] {
     ...rows,
     // 某行已经写了这个颜色（戒指的 Stone: Rouge）就别再来一行 Colourway: Rouge
     ...(rows.some((r) => r.value === colour) ? [] : [{ label: 'Colourway', value: colour }]),
-    { label: 'Origin', value: originOf(product) },
+    // 宝石自带矿区产地（Origin: Muzo, Colombia），再追加一行 Made in England 就成了双产地
+    ...(rows.some((r) => r.label === 'Origin') ? [] : [{ label: 'Origin', value: originOf(product) }]),
   ]
 }
