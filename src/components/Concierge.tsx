@@ -299,11 +299,12 @@ function AmbassadorDrawer({ product, onBook, onClose }: { product?: Product; onB
   }, [thread])
 
   useEffect(() => {
+    const pending = timers.current // 卸载时清的是这一次挂载攒下的定时器，先取引用再进 cleanup
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
     return () => {
       window.removeEventListener('keydown', onKey)
-      timers.current.forEach(clearTimeout)
+      pending.forEach(clearTimeout)
     }
   }, [onClose])
 
