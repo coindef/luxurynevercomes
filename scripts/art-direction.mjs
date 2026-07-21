@@ -131,6 +131,13 @@ const PERSON_SUBJECT = new Set([
   'lx-golf-legend-round', 'lx-symphony-score', 'lx-ming-calligraphy', 'lx-pop-print-limited',
   // 抽象到没有实体可拍（一堆模型权重长什么样？）
   'lx-model-weights', 'lx-training-corpus',
+  // 2026-07 追检补入：教练/球队/席位类全是「人」，Flux 全画了人（18 张违规下架）
+  'lx-badminton-champ-coach', 'lx-bjj-blackbelt-coach', 'lx-castle-banquet', 'lx-chess-gm-coach',
+  'lx-climbing-coach-year', 'lx-figure-rink-buyout', 'lx-flag-football-team', 'lx-foxhunt-membership',
+  'lx-kitesurf-team', 'lx-marathon-six-star', 'lx-race-kart', 'lx-rowing-eight-seat',
+  'lx-snooker-champ-coach', 'lx-tabletennis-champ-coach', 'lx-ultimate-frisbee-team',
+  'lx-weightlifting-coach', 'lx-whitewater-team', 'lx-wingsuit-camp', 'lx-bridge-world-team',
+  'lx-rally-codriver',
 ])
 
 /** 名字里带雷但确实是器物的：直接给一个干净的主体短语（见文件头第 3 条）。 */
@@ -153,6 +160,52 @@ const SUBJECT_OVERRIDES = {
   'lx-cave-birdnest': "dried edible bird's nest, translucent golden strands formed into a shallow cup, on dark stone", // 实测画了一只红雀
   'lx-pop-silkscreen-canvas': 'framed pop-art silkscreen print of bold flat colour blocks and abstract halftone dots', // 实测画成名人肖像（真人肖像权红线）
   'lx-egypt-papyrus': 'fragment of ancient egyptian papyrus manuscript, faded pigment figures and illegible hieratic markings, mounted between glass', // 实测画成木雕板
+  // ---- 2026-07 追检批：按病灶写死主体（实测各画成什么见追检报告）----
+  'lx-almas-caviar': 'round 24k gold caviar tin, lid ajar showing pale golden caviar, on dark stone',
+  'lx-amber-feather': 'prehistoric feather preserved inside a polished amber cabochon, backlit',
+  'lx-animation-cel': 'framed hand-painted animation production cel with vivid character artwork silhouette',
+  'lx-bamboo-trike': 'three-wheeled bamboo-framed trike, two rear wheels visible',
+  'lx-birdnest-cave-right': 'limestone cave wall with several white edible swiftlet nests attached',
+  'lx-bloodstone-seal': 'square red-flecked bloodstone seal blank on a carved wooden stand',
+  'lx-cats-eye-ring': "honey-coloured cabochon chrysoberyl ring with a single sharp cat's-eye band of light",
+  'lx-dancong-mother-tree': 'ancient gnarled tea tree on a misty mountain terrace',
+  'lx-deep-sea-habitat': 'cylindrical underwater habitat module with round viewports resting on the seabed',
+  'lx-documentary-photo': 'framed black and white documentary photograph of an empty city street',
+  'lx-duffle-croc': 'crocodile-embossed leather duffle bag with rolled handles',
+  'lx-expedition-6x6': 'six-wheeled expedition truck, three axles clearly visible',
+  'lx-fish-maw-aged': 'dried golden fish maw, a translucent folded sheet, on dark stone',
+  'lx-highland-50': 'aged single malt whisky in a crystal decanter beside its oak cask end',
+  'lx-jetpack': 'wearable twin-turbine jetpack with shoulder harness, displayed on a metal stand',
+  'lx-largeformat-photo': 'framed silver gelatin landscape photograph of mountains, glossy darkroom print',
+  'lx-luxury-snowmobile': 'snowmobile with front skis and a rear rubber track, on packed snow',
+  'lx-micro-city-ev': 'tiny two-seat bubble-shaped city electric car',
+  'lx-offroad-trailer': 'towed off-road camping trailer with no cab, hitch visible at the front',
+  'lx-puer-antique': 'dark compressed pu-erh tea disc wrapped in aged bamboo paper',
+  'lx-restoration-seat': 'aged oil painting on an easel beside conservation tools and pigments',
+  'lx-retro-travel-trailer': 'polished aluminium teardrop travel trailer, hitch visible, no cab',
+  'lx-seal-carving-set': 'set of square soapstone seal-carving blanks and gravers in a fitted case',
+  'lx-snow-tracked-cruiser': 'enclosed snow cruiser riding on rubber tracks, no wheels',
+  'lx-star-ruby-ring': 'oval cabochon ruby ring showing a six-ray star of light across the dome',
+  'lx-star-sapphire-ring': 'oval cabochon blue sapphire ring showing a six-ray star of light',
+  'lx-sturgeon-adopt': 'sturgeon fish with bony scutes swimming in dark green water',
+  'lx-suborbital-cabin': 'suborbital capsule cabin interior with reclined seats and round windows to black sky',
+  'lx-trilobite-plate': 'grey stone slab bearing several fossilised trilobites in low relief',
+  'lx-truffle-hunt-share': 'whole knobbly white alba truffle on dark stone',
+  'lx-ukiyoe-impression': 'framed japanese woodblock print of a great wave and mountain, aged paper',
+  'lx-vintage-sidecar': 'vintage motorcycle with attached single-wheel sidecar, both wheels on the ground',
+  'lx-drift-missile': 'rear-wheel-drive drift car with four wheels and deep negative camber',
+  'lx-hovercraft-cruiser': 'hovercraft with a full inflated black rubber skirt and rear propeller fans',
+  'lx-limo-tender': 'sleek enclosed limousine tender boat, pure watercraft with no wheels',
+  'lx-mystery-clock': 'mystery clock with hands appearing to float inside a clear crystal dial',
+  'lx-skeleton-clock': 'openwork skeletonised brass clock movement under a glass dome, gears visible',
+  'lx-robot-dog': 'angular metal quadruped robot with sensor head, entirely mechanical',
+  'lx-wagyu-sire-share': 'black japanese wagyu bull standing in a clean straw-floored stall',
+  'lx-wagyu-whole-year': 'marbled wagyu beef cuts arranged on dark slate',
+  'lx-wardrobe-trunk': 'upright steamer wardrobe trunk opened to show hangers and small drawers',
+  'lx-weather-balloon': 'high-altitude white weather balloon with a small instrument box on a long tether',
+  'lx-champagne-balthazar': 'oversized balthazar champagne bottle standing beside a standard flute for scale',
+  'lx-gramophone-horn': 'antique gramophone with brass horn attached to its wooden case, stylus on the record',
+  'lx-jeweled-typewriter': 'vintage typewriter with gem-set round keys, keys in neat rows',
   'lx-emerald-garden': 'suite of Colombian emerald jewellery, a necklace, earrings and a ring with deep green emeralds, arranged on dark stone', // 实测把 Suite 画成了绿宝石质感的 Polo 衫
   'lx-grande-sonnerie': 'vintage gold chiming wristwatch, plain white enamel dial with roman numerals, brown leather strap, single crown', // 实测椭圆表壳+乱码盘面
   'lx-underwater-suite': 'circular underwater hotel room with a large acrylic viewport, deep blue water outside, soft interior light', // 实测画成海面漂床垫
