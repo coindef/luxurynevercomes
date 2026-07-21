@@ -114,6 +114,32 @@ export const CONVERSIONS: { unit: string; price: number; suffix?: string }[] = [
   { unit: 'times paying off the mortgage early', price: 1_000_000 },
 ]
 
+/** 尺码指南按子品类走（此前 1,009 件念同一段） */
+export const SIZING_BY_SUBTYPE: Record<string, string> = {
+  watch: 'Measure your wrist with a ribbon, then add nothing: the house sized the case to the wrist you have, not the one the mirror promises. Between two sizes, take the quieter one.',
+  ring: 'Ring size is taken at evening, when the hand has had its day. Ours are sized to the finger you point with, since that is the one that chose it.',
+  gown: 'The gown is cut to measurements we never took and met them anyway. Alterations are complimentary and, like the gown, purely conceptual.',
+  suit: 'A suit is measured thrice and cut once. Yours has been measured zero times and cut zero times, which the house notes is the same ratio.',
+  shoes: 'Take your usual size in the evening. The last is carved from your footprint, which we imagine daily.',
+  outerwear: 'Outerwear is sized to be worn over everything you own, including the other pieces from this house, which stack weightlessly.',
+  bag: 'The sizes are named after what they refuse to carry. All of them refuse everything, generously.',
+  necklace: 'Lengths are given in centimetres from the clasp. Wear the number that touches where you would want a compliment to land.',
+}
+
+/** 礼赠说明按品类走（盒子的玩笑每个品类各讲一遍，不重样） */
+export const GIFTING_BY_CATEGORY: Record<string, string> = {
+  包袋皮具: 'The house box is itself nearly a bag. Inside it, the idea of one, wrapped in tissue that is entirely real.',
+  腕表珠宝: 'Presented in a lacquered case lined with velvet. The hinge is engineered to open slowly, which is fortunate, as there is no hurry whatsoever.',
+  尊贵座驾: 'The ribbon is tied around the paperwork. A bow on the car itself would scratch the paint it does not have.',
+  游艇航空: 'Gift wrap at this scale is a formality the house takes seriously: the bow alone measures eleven metres and is stored in the same place as the yacht.',
+  不动产: 'The deed arrives in an envelope sealed with wax. The envelope is the first structure ever built on the property.',
+  科技算力: 'Wrapped in antistatic tissue. The static, like the cluster, is theoretical, and both are handled with gloves.',
+  运动竞技: 'The gift is a certificate of the experience. The experience is a certificate of the gift. Both frames are included.',
+  酒窖餐桌: 'Chilled to cellar temperature for transport. The temperature will arrive in perfect condition.',
+  高定衣橱: "Folded by the house's folder, thirty years at the bench. Unfolding is the recipient's privilege, indefinitely deferred.",
+  艺术收藏: 'Crated as for a museum loan: never opened, fully insured, admired through the slats.',
+}
+
 /** Revisit lines for older orders. */
 export function revisitLine(days: number): string | null {
   if (days >= 30) return `This order has kept you company for ${days} days. That night's longing was real, and not needing it now is real too. Both real, both fine.`

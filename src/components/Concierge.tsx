@@ -3,7 +3,9 @@ import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 import type { Product } from '../lib/types'
 import { MARQUEE_CITIES } from '../lib/copy'
-import { referenceOf } from '../lib/spec'
+import { colourwayOf, materialOf, referenceOf } from '../lib/spec'
+import { maisonOf } from '../lib/maisons'
+import { customFor } from '../lib/bespoke'
 import { yuan } from '../lib/format'
 import { useStore } from '../lib/store'
 import { useMoney } from '../lib/currency'
@@ -198,7 +200,7 @@ const AMBASSADOR: Persona = {
     const h = new Date().getHours()
     const tod = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'
     return product
-      ? `Good ${tod}. I see the ${product.name.split('·')[0].trim()} has caught your eye. An excellent thing to be caught by. How may I be of no help?`
+      ? `Good ${tod}. I see the ${product.name.split('·')[0].trim()} has caught your eye. ${maisonOf(product).name} will be told, gently. How may I be of no help?`
       : `Good ${tod}. You are most welcome. How may I be of no help?`
   },
   routes: [
@@ -211,6 +213,49 @@ const AMBASSADOR: Persona = {
               `${yuan(p.price)}, in full. Payable, ¥0.00. The difference is our gift, and our entire business model.`,
             ]
           : ['Every price in the house is confirmed at ¥0.00 payable. The figures above it are for atmosphere.'],
+    },
+    {
+      // 材质问答从这件商品自己的规格里取——1,009 件，1,009 种回答
+      re: /material|leather|skin|silk|steel|gold|fabric|made of|craft|quality|stone|what is (it|this)/i,
+      make: (p) =>
+        p
+          ? [
+              `${materialOf(p)}, in ${colourwayOf(p)}. ${maisonOf(p).name} selects its materials the way it selects its clients: slowly, and finally.`,
+              `The material is ${materialOf(p).toLowerCase()}; the colour, ${colourwayOf(p)}. Both are exactly as pictured, which is where they live.`,
+            ]
+          : ['Materials vary by piece; standards do not. Ask me beside one in particular and I shall be precise about it.'],
+    },
+    {
+      re: /stock|availab|left|how many|sold out|in store|inventory/i,
+      make: (p) =>
+        p
+          ? p.quota
+            ? [
+                `The ${p.name.split('·')[0].trim()} is allocation-only: quota first, then the honour of paying ¥0.00. The waiting list, however, admits everyone instantly.`,
+              ]
+            : [
+                'Availability stands at 0 in all eight maisons, equally. The house finds this fair, and fairness is a luxury.',
+              ]
+          : ['Availability is uniform across the collection: 0, everywhere, carefully protected.'],
+    },
+    {
+      re: /\bsize\b|\bfit\b|dimension|measure|how (big|large|small)/i,
+      make: (p) => {
+        if (!p) return ['Sizing is personal. Ask me beside a piece and I shall speak precisely.']
+        const g = customFor(p).find((x) => x.role === 'size')
+        return g?.choices?.length
+          ? [
+              `It is offered in ${g.choices.map((c) => c.name.split('·')[0].trim()).join(', ')}. The house recommends the one you would choose on your best day.`,
+            ]
+          : ['It is one size: its own. The dimensions are in the catalogue note, and they do not negotiate.']
+      },
+    },
+    {
+      re: /house|maison|brand|who (makes|made)|designer|atelier/i,
+      make: (p) =>
+        p
+          ? [`${maisonOf(p).name}, ${maisonOf(p).flourish.toLowerCase()}. ${maisonOf(p).story}`]
+          : ['Forty-five houses, each fictional, each particular. Stand beside a piece and it will introduce its own.'],
     },
     {
       re: /ship|deliver|arriv|track|when|where.*order|status/i,
@@ -260,7 +305,7 @@ const AMBASSADOR: Persona = {
     'A considered reply is being drafted. Drafting is, as you know from our deliveries, a long art.',
     'The ambassador read your message twice, the second time purely for the pleasure of it.',
   ],
-  quickAsks: ['Will it ever ship?', 'Confirm the price', 'Book an appointment', 'Is any of this real?'],
+  quickAsks: ['Will it ever ship?', 'What is it made of?', 'Confirm the price', 'Book an appointment', 'Is any of this real?'],
 }
 
 /** 管家：订单页的通信间。同一个抽屉，另一副手套 */

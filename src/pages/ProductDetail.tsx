@@ -6,8 +6,9 @@ import { catLabel, getProduct } from '../lib/products'
 import { maisonOf, productsOfMaison } from '../lib/maisons'
 import { bespokeOffered, customFor, subtypeOf } from '../lib/bespoke'
 import { IDENTITY_LABELS, referenceOf, specsOf } from '../lib/spec'
+import { reviewCountOf, reviewsFor } from '../lib/reviews'
 import { seriesOf } from '../lib/series'
-import { BESPOKE, MARQUEE_CITIES, REVIEWS, pick } from '../lib/copy'
+import { BESPOKE, GIFTING_BY_CATEGORY, MARQUEE_CITIES, SIZING_BY_SUBTYPE, pick } from '../lib/copy'
 import { lineKey, useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductGallery from '../components/ProductGallery'
@@ -270,7 +271,6 @@ export default function ProductDetail() {
   const product = getProduct(id ?? '')
   const { addToCart, saved, noteViewed, waitlist, joinWaitlist, leaveWaitlist } = useStore()
   const toast = useToast()
-  const reviews = useMemo(() => [...REVIEWS].sort(() => 0.5 - Math.random()).slice(0, 2), [])
   const [custom, setCustom] = useState<Customization>({})
 
   // 看过即入档（真店的 Recently viewed）。只记 id，个性化全在本机
@@ -312,6 +312,10 @@ export default function ProductDetail() {
   // 选择器又给你 40/45/60/90 选——挑了 60，这一页就自己打自己的脸。谁给选，谁拥有这个字段。
   const sizeLabel = sizeGroup?.label.split('·')[0].trim().toLowerCase()
   const specs = specsOf(product).filter((s) => s.label.toLowerCase() !== sizeLabel)
+
+  // 每件商品自己的评论区：id 稳定派生，同一件永远同一批（可分享），相邻两件不重样
+  const reviews = reviewsFor(product)
+  const reviewCount = reviewCountOf(product)
 
   const cleanCustom = Object.fromEntries(Object.entries(custom).filter(([, v]) => v))
   const hasCustom = Object.keys(cleanCustom).length > 0
@@ -486,9 +490,8 @@ export default function ProductDetail() {
             {sizeGroup && (
               <Accordion title="Sizing guide">
                 <p className="max-w-md text-[10px] leading-loose text-fog">
-                  Measure the one you already own and match it. If you own none, choose the size you would like to be
-                  the sort of person who owns. Both methods have the same accuracy here, since nothing is dispatched
-                  against either.
+                  {(subtype && SIZING_BY_SUBTYPE[subtype]) ||
+                    'Measure the one you already own and match it. If you own none, choose the size you would like to be the sort of person who owns. Both methods have the same accuracy here, since nothing is dispatched against either.'}
                 </p>
               </Accordion>
             )}
@@ -518,9 +521,9 @@ export default function ProductDetail() {
             </Accordion>
             <Accordion title="Gifting">
               <p className="max-w-md text-[10px] leading-loose text-fog">
-                Presented in the house box, satin ribbon tied by hand, wax seal, and a card in the hand of someone with
-                better handwriting than either of us. The box is the only part of this that has ever existed, and even
-                it is a description.
+                {GIFTING_BY_CATEGORY[product.category] ??
+                  'Presented in the house box, satin ribbon tied by hand, wax seal, and a card in the hand of someone with better handwriting than either of us.'}{' '}
+                A card accompanies it, in the hand of someone with better handwriting than either of us.
               </p>
             </Accordion>
             <Accordion title="The story behind">
@@ -539,7 +542,10 @@ export default function ProductDetail() {
           {/* 好评压到与图录小注同级：它是个好笑话，但不该是页面上第二响的东西 */}
           <div className="mt-14 border-t border-hairline pt-8">
             <h2 className="font-lux text-xs text-ivory">Patron reviews</h2>
-            <p className="mt-1 text-[9px] text-fog">100,000+ reviews</p>
+            {/* 评论数按件定，越贵越少——亿级藏品只有个位数留言，这也是定价的一部分 */}
+            <p className="mt-1 text-[9px] text-fog">
+              {reviewCount.toLocaleString('en-US')} verified reviews. Verification confirms the purchase, not the parcel.
+            </p>
             {reviews.map((r) => (
               <div key={r.text} className="mt-6">
                 <div className="flex items-center gap-2 text-[9px] text-fog">
