@@ -22,25 +22,41 @@ function daysSince(ts: number): number {
   return Math.floor((Date.now() - ts) / 86400_000)
 }
 
-/** 物流剧场：一条安静的竖线，不用圆点，不用徽章 */
-function Timeline({ order }: { order: Order }) {
-  const now = Date.now()
+/** 该订单当前解锁到的剧目（Timeline 与卡片状态行共用一份口径） */
+function unlockedNodes(order: Order) {
   const hasBespoke = order.items.some((i) => i.customization && Object.keys(i.customization).length > 0)
   const nodes = [...TRACKING_SCRIPT]
   if (hasBespoke) {
     nodes.push({ offsetMs: 36 * 3600_000, label: 'Atelier', text: BESPOKE_TRACKING_TEXT })
     nodes.sort((a, b) => a.offsetMs - b.offsetMs)
   }
-  const unlocked = nodes.filter((n) => order.createdAt + n.offsetMs <= now)
+  const now = Date.now()
+  return { nodes, unlocked: nodes.filter((n) => order.createdAt + n.offsetMs <= now) }
+}
+
+/** 物流剧场：一条安静的竖线，不用圆点，不用徽章 */
+function Timeline({ order }: { order: Order }) {
+  const { nodes, unlocked } = unlockedNodes(order)
   const next = nodes[unlocked.length]
 
   return (
     <div className="mt-10 border-l border-hairline pl-6">
-      {next && <p className="pb-8 text-[10px] leading-loose text-fog">The next butler's note is being transcribed... (spoiler: still not coming)</p>}
+      {/* 预告写明下一条的钟点：便条守时，货不守时——也给了回访一个具体的时辰 */}
+      {next && (
+        <p className="pb-8 text-[10px] leading-loose text-fog">
+          The next note is being transcribed, expected{' '}
+          <span className="font-price text-ivory">
+            {new Date(order.createdAt + next.offsetMs).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </span>
+          . The note keeps its appointments; the goods do not.
+        </p>
+      )}
       {[...unlocked].reverse().map((n, i) => (
         <div key={n.offsetMs} className="pb-8 last:pb-0">
-          <p className={`text-[11px] leading-loose ${i === 0 ? 'font-lux text-ivory' : 'text-fog'}`}>
-            【{n.label}】{n.text}
+          {/* 【】是中文括号，全英文的管家腔里唯一的机翻痕迹——舞台指示改成独立小字行 */}
+          <p className="text-[9px] tracking-widest text-fog">{n.label}</p>
+          <p className={`mt-1 text-[11px] leading-loose ${i === 0 ? 'font-lux text-ivory' : 'text-fog'}`}>
+            {n.text}
           </p>
           <p className="font-price mt-2 text-[9px] text-fog">
             {new Date(order.createdAt + n.offsetMs).toLocaleString('en-US', {
@@ -67,6 +83,8 @@ function Certificate({ order, onClose }: { order: Order; onClose: () => void }) 
           This certifies that the solitude in this order is genuine, one of one worldwide.
           <br />
           Bearer: <span className="text-[#e8e8e8]">You</span>
+          <br />
+          Client: <span className="text-[#e8e8e8]">No. 1 of 1</span>
           <br />
           Number: <span className="font-price">{orderNo(order.createdAt)}</span>
           <br />
@@ -121,14 +139,36 @@ function OrderCard({ order }: { order: Order }) {
   const days = daysSince(order.createdAt)
   const arrived = days >= 7
   const revisit = revisitLine(days)
+  const { unlocked } = unlockedNodes(order)
+  // 新便条要在收起状态就看得见，否则回访者永远不知道剧场演到了哪一幕
+  const [seen, setSeen] = useState<Record<string, number>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('flgj.seenNotes') ?? '{}')
+    } catch {
+      return {}
+    }
+  })
+  const hasNew = unlocked.length > (seen[order.id] ?? 0)
+  const toggle = () => {
+    if (!expanded) {
+      const next = { ...seen, [order.id]: unlocked.length }
+      setSeen(next)
+      try {
+        localStorage.setItem('flgj.seenNotes', JSON.stringify(next))
+      } catch {
+        /* 隐私模式：提示会常亮，无伤 */
+      }
+    }
+    setExpanded(!expanded)
+  }
 
   return (
     <article className="border-t border-hairline px-6 py-10 last:border-b">
-      <button onClick={() => setExpanded(!expanded)} className="w-full text-left">
+      <button onClick={toggle} className="w-full text-left">
         <div className="flex items-baseline justify-between gap-4">
           <span className="font-price text-[10px] text-fog">{orderNo(order.createdAt)}</span>
           <span className={`text-[10px] tracking-wider ${arrived ? 'text-jade' : 'text-fog'}`}>
-            {arrived ? 'On display in your heart\'s gallery' : 'Under white-glove escort'}{' '}
+            {arrived ? 'On display in your heart\'s gallery' : (unlocked[unlocked.length - 1]?.label ?? 'Order received')}{' '}
             {!arrived && <span className="truck-move inline-block align-[-2px]"><IconPlane size={12} /></span>}
           </span>
         </div>
@@ -146,12 +186,17 @@ function OrderCard({ order }: { order: Order }) {
         </div>
 
         <p className="mt-6 text-[11px] leading-loose text-fog">
-          {order.items.reduce((s, i) => s + i.qty, 0)} pieces in all, kept safe{' '}
+          {(() => { const n = order.items.reduce((s, i) => s + i.qty, 0); return n === 1 ? 'One piece' : `${n} pieces in all` })()}, kept safe{' '}
           <span className="font-price text-ivory">{money(order.total)}</span>
         </p>
         <p className="mt-2 text-[10px] leading-loose text-fog">
-          This order has been {days} days by your side{order.urge && `, because "${order.urge}"`}
-          <span className="ml-3 text-fog">{expanded ? 'Collapse ▴' : "Butler's Note ▾"}</span>
+          {days === 0
+            ? 'This order joined you today. The butler set out at once and has been not arriving ever since'
+            : `This order has been ${days} ${days === 1 ? 'day' : 'days'} by your side`}
+          {order.urge && `, because "${order.urge}"`}
+          <span className={`ml-3 ${hasNew && !expanded ? 'text-ivory' : 'text-fog'}`}>
+            {expanded ? 'Collapse ▴' : hasNew ? 'A new note from the butler ▾' : "Butler's Note ▾"}
+          </span>
         </p>
       </button>
 
@@ -197,7 +242,7 @@ function OrderCard({ order }: { order: Order }) {
             </button>
             <ConfirmButton order={order} />
           </div>
-          {butlerOpen && <ButlerDrawer onClose={() => setButlerOpen(false)} />}
+          {butlerOpen && <ButlerDrawer arrived={arrived} onClose={() => setButlerOpen(false)} />}
         </div>
       )}
     </article>
@@ -212,8 +257,8 @@ export default function Orders() {
       <div className="flex min-h-[70dvh] flex-col items-center justify-center gap-6 px-10 pb-20 text-center">
         <IconHat size={44} className="text-fog" />
         <p className="font-lux text-sm leading-loose text-fog">{EMPTY_ORDERS}</p>
-        <Link to="/" className="gold-cta mt-2 px-10 py-3 text-xs tracking-[0.2em]">
-          Take a look ›
+        <Link to="/product/lx-croc-cardcase" className="gold-cta mt-2 px-10 py-3 text-xs tracking-[0.2em]">
+          Start with the card holder ›
         </Link>
       </div>
     )

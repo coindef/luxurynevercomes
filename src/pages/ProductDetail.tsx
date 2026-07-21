@@ -7,12 +7,20 @@ import { maisonOf, productsOfMaison } from '../lib/maisons'
 import { bespokeOffered, customFor, subtypeOf } from '../lib/bespoke'
 import { IDENTITY_LABELS, referenceOf, specsOf } from '../lib/spec'
 import { BESPOKE, MARQUEE_CITIES, REVIEWS, pick } from '../lib/copy'
-import { useStore } from '../lib/store'
+import { lineKey, useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductGallery from '../components/ProductGallery'
 import ProductCard from '../components/ProductCard'
 import ConciergeRow from '../components/Concierge'
 import Accordion from '../components/Accordion'
+
+/** 入册收条轮换：最常按的按钮不能永远讲同一个笑话 */
+const ADD_LINES = [
+  'Added to your reserve. The salon associate is keeping it for you, and will keep it, always.',
+  'Added. It has been placed behind the counter, where it is expected to remain through several ice ages.',
+  'Added to your reserve. Nothing can take it from you now, including delivery.',
+  'Added. The associate wrote your name beside it in pencil, then in ink, then from memory.',
+]
 
 /** 认购低语：单条淡入淡出（浮层用固定 hex） */
 function Whisper() {
@@ -22,11 +30,13 @@ function Whisper() {
     let n = 0
     const make = () => {
       n += 1
+      // 每 12 秒一条、一页最多三条：稀了才像事件，密了就是节拍器
+      if (n > 3) { clearInterval(id); setItem(null); return }
       const m = pick(MARQUEE_CITIES)
       setItem({ id: n, text: `${m.city} patron just claimed one, ${1 + Math.floor(Math.random() * 9)} seconds ago` })
     }
     make()
-    const id = setInterval(make, 4200)
+    const id = setInterval(make, 12000)
     return () => clearInterval(id)
   }, [])
 
@@ -395,8 +405,8 @@ export default function ProductDetail() {
             <div className="mt-10 border-t border-hairline pt-6">
               <p className="font-lux text-xs text-ivory">Open only to patrons who have met their quota</p>
               <p className="mt-2 max-w-md text-[10px] leading-loose text-fog">
-                Coveted pieces cannot be reserved directly. You must first accumulate quota, which means reserving a few
-                other things first.
+                The salon downstairs promises no quota. The maison apologises: this piece is the exception, as every
+                coveted piece is. You must first accumulate quota, which means reserving a few other things first.
                 {quotaMet ? ' You have met the threshold. Claim it now.' : ' No rush. Quota, like everything else, is ¥0.00.'}
               </p>
               <div className="mt-5 flex items-baseline justify-between text-[10px]">
@@ -555,11 +565,16 @@ export default function ProductDetail() {
       <Whisper />
 
       {/* 吸底操作栏 */}
-      <div className="fixed bottom-0 left-1/2 z-40 flex w-full max-w-[480px] -translate-x-1/2 items-stretch gap-2 border-t border-hairline bg-ink px-4 py-3 lg:max-w-none lg:justify-end lg:gap-3 lg:px-[max(1.5rem,calc(50%-36rem))] lg:py-4">
+      <div className="fixed bottom-0 left-1/2 z-40 flex w-full max-w-[480px] -translate-x-1/2 items-stretch gap-2 border-t border-hairline bg-ink px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:max-w-none lg:justify-end lg:gap-3 lg:px-[max(1.5rem,calc(50%-36rem))] lg:py-4">
         <button
           onClick={() => {
+            // 配货未达标时按钮不再悄悄放行——门槛是本店的中心机制，从旁边绕过去等于没有门
+            if (!quotaMet) {
+              toast('The associate smiles and does not move. This piece asks for quota first.')
+              return
+            }
             addToCart(product.id, 1, hasCustom ? cleanCustom : undefined)
-            toast(hasCustom ? 'Added to your reserve, bespoke file and all.' : 'Added to your reserve. The salon associate is keeping it for you, and will keep it, always.')
+            toast(hasCustom ? 'Added to your reserve, bespoke file and all.' : pick(ADD_LINES))
           }}
           className="flex-1 border border-ivory py-3.5 text-xs tracking-[0.2em] text-ivory transition-colors hover:bg-ivory/5 lg:w-56 lg:flex-none"
         >
@@ -569,7 +584,8 @@ export default function ProductDetail() {
           <button
             onClick={() => {
               addToCart(product.id, 1, hasCustom ? cleanCustom : undefined)
-              navigate('/checkout')
+              // 只结这一件：Claim 的是眼前之物，别把整个 Reserve 一起拖去签字
+              navigate('/checkout', { state: { keys: [lineKey(product.id, hasCustom ? cleanCustom : undefined)] } })
             }}
             className="gold-cta flex-1 py-3.5 text-center text-xs font-semibold tracking-[0.2em] lg:w-56 lg:flex-none"
           >

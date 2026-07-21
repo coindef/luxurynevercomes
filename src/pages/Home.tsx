@@ -8,6 +8,7 @@ import { bespokeOffered } from '../lib/bespoke'
 import { colourwayOf, materialOf } from '../lib/spec'
 import { useRotating, useSeckillCountdown } from '../lib/hooks'
 import { useStore } from '../lib/store'
+import { useToast } from '../components/Toast'
 import ProductCard from '../components/ProductCard'
 import ProductImage from '../components/ProductImage'
 import EditorialImage from '../components/EditorialImage'
@@ -68,12 +69,135 @@ const atelierPieceId =
   PRODUCTS.find((p) => bespokeOffered(p))?.id ??
   SHOWCASE_IDS[0]
 
+/** 晚间拍卖：每晚 20:00 开槌，一件独拍，无底价，无对手。
+ * 佳士得晚拍的全套仪式感，落槌价照全价记账，应付部分照例 ¥0.00。
+ * 配货旗舰不入池（拍卖是现实里绕过配货的路，这里不给绕）。 */
+function eveningLot() {
+  const d = new Date()
+  const key = `sale-${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+  const h = (str: string) => {
+    let x = 2166136261
+    for (let i = 0; i < str.length; i++) {
+      x ^= str.charCodeAt(i)
+      x = Math.imul(x, 16777619)
+    }
+    return Math.abs(x)
+  }
+  const pool = PRODUCTS.filter((p) => p.price >= 1_000_000 && !p.quota && viewsOf(p).length > 0)
+  return pool.length ? pool[h(key) % pool.length] : null
+}
+
+function paddleNo(): string {
+  try {
+    const existing = localStorage.getItem('flgj.paddle')
+    if (existing) return existing
+    const n = String(11 + (Math.floor(Math.random() * 180) % 180)).padStart(3, '0')
+    localStorage.setItem('flgj.paddle', n)
+    return n
+  } catch {
+    return '041'
+  }
+}
+
+function EveningSale() {
+  const money = useMoney()
+  const { placeOrder } = useStore()
+  const lot = useMemo(eveningLot, [])
+  const [bid, setBid] = useState('')
+  const dayKey = new Date().toISOString().slice(0, 10)
+  const [justWon, setJustWon] = useState(false)
+  const [won, setWon] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('flgj.eveningLot') === dayKey
+    } catch {
+      return false
+    }
+  })
+  const open = new Date().getHours() >= 20
+  if (!lot) return null
+  const paddle = paddleNo()
+
+  const hammer = () => {
+    placeOrder([{ product: lot, qty: 1 }], lot.price, { urge: 'Won at the Evening Sale' })
+    try {
+      localStorage.setItem('flgj.eveningLot', dayKey)
+    } catch {
+      /* 私密模式：今晚可以反复赢，也算体验 */
+    }
+    setWon(true)
+    setJustWon(true)
+  }
+
+  return (
+    <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
+      <h2 className="font-lux text-2xl text-ivory lg:text-4xl">The Evening Sale</h2>
+      <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
+        One lot a night, no reserve, no competition. The hammer falls at 20:00 sharp, on whoever is here. Tonight that is you.
+      </p>
+      <div className="mt-12 gap-14 lg:grid lg:grid-cols-3">
+        <Link to={`/product/${lot.id}`} className="group block">
+          <div className="overflow-hidden bg-panel">
+            <ProductImage
+              product={lot}
+              className="aspect-[3/4] w-full transition-transform duration-700 group-hover:scale-[1.03]"
+              emojiClass="text-8xl"
+              plaque
+            />
+          </div>
+        </Link>
+        <div className="mt-8 lg:col-span-2 lg:mt-0">
+          <p className="text-[10px] tracking-wider text-fog">Lot 1 of 1</p>
+          <p className="font-lux mt-2 text-lg leading-snug text-ivory lg:text-2xl">{lot.name}</p>
+          <p className="mt-3 text-[10px] leading-loose text-fog">
+            Estimate <span className="font-price text-ivory">{money(lot.price)}</span> to{' '}
+            <span className="font-price text-ivory">{money(Math.round(lot.price * 1.35))}</span>, payable portion{' '}
+            <span className="font-price text-jade">{money(0)}</span>
+          </p>
+          {won ? (
+            <p className="mt-8 max-w-md text-[11px] leading-loose text-fog">
+              Tonight's lot is already yours, paddle No. <span className="font-price text-ivory">{paddle}</span>. The
+              room remains available for sitting in, quietly, with the feeling.
+            </p>
+          ) : open ? (
+            <div className="mt-8 max-w-md">
+              <label className="block text-[10px] text-fog">
+                Your maximum bid, paddle No. <span className="font-price text-ivory">{paddle}</span>
+                <input
+                  value={bid}
+                  onChange={(e) => setBid(e.target.value.replace(/[^0-9,.]/g, ''))}
+                  inputMode="numeric"
+                  placeholder="Any figure"
+                  className="mt-2 block w-full border-b border-hairline bg-transparent py-2 text-xs text-ivory placeholder:text-fog focus:border-ivory focus:outline-none"
+                />
+              </label>
+              <p className="mt-2 text-[9px] leading-relaxed text-fog">Any maximum suffices. There is no one to outbid.</p>
+              <button onClick={hammer} className="gold-cta mt-6 px-10 py-3 text-xs tracking-[0.2em]">
+                Raise the paddle
+              </button>
+            </div>
+          ) : (
+            <p className="mt-8 max-w-md text-[11px] leading-loose text-fog">
+              The sale opens at 20:00. Viewing is permitted. Wanting is permitted at all hours.
+            </p>
+          )}
+          {justWon && (
+            <p className="mt-4 max-w-md text-[11px] leading-loose text-jade">
+              Hammer. No competing bids; the room was silent, being empty. Sold to paddle No. {paddle}, which is you. It
+              is always you. {money(lot.price)} has been kept safe on your behalf.
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /** Black-card ritual (the only dark moment on the site; fixed hex, silver not gold foil). */
 function BlackCardModal({ onClose }: { onClose: () => void }) {
   const [opened, setOpened] = useState(false)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-8">
+    <div role="dialog" aria-modal="true" aria-label="Your black card" className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-8">
       <div className="pop-in w-full max-w-80 bg-white">
         {opened ? (
           <div className="float-up p-10">
@@ -92,10 +216,15 @@ function BlackCardModal({ onClose }: { onClose: () => void }) {
           <div className="p-10">
             <div className="mb-8 flex h-32 w-full flex-col justify-end bg-[#141414] p-4 text-left">
               <p className="text-[8px] uppercase tracking-[0.2em] text-[#c9c9c9]">Carte Noire</p>
-              <p className="font-price mt-1 text-[11px] text-[#8f8f8f]">**** **** **** 0000</p>
+              {/* 不打码：这里没有一位数字需要保护 */}
+              <p className="font-price mt-1 text-[11px] text-[#8f8f8f]">0000 0000 0000 0000</p>
+              <p className="mt-1 text-[7px] uppercase tracking-[0.2em] text-[#8f8f8f]">Esteemed Patron</p>
             </div>
             <p className="font-lux text-sm text-ivory">A black card, prepared for you</p>
-            <button onClick={() => setOpened(true)} className="gold-cta mt-6 w-full py-3.5 text-xs tracking-[0.2em]">
+            <p className="mt-2 text-[9px] leading-relaxed text-fog">
+              No application. No limit. No goods. Everything here is {'\u00a5'}0.00, and nothing ships; the card covers all of it.
+            </p>
+            <button autoFocus onClick={() => setOpened(true)} className="gold-cta mt-6 w-full py-3.5 text-xs tracking-[0.2em]">
               Activate
             </button>
           </div>
@@ -202,6 +331,7 @@ function HousesDirectory() {
 function GiftReceived({ productId, from, onDone }: { productId: string; from: string; onDone: () => void }) {
   const money = useMoney()
   const { placeOrder } = useStore()
+  const toast = useToast()
   const product = getProduct(productId)
   const [accepted, setAccepted] = useState(false)
   if (!product) return null
@@ -212,7 +342,7 @@ function GiftReceived({ productId, from, onDone }: { productId: string; from: st
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-8">
+    <div role="dialog" aria-modal="true" aria-label="A gift for you" className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-8">
       <div className="pop-in max-h-[88dvh] w-full max-w-80 overflow-y-auto bg-white p-8">
         {accepted ? (
           <div className="float-up">
@@ -246,7 +376,13 @@ function GiftReceived({ productId, from, onDone }: { productId: string; from: st
               <button onClick={accept} className="gold-cta px-8 py-2.5 text-[11px] tracking-[0.2em]">
                 Accept the gift
               </button>
-              <button onClick={onDone} className="quiet-link text-[10px] text-fog hover:text-ivory">
+              <button
+                onClick={() => {
+                  toast('Declined, gracefully. The admirer will be told you have several already.')
+                  onDone()
+                }}
+                className="quiet-link text-[10px] text-fog hover:text-ivory"
+              >
                 Decline
               </button>
             </div>
@@ -321,6 +457,7 @@ function ChosenForYou() {
 
 export default function Home() {
   const money = useMoney()
+  const toast = useToast()
   const { saved } = useStore()
   const navigate = useNavigate()
   const placeholder = useRotating(SEARCH_PLACEHOLDERS, 3600)
@@ -330,10 +467,26 @@ export default function Home() {
   const giftId = params.get('gift')
   const giftFrom = (params.get('from') ?? '').replace(/[<>]/g, '').slice(0, 20)
   const [gift, setGift] = useState<string | null>(() => (giftId && getProduct(giftId) ? giftId : null))
+  // 隔日回访的 clienteling 一句话（真店的 SA 会记得你上次来过）
+  const [wasAway] = useState<boolean>(() => {
+    try {
+      const prev = Number(localStorage.getItem('flgj.lastVisit') ?? 0)
+      localStorage.setItem('flgj.lastVisit', String(Date.now()))
+      return prev > 0 && Date.now() - prev > 86400_000
+    } catch {
+      return false
+    }
+  })
 
   useEffect(() => {
+    // 坏礼物链接（截断/手滑的 id）不能装聋：对方是被告知「有礼物」才点进来的
+    if (giftId && !getProduct(giftId)) {
+      toast('A gift was on its way to you. The link was lost before the parcel could fail to ship. A first, even for us.')
+      window.history.replaceState({}, '', '/')
+    }
     // 收礼优先于开卡仪式：一个访客一次只该有一件大事
     if (!gift && !localStorage.getItem(WELCOME_KEY)) setShowWelcome(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gift])
 
   const closeWelcome = () => {
@@ -378,7 +531,7 @@ export default function Home() {
             <h1 className="font-lux float-up max-w-3xl text-[30px] leading-[1.25] text-white lg:text-[64px] lg:leading-[1.1]">
               {SLOGAN}
             </h1>
-            <p className="float-up mt-5 max-w-md text-[11px] leading-loose text-white/70 lg:text-[13px]" style={{ animationDelay: '0.15s' }}>{SUB_SLOGAN}</p>
+            <p className="float-up mt-5 max-w-md text-[11px] leading-loose text-white/70 lg:text-[13px]" style={{ animationDelay: '0.15s' }}>{SUB_SLOGAN.replace('\u00a50.00', money(0))}</p>
             {/* 真的能搜了。原本这里是个假搜索框，点一下弹句俏皮话——
                 笑点还在（搜到了也照样不发货），但一家店的搜索框总得真的会搜 */}
             <form
@@ -405,6 +558,11 @@ export default function Home() {
             </form>
             <div className="float-up mt-10 max-w-md" style={{ animationDelay: '0.45s' }}>
               <Ticker tone="light" />
+              {wasAway && (
+                <p className="float-up mt-3 text-[10px] leading-relaxed text-white/60" style={{ animationDelay: '0.6s' }}>
+                  Welcome back. In your absence, nothing sold out. It never does.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -413,6 +571,8 @@ export default function Home() {
       <HousesDirectory />
 
       <SalonPrive />
+
+      <EveningSale />
 
       {/* One editorial break: an artisan's hands, the single human touch on the page */}
       <EditorialImage

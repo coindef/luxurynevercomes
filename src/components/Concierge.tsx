@@ -294,12 +294,13 @@ const BUTLER: Persona = {
       ],
     },
     {
-      re: /thank|merci/i,
-      make: () => ['It is my honour. The bow I have just performed was, if I may say so, one of my better ones.'],
-    },
-    {
+      // 顺序即优先级：「Thank the captain」含 thank，谢词在前的话船长永远收不到谢意
       re: /captain/i,
       make: () => ['The captain sends his regards, and a weather report of considerable beauty. He asks for nothing but sky.'],
+    },
+    {
+      re: /thank|merci/i,
+      make: () => ['It is my honour. The bow I have just performed was, if I may say so, one of my better ones.'],
     },
   ],
   fallback: [
@@ -476,10 +477,10 @@ function ConciergeDrawer({
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && send()}
+              onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && send()}
               placeholder="Write to the house"
               aria-label={`Message to ${persona.name}`}
-              autoFocus
+              autoFocus={typeof matchMedia !== 'undefined' && matchMedia('(hover: hover) and (pointer: fine)').matches}
               className="min-w-0 flex-1 bg-transparent py-1 text-xs text-ivory placeholder:text-fog focus:outline-none"
             />
             <button onClick={() => send()} className="quiet-link shrink-0 text-[10px] text-ivory">
@@ -496,8 +497,18 @@ function ConciergeDrawer({
 }
 
 /** 订单页用的管家通信间 */
-export function ButlerDrawer({ onClose }: { onClose: () => void }) {
-  return <ConciergeDrawer persona={BUTLER} onClose={onClose} />
+/** 谢幕之后管家的口径要换：时间线都说 Delivered 了，再答「在阿尔卑斯看雪」就是穿帮 */
+const ARRIVED_ROUTE = {
+  re: /where|when|order|ship|arriv|track|status|news/i,
+  make: () => [
+    'Delivered, in the only sense we practice. It sits in the showroom of your heart; I dust it on Tuesdays.',
+    'The escort has concluded. The piece is in residence where nothing can reach it, including couriers.',
+  ],
+}
+
+export function ButlerDrawer({ onClose, arrived = false }: { onClose: () => void; arrived?: boolean }) {
+  const persona = arrived ? { ...BUTLER, routes: [ARRIVED_ROUTE, ...BUTLER.routes] } : BUTLER
+  return <ConciergeDrawer persona={persona} onClose={onClose} />
 }
 
 /* ------------------------------------------------------------------ 赠礼 */
@@ -507,6 +518,7 @@ export function ButlerDrawer({ onClose }: { onClose: () => void }) {
  * 接受后整单入账进对方的账本——每个用户都成了发行渠道。
  */
 function GiftSheet({ product, onClose }: { product: Product; onClose: () => void }) {
+  const toast = useToast()
   const money = useMoney()
   const [from, setFrom] = useState('')
   const [copied, setCopied] = useState(false)
@@ -518,7 +530,7 @@ function GiftSheet({ product, onClose }: { product: Product; onClose: () => void
       setCopied(true)
       setTimeout(() => setCopied(false), 2400)
     } catch {
-      /* 剪贴板被拒时链接仍然可见可选 */
+      toast('The clipboard declined. The link remains above, yours to copy by hand.')
     }
   }
 
@@ -678,7 +690,7 @@ export default function ConciergeRow({ product }: { product: Product }) {
           >
             <span className="text-[11px] text-ivory">{label}</span>
             <span className="flex shrink-0 items-baseline gap-2 text-[9px] text-fog">
-              <span className="hidden sm:inline">{note}</span>
+              <span className="min-w-0 truncate">{note}</span>
               <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5">›</span>
             </span>
           </button>

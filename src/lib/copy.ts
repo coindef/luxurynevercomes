@@ -49,6 +49,11 @@ export const TRACKING_SCRIPT: TrackingNode[] = [
   { offsetMs: 5 * D, label: 'Out for delivery', text: 'The weather came. The captain looked at the cloudless sky, decided a day this fine belonged to flying itself, circled the field three times, and loaded nothing.' },
   { offsetMs: 6 * D, label: 'Out for delivery', text: 'The butler has reached your city and is hunting for a pair of gloves worthy of your doorbell. Of the twelve he owns, none will do.' },
   { offsetMs: 7 * D, label: 'Delivered', text: 'The butler bows out. Nothing arrived, but rest assured: the way you wanted it is worth more than it is. It now sits in the showroom of your heart, climate-controlled, never depreciating. No signature required.' },
+  // 长尾：真店的 clienteling 会寄周年卡。剧场谢幕之后，偶尔还来一张明信片
+  { offsetMs: 14 * D, label: 'In residence', text: 'Week two. The piece remains in the showroom of your heart, dusted daily by staff who do not exist.' },
+  { offsetMs: 30 * D, label: 'Postcard', text: 'Month one. Transit has become a residence. The order is thriving there, and asks after you.' },
+  { offsetMs: 100 * D, label: 'Postcard', text: "Day one hundred. The escort has learned the names of the Alpine innkeeper's children. He sends his regards; the children send nothing, correctly." },
+  { offsetMs: 365 * D, label: 'Anniversary', text: 'One year ago today, you placed this order. It has been kept in mint non-existence throughout. The house marked the hour; the hour did not notice.' },
 ]
 
 /** Bespoke-order node, inserted when the order carries customization. */

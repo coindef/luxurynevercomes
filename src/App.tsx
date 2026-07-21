@@ -19,6 +19,7 @@ const Cart = lazy(() => import('./pages/Cart'))
 const Checkout = lazy(() => import('./pages/Checkout'))
 const Orders = lazy(() => import('./pages/Orders'))
 const Me = lazy(() => import('./pages/Me'))
+const Vitrine = lazy(() => import('./pages/Vitrine'))
 const About = lazy(() => import('./pages/About'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
@@ -60,6 +61,7 @@ export default function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/me" element={<Me />} />
+                <Route path="/vitrine" element={<Vitrine />} />
               </Route>
               {/* 详情页与结算页有自己的吸底操作栏，不显示 Tab */}
               <Route path="/product/:id" element={<ProductDetail />} />

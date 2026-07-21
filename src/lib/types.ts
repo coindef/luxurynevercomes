@@ -77,4 +77,6 @@ export interface Order {
   urge?: string
   /** 礼品包装（Cartier 的折叠区里真有一栏「Gift Wrapping」；这里当然也免费，也不送达） */
   giftWrap?: boolean
+  /** 下单时选的配送方式（小票要如实印出来：选择是真的，送达不是） */
+  delivery?: string
 }

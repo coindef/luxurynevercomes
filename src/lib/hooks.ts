@@ -44,12 +44,20 @@ export function useRotating<T>(items: T[], intervalMs = 3000): T {
   return items[i]
 }
 
-/** 长按检测（确认收货按钮彩蛋） */
+/** 长按检测（确认收货按钮彩蛋）。
+ * 触屏三坑都在这里补：滚动取消要走 pointercancel；长按成功后抬手带出的 click
+ * 会顶掉彩蛋前的那句 toast（capture 阶段拦掉）；iOS 长按还会弹系统菜单（contextmenu 拦掉）。
+ * 键盘同权：按住 Enter/Space 同样计时，无鼠标的用户也拿得到证书 */
 export function useLongPress(onLongPress: () => void, ms = 600) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const fired = useRef(false)
 
   const start = () => {
-    timer.current = setTimeout(onLongPress, ms)
+    fired.current = false
+    timer.current = setTimeout(() => {
+      fired.current = true
+      onLongPress()
+    }, ms)
   }
   const cancel = () => {
     if (timer.current) clearTimeout(timer.current)
@@ -59,5 +67,18 @@ export function useLongPress(onLongPress: () => void, ms = 600) {
     onPointerDown: start,
     onPointerUp: cancel,
     onPointerLeave: cancel,
+    onPointerCancel: cancel,
+    onContextMenu: (e: { preventDefault: () => void }) => e.preventDefault(),
+    onClickCapture: (e: { stopPropagation: () => void; preventDefault: () => void }) => {
+      if (fired.current) {
+        e.stopPropagation()
+        e.preventDefault()
+        fired.current = false
+      }
+    },
+    onKeyDown: (e: { key: string; repeat: boolean }) => {
+      if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) start()
+    },
+    onKeyUp: cancel,
   }
 }

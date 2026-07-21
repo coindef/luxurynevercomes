@@ -15,10 +15,11 @@ import ProductCard from '../components/ProductCard'
 
 export default function Me() {
   const money = useMoney()
-  const { orders, saved, wishlist, appointments, cancelAppointment, waitlist, leaveWaitlist } = useStore()
+  const { orders, saved, wishlist, appointments, cancelAppointment, waitlist, waitlistSince, leaveWaitlist } = useStore()
   const toast = useToast()
   const wishes = wishlist.map(getProduct).filter((p) => p !== undefined)
-  const upcoming = appointments.filter((a) => a.at > Date.now() - 3600_000)
+  // 过去七天的预约不悄悄蒸发：那个钟点真进过对方的日历，值得一句收场白
+  const upcoming = appointments.filter((a) => a.at > Date.now() - 7 * 86400_000)
   const counted = useCountUp(saved, 1800)
   const [convIdx, setConvIdx] = useState(0)
   const [confirmClear, setConfirmClear] = useState(false)
@@ -60,6 +61,8 @@ export default function Me() {
             <p className="mt-3 text-[10px] tracking-wider text-fog">
               {memberLevel(orders.length)}, {orders.length} orders placed
             </p>
+            {/* localStorage 即全体客户名册，所以这句是实话 */}
+            <p className="mt-1 text-[10px] tracking-wider text-fog">Client No. 1 of 1. The book is intimate.</p>
           </div>
         </div>
       </header>
@@ -69,9 +72,24 @@ export default function Me() {
         <h2 className="font-lux text-2xl text-ivory lg:text-4xl">Downpayment Ledger</h2>
         <p className="mt-2 text-[11px] text-fog">Kept safe for you, in total</p>
         <p className="font-price mt-8 text-4xl font-bold text-jade lg:text-6xl">{money(counted)}</p>
-        <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
-          Strictly speaking, this money never existed. But the calm of having kept it, and the joy of counting three rows of commas, are real.
-        </p>
+        {saved > 0 ? (
+          <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
+            Strictly speaking, this money never existed. But the calm of having kept it, and the joy of counting three rows of commas, are real.
+          </p>
+        ) : (
+          <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
+            The ledger stands at zero commas. Your first order corrects this at no cost, which is the only way this house corrects anything.
+          </p>
+        )}
+        {orders.length > 0 && (
+          <p className="mt-6 max-w-md text-[10px] leading-loose text-fog">
+            Market value of the collection, at 9% a year:{' '}
+            <span className="font-price text-ivory">
+              {money(orders.reduce((sum, o) => sum + o.total * (1 + 0.09 * ((Date.now() - o.createdAt) / 31536000000)), 0))}
+            </span>
+            . The appreciation is as real as the rest, and equally unspendable.
+          </p>
+        )}
         {saved > 0 && (
           <button
             onClick={() => setConvIdx((convIdx + 1) % convCount)}
@@ -98,7 +116,10 @@ export default function Me() {
             Rich in solitude. The solitude is fake; the looking was real.
           </p>
         ) : (
-          <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">No heart-flutters this month yet. That's fine too. The hall is always open, come anytime.</p>
+          <p className="mt-6 max-w-md text-[11px] leading-loose text-fog">
+            No heart-flutters this month yet. That's fine too.{' '}
+            <Link to="/collection" className="quiet-link text-ivory">The hall is always open ›</Link>
+          </p>
         )}
         {monthOrders.length > 0 && (
           <button
@@ -141,21 +162,37 @@ export default function Me() {
                     {a.boutique}
                     {a.productName ? `, regarding ${a.productName.split('·')[0].trim()}` : ''}
                   </p>
+                  {a.at <= Date.now() && (
+                    <p className="mt-1 text-[9px] leading-relaxed text-fog">
+                      The hour came and went. Champagne was poured at five past; the room drank it.
+                    </p>
+                  )}
                 </div>
                 <div className="flex shrink-0 items-baseline gap-4">
-                  {/* .ics 是全店唯一真的送达物；订完过几天想要文件，得在这儿能再拿一次 */}
-                  <button
-                    onClick={() => downloadAppointmentIcs(a.productName, a.boutique, new Date(a.at))}
-                    className="quiet-link text-[9px] text-fog hover:text-ivory"
-                  >
-                    Calendar file
-                  </button>
-                  <button
-                    onClick={() => cancelAppointment(a.id)}
-                    className="quiet-link text-[9px] text-fog hover:text-ivory"
-                  >
-                    Cancel
-                  </button>
+                  {a.at > Date.now() ? (
+                    <>
+                      {/* .ics 是全店唯一真的送达物；订完过几天想要文件，得在这儿能再拿一次 */}
+                      <button
+                        onClick={() => downloadAppointmentIcs(a.productName, a.boutique, new Date(a.at))}
+                        className="quiet-link text-[9px] text-fog hover:text-ivory"
+                      >
+                        Calendar file
+                      </button>
+                      <button
+                        onClick={() => cancelAppointment(a.id)}
+                        className="quiet-link text-[9px] text-fog hover:text-ivory"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => cancelAppointment(a.id)}
+                      className="quiet-link text-[9px] text-fog hover:text-ivory"
+                    >
+                      Dismiss
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -181,7 +218,15 @@ export default function Me() {
                       {p.name}
                     </Link>
                     <p className="mt-1 text-[10px] text-fog">
-                      No. <span className="font-price text-ivory">{pos.toLocaleString('en-US')}</span> in line, precisely where you stood yesterday
+                      No. <span className="font-price text-ivory">{pos.toLocaleString('en-US')}</span> in line
+                      {(() => {
+                        const since = waitlistSince[id]
+                        if (!since) return ', precisely where you stood yesterday'
+                        const d = Math.floor((Date.now() - since) / 86400_000)
+                        return d === 0
+                          ? ', as of today. The queue admired your decisiveness'
+                          : `, day ${d} of the wait. Seniority accrues even when nothing else does`
+                      })()}
                     </p>
                   </div>
                   <button
@@ -242,7 +287,23 @@ export default function Me() {
           className="flex items-center justify-between border-t border-hairline px-6 py-6 text-xs text-ivory"
         >
           <span>Butler</span>
-          <span className="text-[10px] text-fog">{orders.length} orders, all in transit ›</span>
+          <span className="text-[10px] text-fog">
+            {(() => {
+              if (orders.length === 0) return '0 orders ›'
+              const arrived = orders.filter((o) => Date.now() - o.createdAt >= 7 * 86400_000).length
+              const transit = orders.length - arrived
+              if (arrived === 0) return `${orders.length} orders, all in transit ›`
+              if (transit === 0) return `${orders.length} orders, all arrived, nowhere ›`
+              return `${orders.length} orders, ${transit} in transit, ${arrived} on display in the heart ›`
+            })()}
+          </span>
+        </Link>
+        <Link
+          to="/vitrine"
+          className="flex items-center justify-between border-t border-hairline px-6 py-6 text-xs text-ivory"
+        >
+          <span>The Vitrine</span>
+          <span className="text-[10px] text-fog">the private collection, on view nowhere ›</span>
         </Link>
         <Link
           to="/about"

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMoney } from '../lib/currency'
 import { Link, useLocation } from 'react-router-dom'
 import type { CustomGroup, Order, OrderItem } from '../lib/types'
@@ -66,7 +66,7 @@ function SavedFlip({ total }: { total: number }) {
           <span className="mt-1.5 block text-[10px] font-normal tracking-widest text-jade/90">Deposited to your down-payment book</span>
         </p>
       ) : (
-        <p className="font-price text-3xl font-bold text-fog">-¥0.00</p>
+        <p className="font-price text-3xl font-bold text-fog">-{money(0)}</p>
       )}
     </div>
   )
@@ -95,7 +95,7 @@ function ReceiptBespoke({ item }: { item: OrderItem }) {
       {rows.map((r) => (
         <div key={r.label} className="flex justify-between gap-2">
           <span className="truncate">
-            {r.label}　{r.v.length > 10 ? `${r.v.slice(0, 10)}…` : r.v}
+            {r.label}: {r.v.length > 10 ? `${r.v.slice(0, 10)}…` : r.v}
           </span>
           <span className="font-price shrink-0">+{money(r.surcharge)}</span>
         </div>
@@ -108,6 +108,7 @@ function ReceiptBespoke({ item }: { item: OrderItem }) {
 }
 
 function SuccessView({ order }: { order: Order }) {
+  const money = useMoney()
   const soothing = useMemo(
     () => (order.urge && SOOTHING_BY_URGE[order.urge]) || pick(SOOTHING_GENERIC),
     [order.urge],
@@ -121,7 +122,7 @@ function SuccessView({ order }: { order: Order }) {
         <div className="pop-in mx-auto flex h-16 w-16 items-center justify-center border border-hairline text-2xl text-jade">
           ✓
         </div>
-        <h1 className="font-lux mt-8 text-lg text-ivory">Payment successful. Paid ¥0.00</h1>
+        <h1 className="font-lux mt-8 text-lg text-ivory">Payment successful. Paid {money(0)}</h1>
         <p className="mt-2.5 text-[10px] tracking-wider text-fog">The money didn't move. The prestige arrived.</p>
         <div className="mt-10">
           <SavedFlip total={order.total} />
@@ -144,9 +145,14 @@ function SuccessView({ order }: { order: Order }) {
           </div>
         ))}
         <div className="my-3 border-t border-dashed border-hairline" />
-        <div className="flex justify-between">
-          <span>Delivery method</span>
-          <span>Hand-delivered by white-glove butler (never arrives)</span>
+        {/* 收银机严肃地算出「找零 0.00」——全店最干的一次复述 */}
+        <div className="flex justify-between"><span>Total</span><span className="font-price">{money(order.total)}</span></div>
+        <div className="flex justify-between"><span>Paid</span><span className="font-price">{money(0)}</span></div>
+        <div className="flex justify-between"><span>Change due</span><span className="font-price">{money(0)}</span></div>
+        <div className="my-3 border-t border-dashed border-hairline" />
+        <div className="flex justify-between gap-3">
+          <span className="shrink-0">Delivery method</span>
+          <span className="text-right">{order.delivery ?? 'Hand-delivered by white-glove butler'} (never arrives)</span>
         </div>
         {order.giftWrap && (
           <div className="mt-1 flex justify-between">
@@ -156,8 +162,14 @@ function SuccessView({ order }: { order: Order }) {
         )}
         <div className="mt-1 flex justify-between gap-3">
           <span className="shrink-0">Estimated delivery</span>
-          <span className="text-right">Awaiting good weather (the standard for good weather is set by the captain)</span>
+          <span className="text-right">
+            {order.delivery?.includes('jet')
+              ? 'Awaiting good weather (the standard for good weather is set by the captain)'
+              : 'The butler has departed and will remain departed'}
+          </span>
         </div>
+        <div className="my-3 border-t border-dashed border-hairline" />
+        <p>Prepared for Client No. 1 of 1. All our attention, undivided by arithmetic.</p>
       </div>
 
       {hasBespoke && (
@@ -194,11 +206,13 @@ export default function Checkout() {
   const location = useLocation()
   const toast = useToast()
   const [address, setAddress] = useState(ADDRESSES[2])
-  const [delivery, setDelivery] = useState(0)
+  const [deliveryIdx, setDelivery] = useState(0)
   const [giftWrap, setGiftWrap] = useState(false)
   const [urge, setUrge] = useState<string | null>(null)
   const [paying, setPaying] = useState(false)
   const [order, setOrder] = useState<Order | null>(null)
+  const payTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const doneRef = useRef(false)
 
   const stateKeys = (location.state as { keys?: string[] } | null)?.keys
   const lines = cart
@@ -212,6 +226,33 @@ export default function Checkout() {
   const originalTotal = lines.reduce((s, r) => s + (r.product.originalPrice ?? r.product.price) * r.qty, 0)
   const priveOff = originalTotal - subtotal
 
+  // 「按什么都行，一切都会成功」必须是真的：点浮层或敲任意键都立即放行。
+  // 等待拉长到 2.8s，让那句话来得及被读到、被相信、被验证
+  const finalize = () => {
+    if (payTimer.current) clearTimeout(payTimer.current)
+    payTimer.current = null
+    if (doneRef.current) return
+    doneRef.current = true
+    const items: OrderItem[] = lines.map((r) => ({ product: r.product, qty: r.qty, customization: r.customization }))
+    const created = placeOrder(items, subtotal, { urge: urge ?? undefined, giftWrap, delivery: DELIVERY[deliveryIdx].name })
+    lines.forEach((r) => removeFromCart(r.key))
+    setPaying(false)
+    setOrder(created)
+  }
+  const pay = () => {
+    doneRef.current = false
+    setPaying(true)
+    payTimer.current = setTimeout(finalize, 2800)
+  }
+
+  useEffect(() => {
+    if (!paying) return
+    const h = () => finalize()
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paying])
+
   if (order) return <SuccessView order={order} />
 
   if (lines.length === 0) {
@@ -224,16 +265,6 @@ export default function Checkout() {
     )
   }
 
-  const pay = () => {
-    setPaying(true)
-    setTimeout(() => {
-      const items: OrderItem[] = lines.map((r) => ({ product: r.product, qty: r.qty, customization: r.customization }))
-      const created = placeOrder(items, subtotal, { urge: urge ?? undefined, giftWrap })
-      lines.forEach((r) => removeFromCart(r.key))
-      setPaying(false)
-      setOrder(created)
-    }, 1600)
-  }
 
   return (
     <div className="pb-32 lg:mx-auto lg:max-w-3xl lg:pb-24">
@@ -248,7 +279,7 @@ export default function Checkout() {
         </nav>
         <h1 className="font-lux mt-8 text-3xl leading-relaxed text-ivory lg:text-4xl">Confirm the order</h1>
         <p className="mt-3 text-[11px] leading-relaxed text-fog">
-          {lines.reduce((s, r) => s + r.qty, 0)} pieces, one signature, no money. The usual.
+          {(() => { const n = lines.reduce((sum, r) => sum + r.qty, 0); return n === 1 ? 'One piece' : `${n} pieces` })()}, one signature, no money. The usual.
         </p>
       </header>
 
@@ -279,13 +310,13 @@ export default function Checkout() {
               key={d.name}
               onClick={() => setDelivery(i)}
               className={`flex w-full items-center justify-between border px-3 py-2 text-[10px] ${
-                delivery === i ? 'border-ivory text-ivory' : 'border-hairline text-fog'
+                deliveryIdx === i ? 'border-ivory text-ivory' : 'border-hairline text-fog'
               }`}
             >
               <span>
                 {d.name} <span className="text-fog">, {d.note}</span>
               </span>
-              <span className="font-price font-semibold text-ivory">{d.fee}</span>
+              <span className="font-price font-semibold text-ivory">{d.fee.startsWith('+') ? '+' : ''}{money(0)}</span>
             </button>
           ))}
         </div>
@@ -298,7 +329,7 @@ export default function Checkout() {
             <span className={`mr-2 inline-flex h-3.5 w-3.5 items-center justify-center border align-[-2px] text-[9px] ${giftWrap ? 'border-ivory text-ivory' : 'border-hairline text-transparent'}`}>✓</span>
             Gift wrapping <span>, house box, hand-tied ribbon, wax seal</span>
           </span>
-          <span className="font-price font-semibold text-ivory">¥0</span>
+          <span className="font-price font-semibold text-ivory">{money(0)}</span>
         </button>
       </section>
 
@@ -361,7 +392,7 @@ export default function Checkout() {
         {subtotal >= 1_000_000 && (
           <div className="flex justify-between gap-4 py-1 text-fog">
             <span className="shrink-0">Gift for orders over ¥1,000,000</span>
-            <span className="text-right">One canvas tote (which, like the main item, does not ship)</span>
+            <span className="text-right">One canvas tote, packed inside the main order and sharing its itinerary</span>
           </div>
         )}
         <div className="flex justify-between py-1 text-fog">
@@ -370,30 +401,30 @@ export default function Checkout() {
         </div>
         <div className="mt-4 flex items-baseline justify-between border-t border-hairline pt-4">
           <span className="font-lux text-ivory">Amount paid</span>
-          <span className="font-price text-xl font-bold text-ivory">¥0.00</span>
+          <span className="font-price text-xl font-bold text-ivory">{money(0)}</span>
         </div>
       </section>
 
       {/* 支付：手机吸底（app 的好习惯），桌面收进版心（编辑页面不悬浮工具条） */}
       <div className="mx-6 mt-12 hidden lg:mx-0 lg:block">
         <button onClick={pay} className="gold-cta w-full py-3.5 text-center text-sm font-semibold tracking-widest">
-          Pay ¥0.00
+          Pay {money(0)}
           <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">This one keeps {money(subtotal)}</span>
         </button>
       </div>
-      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-6 py-3 lg:hidden">
+      <div className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-hairline bg-ink px-6 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden">
         <button
           onClick={pay}
           className="gold-cta w-full py-3.5 text-center text-sm font-semibold tracking-widest"
         >
-          Pay ¥0.00
+          Pay {money(0)}
           <span className="ml-2 text-[10px] font-normal text-[#7fd4ab]">This one keeps {money(subtotal)}</span>
         </button>
       </div>
 
-      {/* 白手套核验弹层 */}
+      {/* 白手套核验弹层：真的按什么都行 */}
       {paying && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70">
+        <div onClick={finalize} className="fixed inset-0 z-50 flex cursor-pointer items-end justify-center bg-black/70">
           <div className="w-full max-w-[480px] border-t border-hairline bg-panel p-12 text-center float-up">
             {/* 白手套核验：亮出屋徽（衬线 Z），像支付面板亮商户标——不用彩色 emoji */}
             <div className="font-lux mx-auto mb-8 flex h-20 w-20 items-center justify-center border border-hairline text-3xl text-ivory">

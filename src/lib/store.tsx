@@ -8,6 +8,7 @@ const WISHLIST_KEY = 'flgj.wishlist'
 const APPTS_KEY = 'flgj.appointments'
 const RECENT_KEY = 'flgj.recent'
 const WAITLIST_KEY = 'flgj.waitlist'
+const WAITLIST_SINCE_KEY = 'flgj.waitlistSince'
 const VERSION_KEY = 'flgj.v'
 /** 数据结构不兼容升级时递增此版本号，旧数据会被清掉（守住的钱是真的守住了，这个不会变） */
 const DATA_VERSION = '1'
@@ -23,6 +24,15 @@ try {
   // 隐私模式等场景下 localStorage 不可用，功能降级为不持久化
 }
 
+/** 写入失败（隐私模式/存储被禁）就静默降级为本次会话内存态——玩笑照常成立 */
+function save(key: string, value: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // 见上
+  }
+}
+
 function load<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key)
@@ -33,7 +43,7 @@ function load<T>(key: string, fallback: T): T {
 }
 
 /** 行 key：同商品不同定制各占一行 */
-function lineKey(productId: string, customization?: Customization): string {
+export function lineKey(productId: string, customization?: Customization): string {
   if (!customization || Object.keys(customization).length === 0) return productId
   const norm = Object.keys(customization)
     .sort()
@@ -63,6 +73,8 @@ interface StoreValue {
   recent: string[]
   /** 等候名单：id → 排位。配货旗舰的另一条队（Birkin 的那条队，诚实版） */
   waitlist: Record<string, number>
+  /** 等候名单入队时刻：排位不动，资历照涨 */
+  waitlistSince: Record<string, number>
   /** 所有寂寞订单的累计金额 = 已守住的钱 */
   saved: number
   cartCount: number
@@ -76,7 +88,7 @@ interface StoreValue {
   leaveWaitlist: (productId: string) => void
   bookAppointment: (a: Omit<Appointment, 'id'>) => Appointment
   cancelAppointment: (id: string) => void
-  placeOrder: (items: OrderItem[], total: number, opts?: { urge?: string; giftWrap?: boolean }) => Order
+  placeOrder: (items: OrderItem[], total: number, opts?: { urge?: string; giftWrap?: boolean; delivery?: string }) => Order
 }
 
 const StoreContext = createContext<StoreValue | null>(null)
@@ -88,29 +100,34 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [appointments, setAppointments] = useState<Appointment[]>(() => load(APPTS_KEY, []))
   const [recent, setRecent] = useState<string[]>(() => load(RECENT_KEY, []))
   const [waitlist, setWaitlist] = useState<Record<string, number>>(() => load(WAITLIST_KEY, {}))
+  const [waitlistSince, setWaitlistSince] = useState<Record<string, number>>(() => load(WAITLIST_SINCE_KEY, {}))
 
   useEffect(() => {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart))
+    save(CART_KEY, cart)
   }, [cart])
 
   useEffect(() => {
-    localStorage.setItem(RECENT_KEY, JSON.stringify(recent))
+    save(RECENT_KEY, recent)
   }, [recent])
 
   useEffect(() => {
-    localStorage.setItem(WAITLIST_KEY, JSON.stringify(waitlist))
+    save(WAITLIST_KEY, waitlist)
   }, [waitlist])
 
   useEffect(() => {
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders))
+    save(WAITLIST_SINCE_KEY, waitlistSince)
+  }, [waitlistSince])
+
+  useEffect(() => {
+    save(ORDERS_KEY, orders)
   }, [orders])
 
   useEffect(() => {
-    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist))
+    save(WISHLIST_KEY, wishlist)
   }, [wishlist])
 
   useEffect(() => {
-    localStorage.setItem(APPTS_KEY, JSON.stringify(appointments))
+    save(APPTS_KEY, appointments)
   }, [appointments])
 
   const addToCart = (productId: string, qty = 1, customization?: Customization) => {
@@ -149,11 +166,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const joinWaitlist = (productId: string): number => {
     const pos = waitlistPosition(productId)
     setWaitlist((prev) => ({ ...prev, [productId]: pos }))
+    setWaitlistSince((prev) => ({ ...prev, [productId]: Date.now() }))
     return pos
   }
 
   const leaveWaitlist = (productId: string) => {
     setWaitlist((prev) => {
+      const next = { ...prev }
+      delete next[productId]
+      return next
+    })
+    setWaitlistSince((prev) => {
       const next = { ...prev }
       delete next[productId]
       return next
@@ -170,7 +193,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setAppointments((prev) => prev.filter((a) => a.id !== id))
   }
 
-  const placeOrder = (items: OrderItem[], total: number, opts?: { urge?: string; giftWrap?: boolean }): Order => {
+  const placeOrder = (items: OrderItem[], total: number, opts?: { urge?: string; giftWrap?: boolean; delivery?: string }): Order => {
     const order: Order = {
       id: `${Date.now()}`,
       items,
@@ -178,6 +201,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       createdAt: Date.now(),
       urge: opts?.urge,
       giftWrap: opts?.giftWrap,
+      delivery: opts?.delivery,
     }
     setOrders((prev) => [order, ...prev])
     return order
@@ -188,7 +212,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <StoreContext.Provider
-      value={{ cart, orders, wishlist, appointments, recent, waitlist, saved, cartCount, addToCart, setQty, removeFromCart, clearCart, toggleWish, noteViewed, joinWaitlist, leaveWaitlist, bookAppointment, cancelAppointment, placeOrder }}
+      value={{ cart, orders, wishlist, appointments, recent, waitlist, waitlistSince, saved, cartCount, addToCart, setQty, removeFromCart, clearCart, toggleWish, noteViewed, joinWaitlist, leaveWaitlist, bookAppointment, cancelAppointment, placeOrder }}
     >
       {children}
     </StoreContext.Provider>

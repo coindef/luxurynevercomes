@@ -217,12 +217,26 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .float-up,
   .pop-in,
-  .confetti,
   .whisper,
   .emoji-float,
   .truck-move,
   .drawer-in,
   .quill-dot {
     animation: none;
+  }
+  /* 彩带的淡出就在动画关键帧里：只关动画会把 16 条银箔永远钉在成功页顶部。纯装饰，直接不显示 */
+  .confetti {
+    display: none;
+  }
+}
+
+/* iOS Safari 对 <16px 的输入框聚焦即放大页面，且不总缩回。
+   手机端一律 16px（!important 压过工具类字号；桌面不受影响）。
+   不用 maximum-scale=1 那条路——Android Chrome 会真的禁掉双指缩放，无障碍红线 */
+@media (max-width: 1023px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }
