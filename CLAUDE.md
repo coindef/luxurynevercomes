@@ -89,7 +89,9 @@ npm run lint       # oxlint
 - **大画廊（3D）**：首页 `GrandGallery` 用 three.js 把今日沙龙挂进白雾房间（拖动环视/悬停展签/
   点击进详情）。three 绝不进主包（IntersectionObserver 进视口才动态 import），WebGL 不可用整节
   安静退场；冷调家规照管 3D：白雾即墙、阻尼 lerp、reduced-motion 关待机漂移。
-  three.js API 参考装在 `.claude/skills/threejs-*`（CloudAI-X/threejs-skills）
+  three.js API 参考装在 `.claude/skills/threejs-*`（CloudAI-X/threejs-skills）；
+  场景质感的配方在 `.claude/skills/procedural-3d-realism`（IBL/PBR/三灯位/接触影/ACES，
+  画廊 v2 全按它重打：真弧墙 + 主光落影 + 每画一盏射灯 + 漆面画框借环境高光）
 - **编辑配图**：`public/img/ed-*.jpg` 是全幅氛围图（工坊/橱窗/白手套/金库），
   用 `EditorialImage` 组件插在页面之间；**图缺失时整块自动消失**，不留空框
 - **署名**：CC BY/BY-SA 图片必须同步 `src/lib/credits.ts`（渲染进 /about）

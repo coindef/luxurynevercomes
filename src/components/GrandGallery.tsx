@@ -56,30 +56,67 @@ export default function GrandGallery({ pieces }: { pieces: Product[] }) {
 
     async function initScene() {
       const THREE = await import('three')
+      const { RoomEnvironment } = await import('three/examples/jsm/environments/RoomEnvironment.js')
       if (disposed || !el || !canvas) return
 
       const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
 
       const scene = new THREE.Scene()
       scene.background = new THREE.Color(0xffffff)
-      // 白雾即墙：远处的画沉进纸白里，房间的大小只是一种口气
-      scene.fog = new THREE.Fog(0xffffff, 7, 16)
+      // 雾仍在，但推远一档：先让墙被读到，再让它沉进纸白
+      scene.fog = new THREE.Fog(0xffffff, 9, 22)
 
-      const camera = new THREE.PerspectiveCamera(42, el.clientWidth / el.clientHeight, 0.1, 40)
-      camera.position.set(0, 0, 0)
+      const camera = new THREE.PerspectiveCamera(40, el.clientWidth / el.clientHeight, 0.1, 40)
+      // 站姿：视线略低于画心，微微仰视——看画的人本来就该这么站
+      camera.position.set(0, -0.15, 0)
 
       const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
       renderer.setSize(el.clientWidth, el.clientHeight)
       renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
       renderer.outputColorSpace = THREE.SRGBColorSpace
+      // ACES + 环境光照（IBL）：skills/procedural-3d-realism 的第一军规——
+      // 「3D 资产」与「被拍下来的物体」之间隔着的就是这一步
+      renderer.toneMapping = THREE.ACESFilmicToneMapping
+      renderer.toneMappingExposure = 1.12
+      renderer.shadowMap.enabled = true
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap
+      const pmrem = new THREE.PMREMGenerator(renderer)
+      const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
+      scene.environment = envTex
 
-      // 地面：一块极浅灰,雾里只剩脚下一段——站得住,望不穿
+      // 灯光：三灯制冷调版——近乎不可察的暖主光 + 冷灰半球补光（自然的冷暖对比，
+      // 幅度压到单色体系察觉不到的程度），影子交给主光
+      const hemi = new THREE.HemisphereLight(0xffffff, 0xcfd4da, 0.55)
+      const key = new THREE.DirectionalLight(0xfff4ea, 1.35)
+      key.position.set(4, 7, 6)
+      key.castShadow = true
+      key.shadow.mapSize.set(2048, 2048)
+      key.shadow.bias = -0.0004
+      key.shadow.camera.near = 1
+      key.shadow.camera.far = 30
+      key.shadow.camera.left = -10
+      key.shadow.camera.right = 10
+      key.shadow.camera.top = 8
+      key.shadow.camera.bottom = -6
+      scene.add(hemi, key)
+
+      // 弧形展墙：画挂在真实的墙上，影子落在墙上——悬浮的框是纸片，落影的框是房间
+      const WALL_R = 6.5
+      const wall = new THREE.Mesh(
+        new THREE.CylinderGeometry(WALL_R, WALL_R, 7, 64, 1, true, Math.PI * 0.5, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0xfbfbfb, roughness: 0.95, side: THREE.BackSide }),
+      )
+      wall.receiveShadow = true
+      scene.add(wall)
+
+      // 地面：浅石灰,一点点反射感（roughness 0.55 刚好从环境里借到一丝光泽）
       const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(60, 60),
-        new THREE.MeshBasicMaterial({ color: 0xf2f2f2 }),
+        new THREE.MeshStandardMaterial({ color: 0xededed, roughness: 0.55, metalness: 0 }),
       )
       floor.rotation.x = -Math.PI / 2
       floor.position.y = -1.6
+      floor.receiveShadow = true
       scene.add(floor)
 
       const loader = new THREE.TextureLoader()
@@ -94,26 +131,41 @@ export default function GrandGallery({ pieces }: { pieces: Product[] }) {
         group.position.set(Math.sin(angle) * R, 0, -Math.cos(angle) * R)
         group.lookAt(0, 0, 0)
 
-        // 墨黑细框 + 白卡纸 + 画心（博物馆装裱的三层，装裱是实体不是装饰线）
+        // 博物馆装裱三层，材质按 PBR 军规：漆面黑框（clearcoat 从环境里借高光，
+        // 「为什么看起来贵」多半是这道反光）、粗面白卡纸、亚光画心
         const frame = new THREE.Mesh(
           new THREE.BoxGeometry(1.72, 2.24, 0.07),
-          new THREE.MeshBasicMaterial({ color: 0x111111 }),
+          new THREE.MeshPhysicalMaterial({
+            color: 0x101010,
+            roughness: 0.32,
+            metalness: 0,
+            clearcoat: 0.5,
+            clearcoatRoughness: 0.25,
+          }),
         )
+        frame.castShadow = true
         const mat = new THREE.Mesh(
           new THREE.PlaneGeometry(1.62, 2.14),
-          new THREE.MeshBasicMaterial({ color: 0xffffff }),
+          new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.92 }),
         )
         mat.position.z = 0.041
         const texture = loader.load(viewsOf(p)[0])
         texture.colorSpace = THREE.SRGBColorSpace
         const art = new THREE.Mesh(
           new THREE.PlaneGeometry(1.4, 1.4 * (4 / 3)),
-          new THREE.MeshBasicMaterial({ map: texture }),
+          new THREE.MeshStandardMaterial({ map: texture, roughness: 0.85, metalness: 0 }),
         )
         art.position.z = 0.043
         art.userData.productId = p.id
         group.add(frame, mat, art)
         scene.add(group)
+
+        // 射灯：从上前方打向画心，penumbra 拉满——墙上那滩柔和的光池就是美术馆的签名
+        const spot = new THREE.SpotLight(0xffffff, 9, 14, 0.38, 0.95, 1.2)
+        spot.position.set(group.position.x * 0.72, 2.6, group.position.z * 0.72)
+        spot.target = art
+        scene.add(spot)
+        disposables.push({ dispose: () => scene.remove(spot) })
         hung.push({ product: p, group, art })
         disposables.push(frame.geometry, frame.material, mat.geometry, mat.material, art.geometry, art.material, texture)
       })
@@ -226,6 +278,10 @@ export default function GrandGallery({ pieces }: { pieces: Product[] }) {
         for (const d of disposables) d.dispose()
         floor.geometry.dispose()
         ;(floor.material as { dispose: () => void }).dispose()
+        wall.geometry.dispose()
+        ;(wall.material as { dispose: () => void }).dispose()
+        envTex.dispose()
+        pmrem.dispose()
         renderer.dispose()
       }
     }
@@ -260,6 +316,11 @@ export default function GrandGallery({ pieces }: { pieces: Product[] }) {
             The room is being prepared. It has never been used.
           </p>
         )}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse at center, transparent 62%, rgba(0,0,0,0.045) 100%)' }}
+        />
         {/* 展签浮层：走 DOM 不走 3D 文本（可读可及，还免了字体加载） */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/80 to-transparent px-5 pb-4 pt-10">
           {hovered ? (

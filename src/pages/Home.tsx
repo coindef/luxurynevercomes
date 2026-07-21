@@ -73,6 +73,17 @@ const atelierPieceId =
 /** Black-card ritual (the only dark moment on the site; fixed hex, silver not gold foil). */
 function BlackCardModal({ onClose }: { onClose: () => void }) {
   const [opened, setOpened] = useState(false)
+  // 卡面随指针轻微倾侧（CSS 3D）：一张实体卡躺在手里的物理感。
+  // 幅度 ±7°，回弹走 ease-out（不过冲）；reduced-motion 不动
+  const [tilt, setTilt] = useState<{ x: number; y: number } | null>(null)
+  const onCardMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const r = e.currentTarget.getBoundingClientRect()
+    setTilt({
+      x: -(((e.clientY - r.top) / r.height) * 2 - 1) * 6,
+      y: (((e.clientX - r.left) / r.width) * 2 - 1) * 7,
+    })
+  }
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Your black card" className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-8">
@@ -92,7 +103,17 @@ function BlackCardModal({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <div className="p-10">
-            <div className="mb-8 flex h-32 w-full flex-col justify-end bg-[#141414] p-4 text-left">
+            <div
+              onPointerMove={onCardMove}
+              onPointerLeave={() => setTilt(null)}
+              style={{
+                transform: tilt
+                  ? `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`
+                  : 'perspective(700px)',
+                transition: tilt ? 'transform 80ms linear' : 'transform 600ms var(--ease-out-quart)',
+                boxShadow: '0 18px 50px rgba(0,0,0,0.30)',
+              }}
+              className="mb-8 flex h-32 w-full flex-col justify-end bg-[#141414] p-4 text-left">
               <p className="text-[8px] uppercase tracking-[0.2em] text-[#c9c9c9]">Carte Noire</p>
               {/* 不打码：这里没有一位数字需要保护 */}
               <p className="font-price mt-1 text-[11px] text-[#8f8f8f]">0000 0000 0000 0000</p>
