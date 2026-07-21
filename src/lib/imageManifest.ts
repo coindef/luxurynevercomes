@@ -133,7 +133,6 @@ export const IMAGE_VIEWS: Record<string, number> = {
   'lx-cummerbund': 1,
   'lx-cup-race-syndicate': 2,
   'lx-custom-buttons': 1,
-  'lx-d-flawless': 1,
   'lx-dac-unit': 2,
   'lx-datacenter-block': 3,
   'lx-daughter-wine': 1,
@@ -456,7 +455,6 @@ export const IMAGE_VIEWS: Record<string, number> = {
   'lx-sommelier-year': 1,
   'lx-song-porcelain': 2,
   'lx-song-rarebook': 2,
-  'lx-south-sea': 1,
   'lx-soy-vat-adopt': 1,
   'lx-space-flown-relic': 2,
   'lx-space-solar': 3,
@@ -558,7 +556,6 @@ export const IMAGE_VIEWS: Record<string, number> = {
   'lx-yacht-50': 2,
   'lx-yacht-55': 2,
   'lx-yongle-buddha': 2,
-  'lx-yuan-blueandwhite': 1,
   'lx-zero-clutch': 1,
   'lx-zhongshan-suit': 1,
   'lx-zhou-bronze-gui': 1,
@@ -580,4 +577,4 @@ export const VIEW_CAPTIONS: Record<string, string[]> = {
 }
 
 /** 有照片的商品数（其余走展签） */
-export const PHOTOGRAPHED_COUNT = 559
+export const PHOTOGRAPHED_COUNT = 556
