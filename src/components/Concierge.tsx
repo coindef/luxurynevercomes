@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 import type { Product } from '../lib/types'
 import { MARQUEE_CITIES } from '../lib/copy'
@@ -34,7 +35,9 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  return (
+  // portal 到 body：弹层不能被任何带 transform 的祖先劫走（.float-up 的 fill 会留下 transform，
+  // fixed 就会以那张卡片为参照——管家抽屉曾因此被钉死在订单卡里）
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 lg:items-center" onClick={onClose}>
       <div
         ref={panel}
@@ -53,7 +56,8 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
@@ -397,7 +401,8 @@ function ConciergeDrawer({
   const lastYou = [...thread].reverse().find((m) => m.who === 'you')
   const answered = lastYou && thread.some((m) => m.who === 'amb' && m.at > lastYou.at)
 
-  return (
+  // 同 Sheet：portal 到 body，免疫祖先 transform
+  return createPortal(
     <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose}>
       <div
         role="dialog"
@@ -492,7 +497,8 @@ function ConciergeDrawer({
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
