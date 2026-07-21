@@ -8,6 +8,7 @@ import { bespokeOffered } from '../lib/bespoke'
 import { useRotating } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
+import type { Product } from '../lib/types'
 import ProductCard from '../components/ProductCard'
 import ProductImage from '../components/ProductImage'
 import EditorialImage from '../components/EditorialImage'
@@ -279,6 +280,28 @@ function GiftReceived({ productId, from, onDone }: { productId: string; from: st
   )
 }
 
+/** 房账：今日沙龙六件的总账，当面算给你看——全站的包袱第一次以展示级字号落地，
+ * 且是首页唯一的颜色时刻（绿只在省钱侧，家规）。划掉的总价用雾灰，别抢包袱的光 */
+function Arithmetic({ pieces }: { pieces: Product[] }) {
+  const money = useMoney()
+  if (pieces.length === 0) return null
+  const total = pieces.reduce((s, p) => s + p.price, 0)
+  return (
+    <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
+      <h2 className="font-lux text-lg text-ivory lg:text-2xl">The arithmetic</h2>
+      <p className="mt-2 max-w-md text-[11px] leading-loose text-fog">
+        Today's six, taken together. The house checks this figure nightly; it has never once been wrong.
+      </p>
+      <p className="font-price mt-10 text-2xl text-fog line-through decoration-1 lg:text-4xl">{money(total)}</p>
+      <p className="font-price mt-3 text-5xl text-jade lg:text-7xl">Payable {money(0)}</p>
+      <p className="mt-8 max-w-md text-[10px] leading-loose text-fog">
+        The difference will be kept in your name the moment you sign for anything. It is the entire business model,
+        and it is working.
+      </p>
+    </section>
+  )
+}
+
 /** 最近看过：真店的「Recently viewed」。只读本机档案，回访才出现 */
 function RecentlyViewed() {
   const { recent } = useStore()
@@ -372,8 +395,17 @@ export default function Home() {
       toast('A gift was on its way to you. The link was lost before the parcel could fail to ship. A first, even for us.')
       window.history.replaceState({}, '', '/')
     }
-    // 收礼优先于开卡仪式：一个访客一次只该有一件大事
-    if (!gift && !localStorage.getItem(WELCOME_KEY)) setShowWelcome(true)
+    // 开卡仪式改在**第一次滚动之后**登场：给好奇心的奖赏，不是门口的过路费
+    // （评审之问「Is the black card worth the bounce?」——不值，那就让它晚一点、像被注意到了才来）
+    if (gift || localStorage.getItem(WELCOME_KEY)) return
+    const onScroll = () => {
+      if (window.scrollY > 420) {
+        setShowWelcome(true)
+        window.removeEventListener('scroll', onScroll)
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gift])
 
@@ -465,12 +497,14 @@ export default function Home() {
 
       <GrandGallery pieces={dailySalon()} />
 
+      <Arithmetic pieces={dailySalon()} />
+
       <HousesDirectory />
 
       {/* One editorial break: an artisan's hands, the single human touch on the page */}
       <EditorialImage
-        src="/img/ed-atelier.jpg"
-        alt="An artisan's hands adjusting a movement in dim light"
+        src="/img/ed-atelier-2.jpg"
+        alt="A row of hand tools on the atelier wall, each in its place"
         className="mt-24 h-[46vh] lg:mt-40 lg:h-[62vh]"
       />
       <section className="mx-auto mt-14 max-w-6xl px-6 lg:mt-20">

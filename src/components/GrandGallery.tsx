@@ -153,12 +153,15 @@ export default function GrandGallery({ pieces }: { pieces: Product[] }) {
           new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.92 }),
         )
         mat.position.z = 0.041
-        const texture = loader.load(viewsOf(p)[0])
-        texture.colorSpace = THREE.SRGBColorSpace
-        const art = new THREE.Mesh(
-          new THREE.PlaneGeometry(1.4, 1.4 * (4 / 3)),
-          new THREE.MeshStandardMaterial({ map: texture, roughness: 0.85, metalness: 0 }),
-        )
+        // 贴图就位前画心先呈素卡纸色，免得首帧挂着一块深灰空板（评审 minor #4）
+        const artMat = new THREE.MeshStandardMaterial({ color: 0xf4f4f4, roughness: 0.85, metalness: 0 })
+        const texture = loader.load(viewsOf(p)[0], (t) => {
+          t.colorSpace = THREE.SRGBColorSpace
+          artMat.map = t
+          artMat.color.set(0xffffff)
+          artMat.needsUpdate = true
+        })
+        const art = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.4 * (4 / 3)), artMat)
         art.position.z = 0.043
         art.userData.productId = p.id
         group.add(frame, mat, art)
@@ -306,7 +309,7 @@ export default function GrandGallery({ pieces }: { pieces: Product[] }) {
     <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
       <h2 className="font-lux text-2xl text-ivory lg:text-4xl">Today's Salon</h2>
       <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
-        The booking window closes in <span className="font-price text-ivory">{countdown}</span>; every refresh, we
+        The booking window closes in <span className="text-ivory">{countdown}</span>; every refresh, we
         quietly reserve it for you again. Six pieces, hung in a room that renders on arrival. Drag to look around;
         the wall is rehung at midnight.
       </p>
