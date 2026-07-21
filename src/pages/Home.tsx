@@ -3,10 +3,9 @@ import { useMoney } from '../lib/currency'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { CATEGORIES, PRODUCTS, getProduct, viewsOf } from '../lib/products'
 import { MARQUEE_CITIES, SEARCH_PLACEHOLDERS, SLOGAN, SUB_SLOGAN, pick } from '../lib/copy'
-import { MAISONS, maisonOf } from '../lib/maisons'
+import { MAISONS } from '../lib/maisons'
 import { bespokeOffered } from '../lib/bespoke'
-import { colourwayOf, materialOf } from '../lib/spec'
-import { useRotating, useSeckillCountdown } from '../lib/hooks'
+import { useRotating } from '../lib/hooks'
 import { useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
 import ProductCard from '../components/ProductCard'
@@ -73,6 +72,11 @@ const atelierPieceId =
 /** Black-card ritual (the only dark moment on the site; fixed hex, silver not gold foil). */
 function BlackCardModal({ onClose }: { onClose: () => void }) {
   const [opened, setOpened] = useState(false)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
   // 卡面随指针轻微倾侧（CSS 3D）：一张实体卡躺在手里的物理感。
   // 幅度 ±7°，回弹走 ease-out（不过冲）；reduced-motion 不动
   const [tilt, setTilt] = useState<{ x: number; y: number } | null>(null)
@@ -86,8 +90,14 @@ function BlackCardModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Your black card" className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-8">
-      <div className="pop-in w-full max-w-80 bg-white">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Your black card"
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-8"
+    >
+      <div onClick={(e) => e.stopPropagation()} className="pop-in w-full max-w-80 bg-white">
         {opened ? (
           <div className="float-up p-10">
             <p className="font-price text-5xl font-normal text-ivory">∞</p>
@@ -126,6 +136,9 @@ function BlackCardModal({ onClose }: { onClose: () => void }) {
             <button autoFocus onClick={() => setOpened(true)} className="gold-cta mt-6 w-full py-3.5 text-xs tracking-[0.2em]">
               Activate
             </button>
+            <button onClick={onClose} className="quiet-link mt-4 w-full text-center text-[10px] text-fog hover:text-ivory">
+              Slip in without the card
+            </button>
           </div>
         )}
       </div>
@@ -155,48 +168,6 @@ function Ticker({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   )
 }
 
-/** Today's Salon: a tight showcase of photographed flagships. */
-function SalonPrive() {
-  const money = useMoney()
-  const countdown = useSeckillCountdown()
-  const items = dailySalon()
-
-  return (
-    <section className="mt-24 lg:mt-40">
-      <div className="mx-auto max-w-6xl px-6">
-        <h2 className="font-lux text-2xl text-ivory lg:text-4xl">Today's Salon</h2>
-        <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
-          The booking window closes in <span className="font-price text-ivory">{countdown}</span>. Every refresh, we
-          quietly reserve it for you again. The wall is rehung at midnight.
-        </p>
-      </div>
-      <div className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-2 [-webkit-overflow-scrolling:touch] lg:mx-auto lg:mt-16 lg:grid lg:max-w-6xl lg:grid-cols-3 lg:gap-14 lg:overflow-visible">
-        {items.map((p) => (
-          <Link key={p!.id} to={`/product/${p!.id}`} className="group w-[82%] shrink-0 snap-center lg:w-auto">
-            <div className="overflow-hidden bg-panel">
-              <ProductImage
-                product={p!}
-                className="aspect-[3/4] w-full transition-transform duration-700 group-hover:scale-[1.03]"
-                emojiClass="text-8xl"
-                plaque
-              />
-            </div>
-            {/* 卡片三行制式与目录一致（屋 → 名 → 价 + 这件自己的材质色号）。
-                原本六张卡下面重复同一句排队笑话——同一个笑话讲六遍，是模板不是幽默 */}
-            <div className="pt-5">
-              <p className="truncate text-[10px] text-fog">{maisonOf(p!).name}</p>
-              <p className="font-lux mt-1 text-[15px] leading-snug text-ivory">{p!.name}</p>
-              <p className="font-price mt-2 text-[13px] text-ivory">{money(p!.price)}</p>
-              <p className="mt-1.5 truncate text-[9px] leading-relaxed text-fog">
-                {materialOf(p!)}, {colourwayOf(p!)}
-              </p>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
-  )
-}
 
 /** The Houses: a typographic directory of the fictional maisons (no image clutter). */
 function HousesDirectory() {
@@ -225,7 +196,7 @@ function HousesDirectory() {
       </div>
       <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
         {MAISONS.length} maisons, none of them real, each specialising in one room of the collection. Nine are open
-        this morning; the arcade is rehung at midnight.
+        this morning; the rest are resting, which for a maison is a kind of work.
       </p>
       <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-hairline pt-8 lg:grid-cols-3 lg:gap-x-14">
         {nine.map((m) => (
@@ -311,7 +282,9 @@ function GiftReceived({ productId, from, onDone }: { productId: string; from: st
 /** 最近看过：真店的「Recently viewed」。只读本机档案，回访才出现 */
 function RecentlyViewed() {
   const { recent } = useStore()
-  const pieces = recent.map(getProduct).filter((p) => p !== undefined).slice(0, 4)
+  // 精选网格刚展示过的不再复读（评审：同一视口同一件出现两次）
+  const shown = new Set(FEATURED_IDS.slice(0, 8))
+  const pieces = recent.filter((id) => !shown.has(id)).map(getProduct).filter((p) => p !== undefined).slice(0, 4)
   if (pieces.length < 2) return null
   return (
     <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
@@ -330,7 +303,7 @@ function RecentlyViewed() {
 function ChosenForYou() {
   const { recent, wishlist, orders } = useStore()
   const pieces = useMemo(() => {
-    const known = new Set<string>([...recent, ...wishlist])
+    const known = new Set<string>([...recent, ...wishlist, ...FEATURED_IDS])
     for (const o of orders) for (const it of o.items) known.add(it.product.id)
     if (known.size === 0) return []
     const counts = new Map<string, number>()
@@ -409,10 +382,10 @@ export default function Home() {
     setShowWelcome(false)
   }
 
-  const featured = FEATURED_IDS.map(getProduct).filter(Boolean)
+  const featured = FEATURED_IDS.slice(0, 8).map(getProduct).filter(Boolean)
 
   return (
-    <div className="pb-28">
+    <div>
       {gift && (
         <GiftReceived
           productId={gift}
@@ -471,7 +444,14 @@ export default function Home() {
                 Search
               </button>
             </form>
-            <div className="float-up mt-10 max-w-md" style={{ animationDelay: '0.45s' }}>
+            <Link
+              to="/collection"
+              className="quiet-link float-up mt-6 inline-block text-[11px] tracking-[0.2em] text-white"
+              style={{ animationDelay: '0.38s' }}
+            >
+              Enter the collection ›
+            </Link>
+            <div className="float-up mt-8 max-w-md" style={{ animationDelay: '0.45s' }}>
               <Ticker tone="light" />
               {wasAway && (
                 <p className="float-up mt-3 text-[10px] leading-relaxed text-white/60" style={{ animationDelay: '0.6s' }}>
@@ -486,8 +466,6 @@ export default function Home() {
       <GrandGallery pieces={dailySalon()} />
 
       <HousesDirectory />
-
-      <SalonPrive />
 
       {/* One editorial break: an artisan's hands, the single human touch on the page */}
       <EditorialImage
@@ -505,7 +483,7 @@ export default function Home() {
           to={`/product/${atelierPieceId}`}
           className="quiet-link mt-6 inline-block text-[11px] tracking-[0.2em] text-ivory"
         >
-          Book the atelier
+          See the atelier's current commission ›
         </Link>
       </section>
 
@@ -518,7 +496,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="mx-auto max-w-6xl px-6">
-          <p className="mt-4 max-w-md text-[11px] text-fog">A dozen to begin with. Everything you can't afford, affordable here.</p>
+          <p className="mt-4 max-w-md text-[11px] text-fog">Eight to begin with. Everything you can't afford, affordable here.</p>
         </div>
 
         <div className="mx-auto mt-12 max-w-6xl px-6 lg:mt-16">
@@ -538,7 +516,7 @@ export default function Home() {
       {saved > 0 && (
         <Link
           to="/me"
-          className="fixed bottom-20 right-3 z-30 border border-jade/40 bg-ink px-3 py-2 text-[10px] font-semibold text-jade lg:hidden"
+          className="fixed bottom-[calc(3rem+env(safe-area-inset-bottom))] right-0 z-30 border-y border-l border-jade/40 bg-ink px-4 py-2 text-[10px] font-semibold text-jade lg:hidden"
         >
           Kept safe: {money(saved)}
         </Link>

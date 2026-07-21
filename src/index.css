@@ -80,8 +80,23 @@ body {
 }
 
 /* 价格数字：全站视觉主角。Didone 的高反差衬线，逗号越多越贵 */
+/* 价格字族的数字走 Didone，**币符走系统 sans**：Didot 的 $ 竖杠是发丝级，
+   13px 上直接消失，满页价格读成「S9,520.00」（评审 A/B 双向证实）。
+   unicode-range 只把数字与千分位标点交给 Didone，其余字符落到后备 sans—— 
+   零调用点改动，逗号的多巴胺分毫不损 */
+@font-face {
+  font-family: "PriceDigits";
+  src: local("Didot");
+  unicode-range: U+0030-0039, U+002C, U+002E;
+}
+@font-face {
+  font-family: "PriceDigits";
+  src: local("Bodoni 72");
+  unicode-range: U+0030-0039, U+002C, U+002E;
+}
+
 .font-price {
-  font-family: Didot, "Bodoni 72", Baskerville, Georgia, "Songti SC", serif;
+  font-family: "PriceDigits", -apple-system, "Helvetica Neue", Arial, sans-serif;
   font-variant-numeric: tabular-nums;
 }
 

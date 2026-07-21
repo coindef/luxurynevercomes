@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import type { Product } from '../lib/types'
 import { viewsOf } from '../lib/products'
 import { maisonOf } from '../lib/maisons'
+import { Link } from 'react-router-dom'
 import { useMoney } from '../lib/currency'
+import { useSeckillCountdown } from '../lib/hooks'
+import ProductImage from './ProductImage'
 
 /**
  * 大画廊：今日沙龙的六件，挂进一间白雾房间。拖动环视，悬停读展签，点击走近（进详情页）。
@@ -26,6 +29,7 @@ export default function GrandGallery({ pieces }: { pieces: Product[] }) {
   const hoveredRef = useRef<Product | null>(null)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
+  const countdown = useSeckillCountdown()
 
   useEffect(() => {
     const el = wrap.current
@@ -294,15 +298,19 @@ export default function GrandGallery({ pieces }: { pieces: Product[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pieces.map((p) => p.id).join(',')])
 
-  if (pieces.length === 0 || failed) return null
+  if (pieces.length === 0) return null
 
+  // 评审共识：3D 展厅与「今日沙龙」原是同一批六件、前后两节——房间自己就是沙龙。
+  // 合并后：房间 + 一条可购的小卡条（触屏的展签、WebGL 缺席时的墓碑、读屏的正文）
   return (
     <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
-      <h2 className="font-lux text-2xl text-ivory lg:text-4xl">The Grand Gallery</h2>
+      <h2 className="font-lux text-2xl text-ivory lg:text-4xl">Today's Salon</h2>
       <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
-        Today's six, hung in a room that renders on arrival. Drag to look around; the walls are implied, the
-        distances are honest.
+        The booking window closes in <span className="font-price text-ivory">{countdown}</span>; every refresh, we
+        quietly reserve it for you again. Six pieces, hung in a room that renders on arrival. Drag to look around;
+        the wall is rehung at midnight.
       </p>
+      {!failed && (
       <div ref={wrap} className="relative mt-10 h-[62vh] min-h-[380px] overflow-hidden bg-panel">
         <canvas
           ref={canvasRef}
@@ -335,6 +343,24 @@ export default function GrandGallery({ pieces }: { pieces: Product[] }) {
             </p>
           )}
         </div>
+      </div>
+      )}
+
+      {/* 沙龙小卡条：触屏的展签、WebGL 缺席时的墓碑。卡不重复大图（房间已经挂了），只报名与价 */}
+      <div className="mt-6 flex snap-x gap-6 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]">
+        {pieces.map((p) => (
+          <Link key={p.id} to={`/product/${p.id}`} className="group w-40 shrink-0 snap-start">
+            {failed && (
+              <div className="mb-3 overflow-hidden bg-panel">
+                <ProductImage product={p} className="aspect-[3/4] w-full" emojiClass="text-4xl" plaque />
+              </div>
+            )}
+            <p className="font-lux truncate text-[12px] leading-snug text-ivory group-hover:opacity-60">
+              {p.name.split('·')[0].trim()}
+            </p>
+            <p className="font-price mt-1 text-[11px] text-ivory">{money(p.price)}</p>
+          </Link>
+        ))}
       </div>
     </section>
   )
