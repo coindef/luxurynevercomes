@@ -58,8 +58,9 @@ const BREADTH = has('breadth')
  * 同样是 Flux，出图风格与免费通道一致。key 从 .env 的 FAL_KEY 读。
  */
 const PROVIDER = flag('provider', 'pollinations')
-/** --only id1,id2：只补这些商品（点名重画用） */
+/** --only id1,id2：只补这些商品（点名重画用）；配 --redraw 强制重画已存在的 */
 const ONLY_IDS = (flag('only', '') || '').split(',').filter(Boolean)
+const REDRAW = argv.includes('--redraw')
 const CONCURRENCY = PROVIDER === 'fal' ? Math.max(1, Number(flag('concurrency', 6))) : PROVIDER === 'openai' ? Math.max(1, Number(flag('concurrency', 4))) : 1
 const PLAN_ONLY = has('plan')
 
@@ -114,6 +115,7 @@ const isProtected = (p) => hasView(p.id, 1) && !aiSourced.has(p.id)
 
 const queue = []
 const push = (tier, p, view, overwrite = false) => {
+  if (REDRAW && ONLY_IDS.includes(p.id)) overwrite = true
   if (!overwrite && hasView(p.id, view)) return
   queue.push({ tier, id: p.id, view, overwrite, prompt: promptFor(p, view), seed: seedOf(p.id) })
 }

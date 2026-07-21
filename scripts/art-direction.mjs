@@ -111,10 +111,17 @@ const DIRECTION = {
 
 const FALLBACK = DIRECTION.艺术收藏
 
-/** 图录质感尾巴。全正向措辞——见文件头第 3 条。 */
+/** 图录质感尾巴。全正向措辞——见文件头第 3 条。
+ * 2026-07 重写：初版的「ultra sharp / plain blank surfaces」是 CGI 词汇，
+ * 出图干净得像渲染稿（用户原话：too fake）。改用摄影词汇锚定「被拍下来」：
+ * 器材（中画幅+定焦）、真实光学（景深滚降/柔和阴影半影/高光物理反射）、
+ * 介质痕迹（细微胶片颗粒/暗部噪点/材质微纹理）。不写负面词——扩散模型不会否定 */
 const CATALOGUE_TAIL =
-  'auction catalogue photograph, single subject, generous negative space, medium format, ultra sharp, ' +
-  'unbranded and unmarked with plain blank surfaces, clean of lettering'
+  'photograph for a printed auction catalogue, shot on medium format digital with a 120mm prime lens, ' +
+  'lit by a single large softbox with natural falloff, true soft shadows with gentle penumbra, ' +
+  'physically accurate materials showing visible micro-texture and honest wear on edges, ' +
+  'shallow depth of field rolling off gently, faint film grain and subtle shadow noise, ' +
+  'single subject, generous negative space, unbranded and unmarked, clean of lettering'
 
 /**
  * 商品本身就是「一个人」的：画出来必然是张人脸，而人脸是 CLAUDE.md 的硬否决。
