@@ -8,8 +8,8 @@
   （`product.category`、`CATEGORY_CUSTOM`/`CATEGORY_GRADIENTS`/`maisons` 的分类键），
   显示层经 `CATEGORY_LABELS`/`catLabel()` 映射为英文——改文案时别动这些键。
   文案禁用 em-dash（`—`/`–`，英文 AI 破绽）；中文注释里的 `——` 无所谓
-- **品牌屋（maison）**：`src/lib/maisons.ts` 定义 22 家**虚构**奢侈品牌屋（各有名字/人格/身世），
-  `maisonOf()` 按稳定哈希把商品分配到各屋（品类内均衡）。The Houses 导览页（`/maisons`）+
+- **品牌屋（maison）**：`src/lib/maisons.ts` 定义 45 家**虚构**奢侈品牌屋（各有名字/人格/身世/专营系列），
+  `maisonOf()` 优先分给专营其系列的屋（`series` 亲和），无专营再全品类稳定哈希均衡。The Houses 导览页（`/maisons`）+
   单屋页（`/maison/:id`）实现「按店面逛」，与品类筛选并存（双维度）。
   **严禁用真实品牌名做店面**（LV/Dior/Hermès……）——触碰红线且属商标侵权/品牌冒充
 
@@ -39,6 +39,9 @@ npm run lint       # oxlint
   小票 `ReceiptBespoke`（加价与减免互相抵消）→ 订单定制档案 → 物流剧场插入工坊节点
 - **管家剧本**：`copy.ts` 的 `TRACKING_SCRIPT`（9 级按真实时间解锁）；
   有定制时 Orders 页 Timeline 会在 36h 处插入 `BESPOKE_TRACKING_TEXT` 节点
+- **系列（série）**：`src/lib/series.ts` 在品类之下再分一层（每品类 3-7 个系列，共 47 个：
+  高定分晚装/西装/鞋/帽手套/针织/丝巾/试衣间……），`seriesOf()` 按子品类+关键词判定。
+  目录页品类内按系列成厅 + 系列 chips（`?series=`），详情页面包屑到系列级。改名字关键词时跑一遍分布脚本防空厅
 - **商品**：`products.ts` ~1009 件（10 分类各约 100，`RAW_PRODUCTS` 数组 → 套 `QUOTA_RULES` 得 `PRODUCTS`），
   `SALON_PRODUCTS` 取每分类最贵一件。价格对标真实世界行情，全位数千分位；`p()` 第 9 位可选 `easterEgg`
 - **配货流程**：`QUOTA_RULES`（id → 需累计守住的额度）给顶级热门款设门槛（`Product.quota`）。

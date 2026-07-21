@@ -27,8 +27,10 @@ the tradition of [FoodNeverComes](https://foodnevercomes.com).
 
 ## What it does
 
-- **1,009 pieces across 22 invented houses.** Every name is a category description, never a real
-  brand. Prices match real-world levels, spelled to the last comma, and display in your local
+- **1,009 pieces, 45 invented houses, 47 series.** Every category opens into rooms the way a real
+  maison nav does (couture alone splits into evening, tailoring, shoes, millinery, knits, silks and
+  the fitting room), and every house keeps to its own craft. Every name is a category description,
+  never a real brand. Prices match real-world levels, spelled to the last comma, and display in your local
   currency (frozen mid-market rates; the payable sum survives conversion).
 - **A quota system for the coveted.** Flagships refuse a direct order until you have reserved enough
   of everything else, and the quota is also ¥0.00. Beside it sits a waiting list that never moves:
@@ -53,7 +55,7 @@ the tradition of [FoodNeverComes](https://foodnevercomes.com).
 
 ![The Houses](docs/houses.jpg)
 
-*Twenty-two invented maisons, each with a name, a temperament and a one-line history.*
+*Forty-five invented maisons, each with a name, a temperament, a specialty and a one-line history.*
 
 ![The Collection](docs/collection.jpg)
 

@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CATEGORIES, PRODUCTS, catLabel, getProduct } from '../lib/products'
+import { seriesForCategory, seriesOf } from '../lib/series'
 import { SEARCH_PLACEHOLDERS } from '../lib/copy'
 import { emptyLine, searchProducts } from '../lib/search'
 import { useRotating } from '../lib/hooks'
@@ -32,6 +33,7 @@ export default function Collection() {
   const [params, setParams] = useSearchParams()
   const q = params.get('q') ?? ''
   const category = params.get('cat')
+  const seriesSel = params.get('series')
   const sort = params.get('sort') ?? ''
   const quotaOnly = params.get('quota') === '1'
   /** 别人分享来的心愿单：/collection?ids=a,b,c（纯 URL，零后端） */
@@ -46,6 +48,8 @@ export default function Collection() {
     const next = new URLSearchParams(params)
     if (value) next.set(key, value)
     else next.delete(key)
+    // 换品类时系列筛选必须跟着清：上一个品类的系列 id 在新品类里不存在
+    if (key === 'cat') next.delete('series')
     setParams(next, { replace: true })
   }
 
@@ -63,36 +67,55 @@ export default function Collection() {
   }, [search, quotaOnly, params.get('ids')])
 
   const list = useMemo(() => {
-    const filtered = category ? base.filter((p) => p.category === category) : base
+    let filtered = category ? base.filter((p) => p.category === category) : base
+    if (category && seriesSel) filtered = filtered.filter((p) => seriesOf(p).id === seriesSel)
     if (sort === 'price-desc') return [...filtered].sort((a, b) => b.price - a.price)
     if (sort === 'price-asc') return [...filtered].sort((a, b) => a.price - b.price)
     if (search) return filtered // 相关度序。"payable" 是彩蛋，见下面那行小字
+    if (category) {
+      // 品类内的图录序：按系列成厅（系列定义序），厅内最贵的在前
+      const order = seriesForCategory(category).map((x) => x.id)
+      return [...filtered].sort(
+        (a, b) => order.indexOf(seriesOf(a).id) - order.indexOf(seriesOf(b).id) || b.price - a.price,
+      )
+    }
     // 图录序：按品类成章，章内最贵的在前。
     // RAW_PRODUCTS 从第 600 件往后是严格轮转的（Motorcars|Couture|Real Estate|Sport），
     // 直接按数组顺序铺格子，每一行都是四个毫不相干的东西——没有哪家店的货架是这么摆的
     return [...filtered].sort(
       (a, b) => CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category) || b.price - a.price,
     )
-  }, [base, search, category, sort])
+  }, [base, search, category, seriesSel, sort])
 
   useEffect(() => {
     setVisible(PAGE_SIZE)
-  }, [q, category, sort, quotaOnly])
+  }, [q, category, seriesSel, sort, quotaOnly])
 
   // 无限滚动已移除：实测七家（Hermès / Cartier / Dior / Net-a-Porter / Mytheresa / Farfetch…）
   // **没有一家用纯无限滚动**——要么「Load more」+ 一行看过多少的进度，要么老老实实翻页。
   // 无限滚动会吃掉页脚，也让人永远不知道自己在 1009 件里走到了哪
 
   const shown = list.slice(0, visible)
-  const heading = q ? 'Search' : sharedWish ? 'A shared wish list' : quotaOnly ? 'By quota only' : category ? catLabel(category) : 'The Collection'
+  const seriesList = category ? seriesForCategory(category) : []
+  const seriesLabel = seriesSel ? seriesList.find((x) => x.id === seriesSel)?.label : null
+  const heading = q ? 'Search' : sharedWish ? 'A shared wish list' : quotaOnly ? 'By quota only' : seriesLabel ?? (category ? catLabel(category) : 'The Collection')
   /** 只有「逛全部、图录序」时才分章：搜索按相关度、按价格排序时，品类是乱的，硬分章只会更乱 */
   const sectioned = !q && !category && !quotaOnly && !sharedWish && sort === ''
+  /** 品类内、未选系列、图录序：按系列成厅 */
+  const sectionedBySeries = Boolean(category) && !seriesSel && !q && !quotaOnly && !sharedWish && sort === ''
   /** 每个品类**在当前结果里**有多少件。Hermès 的每个筛选值后面都挂着实时计数（「Black (5)」） */
   const counts = useMemo(() => {
     const n: Record<string, number> = {}
     for (const p of base) n[p.category] = (n[p.category] ?? 0) + 1
     return n
   }, [base])
+  /** 每个系列在当前品类结果里的件数（活的计数，与品类计数同一条规矩） */
+  const seriesCounts = useMemo(() => {
+    if (!category) return {}
+    const n: Record<string, number> = {}
+    for (const p of base) if (p.category === category) { const sid = seriesOf(p).id; n[sid] = (n[sid] ?? 0) + 1 }
+    return n
+  }, [base, category])
   const filtered = Boolean(q || category || quotaOnly || sort)
 
   return (
@@ -110,7 +133,17 @@ export default function Collection() {
                 The Collection
               </Link>
               <span aria-hidden="true" className="px-1.5">/</span>
-              <span className="text-ivory">{heading}</span>
+              {seriesLabel && category ? (
+                <>
+                  <button onClick={() => setParam('series', null)} className="hover:text-ivory">
+                    {catLabel(category)}
+                  </button>
+                  <span aria-hidden="true" className="px-1.5">/</span>
+                  <span className="text-ivory">{seriesLabel}</span>
+                </>
+              ) : (
+                <span className="text-ivory">{heading}</span>
+              )}
             </>
           ) : (
             <span className="text-ivory">The Collection</span>
@@ -219,6 +252,34 @@ export default function Collection() {
             </button>
           )}
         </nav>
+
+        {/* 系列（第二层）：选中品类后出现。真店的导航就是「品类 → 系列」两层
+            （Hermès: Bags / Travel；Dior: Gowns / Outerwear），一层 100 件是仓库不是精品店 */}
+        {category && !sharedWish && seriesList.length > 0 && (
+          <nav className="mt-4 flex flex-wrap items-baseline gap-x-5 gap-y-2 border-t border-hairline pt-4">
+            <button
+              onClick={() => setParam('series', null)}
+              aria-current={seriesSel === null}
+              className={`text-[10px] tracking-[0.1em] transition-colors ${
+                seriesSel === null ? 'text-ivory' : 'text-fog hover:text-ivory'
+              }`}
+            >
+              All
+            </button>
+            {seriesList.filter((x) => seriesCounts[x.id]).map((x) => (
+              <button
+                key={x.id}
+                onClick={() => setParam('series', seriesSel === x.id ? null : x.id)}
+                aria-current={seriesSel === x.id}
+                className={`whitespace-nowrap text-[10px] tracking-[0.1em] transition-colors ${
+                  seriesSel === x.id ? 'text-ivory' : 'text-fog hover:text-ivory'
+                }`}
+              >
+                {x.label} <span className="font-price text-[9px]">({seriesCounts[x.id]})</span>
+              </button>
+            ))}
+          </nav>
+        )}
       </div>
 
       <div className="mx-auto mt-12 max-w-6xl px-6 lg:mt-16">
@@ -231,8 +292,9 @@ export default function Collection() {
             )}
             <div className="grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-16">
               {shown.map((p, i) => {
-                // 逛「全部」时按品类分章。章内是同一类，一行四件才彼此相干
+                // 逛「全部」时按品类分章；进了品类按系列成厅。厅内是同一系列，一行四件才彼此相干
                 const opensSection = sectioned && (i === 0 || shown[i - 1].category !== p.category)
+                const opensSeries = sectionedBySeries && (i === 0 || seriesOf(shown[i - 1]).id !== seriesOf(p).id)
                 return (
                   <Fragment key={p.id}>
                     {opensSection && (
@@ -247,6 +309,21 @@ export default function Collection() {
                           className="quiet-link shrink-0 text-[10px] tracking-[0.15em] text-fog hover:text-ivory"
                         >
                           All {counts[p.category]}
+                        </button>
+                      </div>
+                    )}
+                    {opensSeries && (
+                      <div
+                        className={`col-span-full flex items-baseline justify-between border-b border-hairline pb-3 ${
+                          i === 0 ? '' : 'mt-10 lg:mt-16'
+                        }`}
+                      >
+                        <h2 className="font-lux text-lg text-ivory lg:text-2xl">{seriesOf(p).label}</h2>
+                        <button
+                          onClick={() => setParam('series', seriesOf(p).id)}
+                          className="quiet-link shrink-0 text-[10px] tracking-[0.15em] text-fog hover:text-ivory"
+                        >
+                          All {seriesCounts[seriesOf(p).id]}
                         </button>
                       </div>
                     )}

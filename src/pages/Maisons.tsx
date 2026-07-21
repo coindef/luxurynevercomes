@@ -15,7 +15,7 @@ export default function Maisons() {
         </nav>
         <h1 className="font-lux mt-8 text-3xl leading-relaxed text-ivory lg:text-5xl">The Houses</h1>
         <p className="mt-5 max-w-md text-[11px] leading-loose text-fog">
-          Every maison here is invented. None of them will ship you anything, but each does it in its own voice.
+          {MAISONS.length} houses, every one invented, each keeping to its own craft: a tannery for exotics, a sailmaker, a quantum institute. None will ship you anything, but each declines in its own voice.
         </p>
       </header>
 

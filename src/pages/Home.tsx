@@ -183,11 +183,11 @@ function HousesDirectory() {
       <div className="flex items-baseline justify-between">
         <h2 className="font-lux text-2xl text-ivory lg:text-4xl">The Houses</h2>
         <Link to="/maisons" className="quiet-link text-[11px] tracking-[0.2em] text-ivory">
-          All 22
+          All {MAISONS.length}
         </Link>
       </div>
       <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
-        Twenty-two maisons, none of them real. Browse by house, the way you would a boutique arcade.
+        {MAISONS.length} maisons, none of them real, each specialising in one room of the collection. Browse by house, the way you would a boutique arcade.
       </p>
       <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-hairline pt-8 lg:grid-cols-3 lg:gap-x-14">
         {MAISONS.map((m) => (

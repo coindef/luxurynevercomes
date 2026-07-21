@@ -17,7 +17,7 @@ const COLUMNS: { title: string; links: { to: string; label: string }[] }[] = [
     title: 'The Maison',
     links: [
       { to: '/about', label: 'About the house' },
-      { to: '/maisons', label: 'The 22 houses' },
+      { to: '/maisons', label: 'The houses' },
       { to: '/about', label: 'Image credits' },
     ],
   },

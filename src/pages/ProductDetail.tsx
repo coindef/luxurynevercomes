@@ -6,6 +6,7 @@ import { catLabel, getProduct } from '../lib/products'
 import { maisonOf, productsOfMaison } from '../lib/maisons'
 import { bespokeOffered, customFor, subtypeOf } from '../lib/bespoke'
 import { IDENTITY_LABELS, referenceOf, specsOf } from '../lib/spec'
+import { seriesOf } from '../lib/series'
 import { BESPOKE, MARQUEE_CITIES, REVIEWS, pick } from '../lib/copy'
 import { lineKey, useStore } from '../lib/store'
 import { useToast } from '../components/Toast'
@@ -338,6 +339,13 @@ export default function ProductDetail() {
         <span aria-hidden="true" className="px-1.5">/</span>
         <Link to={`/collection?cat=${encodeURIComponent(product.category)}`} className="hover:text-ivory">
           {catLabel(product.category)}
+        </Link>
+        <span aria-hidden="true" className="px-1.5">/</span>
+        <Link
+          to={`/collection?cat=${encodeURIComponent(product.category)}&series=${seriesOf(product).id}`}
+          className="hover:text-ivory"
+        >
+          {seriesOf(product).label}
         </Link>
       </nav>
 
