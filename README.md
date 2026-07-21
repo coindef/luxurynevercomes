@@ -27,6 +27,9 @@ the tradition of [FoodNeverComes](https://foodnevercomes.com).
 
 ## What it does
 
+- **A gallery you can stand in.** The homepage hangs today's salon in a small three.js room: drag to
+  look around, hover for the placard, click to walk closer. The walls are implied; the distances are
+  honest. Loads only when you scroll to it, and bows out silently where WebGL cannot follow.
 - **1,009 pieces, 45 invented houses, 47 series.** Every category opens into rooms the way a real
   maison nav does (couture alone splits into evening, tailoring, shoes, millinery, knits, silks and
   the fitting room), and every house keeps to its own craft. Every name is a category description,

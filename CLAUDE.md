@@ -86,6 +86,10 @@ npm run lint       # oxlint
   判据一句话：**它得像佳士得的一个拍品**——店看起来越贵，¥0.00 越好笑
 - **图源优先级**：Unsplash（棚拍级，免署名但仍记进 credits）> Openverse（质量天花板低，多是随手拍）。
   注意 Unsplash 图 ID 会失效，下载后必须 `file` 验真 + 尺寸 > 25KB，再 Read 目检
+- **大画廊（3D）**：首页 `GrandGallery` 用 three.js 把今日沙龙挂进白雾房间（拖动环视/悬停展签/
+  点击进详情）。three 绝不进主包（IntersectionObserver 进视口才动态 import），WebGL 不可用整节
+  安静退场；冷调家规照管 3D：白雾即墙、阻尼 lerp、reduced-motion 关待机漂移。
+  three.js API 参考装在 `.claude/skills/threejs-*`（CloudAI-X/threejs-skills）
 - **编辑配图**：`public/img/ed-*.jpg` 是全幅氛围图（工坊/橱窗/白手套/金库），
   用 `EditorialImage` 组件插在页面之间；**图缺失时整块自动消失**，不留空框
 - **署名**：CC BY/BY-SA 图片必须同步 `src/lib/credits.ts`（渲染进 /about）

@@ -12,6 +12,7 @@ import { useToast } from '../components/Toast'
 import ProductCard from '../components/ProductCard'
 import ProductImage from '../components/ProductImage'
 import EditorialImage from '../components/EditorialImage'
+import GrandGallery from '../components/GrandGallery'
 
 const WELCOME_KEY = 'flgj.welcomed'
 
@@ -178,6 +179,21 @@ function SalonPrive() {
 
 /** The Houses: a typographic directory of the fictional maisons (no image clutter). */
 function HousesDirectory() {
+  // 45 家全铺曾把首页占掉一整屏——首页是橱窗不是黄页。
+  // 每天按日期轮换九家（与今日沙龙同一套「午夜换展」逻辑），全名录在 /maisons
+  const nine = useMemo(() => {
+    const d = new Date()
+    const key = `arcade-${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+    const h = (str: string) => {
+      let x = 2166136261
+      for (let i = 0; i < str.length; i++) {
+        x ^= str.charCodeAt(i)
+        x = Math.imul(x, 16777619)
+      }
+      return Math.abs(x)
+    }
+    return [...MAISONS].sort((a, b) => h(key + a.id) - h(key + b.id)).slice(0, 9)
+  }, [])
   return (
     <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
       <div className="flex items-baseline justify-between">
@@ -187,10 +203,11 @@ function HousesDirectory() {
         </Link>
       </div>
       <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
-        {MAISONS.length} maisons, none of them real, each specialising in one room of the collection. Browse by house, the way you would a boutique arcade.
+        {MAISONS.length} maisons, none of them real, each specialising in one room of the collection. Nine are open
+        this morning; the arcade is rehung at midnight.
       </p>
       <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-hairline pt-8 lg:grid-cols-3 lg:gap-x-14">
-        {MAISONS.map((m) => (
+        {nine.map((m) => (
           <Link key={m.id} to={`/maison/${m.id}`} className="group block">
             {/* 名字在上、行当在下、正常大小写：eyebrow 是本站清过的 AI 排版签名 */}
             <p className="font-lux text-[15px] leading-snug text-ivory transition-opacity group-hover:opacity-60">
@@ -444,6 +461,8 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      <GrandGallery pieces={dailySalon()} />
 
       <HousesDirectory />
 
