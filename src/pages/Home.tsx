@@ -69,129 +69,6 @@ const atelierPieceId =
   PRODUCTS.find((p) => bespokeOffered(p))?.id ??
   SHOWCASE_IDS[0]
 
-/** 晚间拍卖：每晚 20:00 开槌，一件独拍，无底价，无对手。
- * 佳士得晚拍的全套仪式感，落槌价照全价记账，应付部分照例 ¥0.00。
- * 配货旗舰不入池（拍卖是现实里绕过配货的路，这里不给绕）。 */
-function eveningLot() {
-  const d = new Date()
-  const key = `sale-${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
-  const h = (str: string) => {
-    let x = 2166136261
-    for (let i = 0; i < str.length; i++) {
-      x ^= str.charCodeAt(i)
-      x = Math.imul(x, 16777619)
-    }
-    return Math.abs(x)
-  }
-  const pool = PRODUCTS.filter((p) => p.price >= 1_000_000 && !p.quota && viewsOf(p).length > 0)
-  return pool.length ? pool[h(key) % pool.length] : null
-}
-
-function paddleNo(): string {
-  try {
-    const existing = localStorage.getItem('flgj.paddle')
-    if (existing) return existing
-    const n = String(11 + (Math.floor(Math.random() * 180) % 180)).padStart(3, '0')
-    localStorage.setItem('flgj.paddle', n)
-    return n
-  } catch {
-    return '041'
-  }
-}
-
-function EveningSale() {
-  const money = useMoney()
-  const { placeOrder } = useStore()
-  const lot = useMemo(eveningLot, [])
-  const [bid, setBid] = useState('')
-  const dayKey = new Date().toISOString().slice(0, 10)
-  const [justWon, setJustWon] = useState(false)
-  const [won, setWon] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('flgj.eveningLot') === dayKey
-    } catch {
-      return false
-    }
-  })
-  const open = new Date().getHours() >= 20
-  if (!lot) return null
-  const paddle = paddleNo()
-
-  const hammer = () => {
-    placeOrder([{ product: lot, qty: 1 }], lot.price, { urge: 'Won at the Evening Sale' })
-    try {
-      localStorage.setItem('flgj.eveningLot', dayKey)
-    } catch {
-      /* 私密模式：今晚可以反复赢，也算体验 */
-    }
-    setWon(true)
-    setJustWon(true)
-  }
-
-  return (
-    <section className="mx-auto mt-24 max-w-6xl px-6 lg:mt-40">
-      <h2 className="font-lux text-2xl text-ivory lg:text-4xl">The Evening Sale</h2>
-      <p className="mt-4 max-w-md text-[11px] leading-loose text-fog">
-        One lot a night, no reserve, no competition. The hammer falls at 20:00 sharp, on whoever is here. Tonight that is you.
-      </p>
-      <div className="mt-12 gap-14 lg:grid lg:grid-cols-3">
-        <Link to={`/product/${lot.id}`} className="group block">
-          <div className="overflow-hidden bg-panel">
-            <ProductImage
-              product={lot}
-              className="aspect-[3/4] w-full transition-transform duration-700 group-hover:scale-[1.03]"
-              emojiClass="text-8xl"
-              plaque
-            />
-          </div>
-        </Link>
-        <div className="mt-8 lg:col-span-2 lg:mt-0">
-          <p className="text-[10px] tracking-wider text-fog">Lot 1 of 1</p>
-          <p className="font-lux mt-2 text-lg leading-snug text-ivory lg:text-2xl">{lot.name}</p>
-          <p className="mt-3 text-[10px] leading-loose text-fog">
-            Estimate <span className="font-price text-ivory">{money(lot.price)}</span> to{' '}
-            <span className="font-price text-ivory">{money(Math.round(lot.price * 1.35))}</span>, payable portion{' '}
-            <span className="font-price text-jade">{money(0)}</span>
-          </p>
-          {won ? (
-            <p className="mt-8 max-w-md text-[11px] leading-loose text-fog">
-              Tonight's lot is already yours, paddle No. <span className="font-price text-ivory">{paddle}</span>. The
-              room remains available for sitting in, quietly, with the feeling.
-            </p>
-          ) : open ? (
-            <div className="mt-8 max-w-md">
-              <label className="block text-[10px] text-fog">
-                Your maximum bid, paddle No. <span className="font-price text-ivory">{paddle}</span>
-                <input
-                  value={bid}
-                  onChange={(e) => setBid(e.target.value.replace(/[^0-9,.]/g, ''))}
-                  inputMode="numeric"
-                  placeholder="Any figure"
-                  className="mt-2 block w-full border-b border-hairline bg-transparent py-2 text-xs text-ivory placeholder:text-fog focus:border-ivory focus:outline-none"
-                />
-              </label>
-              <p className="mt-2 text-[9px] leading-relaxed text-fog">Any maximum suffices. There is no one to outbid.</p>
-              <button onClick={hammer} className="gold-cta mt-6 px-10 py-3 text-xs tracking-[0.2em]">
-                Raise the paddle
-              </button>
-            </div>
-          ) : (
-            <p className="mt-8 max-w-md text-[11px] leading-loose text-fog">
-              The sale opens at 20:00. Viewing is permitted. Wanting is permitted at all hours.
-            </p>
-          )}
-          {justWon && (
-            <p className="mt-4 max-w-md text-[11px] leading-loose text-jade">
-              Hammer. No competing bids; the room was silent, being empty. Sold to paddle No. {paddle}, which is you. It
-              is always you. {money(lot.price)} has been kept safe on your behalf.
-            </p>
-          )}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 /** Black-card ritual (the only dark moment on the site; fixed hex, silver not gold foil). */
 function BlackCardModal({ onClose }: { onClose: () => void }) {
   const [opened, setOpened] = useState(false)
@@ -571,8 +448,6 @@ export default function Home() {
       <HousesDirectory />
 
       <SalonPrive />
-
-      <EveningSale />
 
       {/* One editorial break: an artisan's hands, the single human touch on the page */}
       <EditorialImage
