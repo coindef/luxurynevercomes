@@ -27,7 +27,7 @@ const SHOWCASE_IDS = [
 
 /** Collection preview: twelve photographed pieces spanning categories (the full grid lives at /collection). */
 const FEATURED_IDS = [
-  'lx-croc-birkin',
+  'lx-ostrich-tote',
   'lx-d-flawless',
   'lx-v12-coupe',
   'lx-gigayacht-110',

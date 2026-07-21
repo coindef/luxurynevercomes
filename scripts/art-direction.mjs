@@ -140,6 +140,15 @@ const SUBJECT_OVERRIDES = {
   'lx-jetpack': 'jetpack', // 原名 "Single-Person…"：Person 会招来一个人
   'lx-humanoid-butler': 'humanoid domestic robot', // 机器人可以画，管家不行
   'lx-butler-warranty': 'humanoid domestic robot',
+  // ---- 2026-07 目检整改批：名字直译入画会画错对象的，给干净主体短语 ----
+  'lx-ostrich-tote': 'ostrich leather tote bag with speckled quill-bump grain', // 实测画了一只活鸵鸟
+  'lx-croc-birkin': 'matte crocodile leather top-handle bag with plain palladium hardware', // 实测画出戴戒指的手+金压花锁扣
+  'lx-croc-vanity': 'crocodile-embossed leather vanity case with mirrored lid', // 实测箱盖上趴了一条鳄鱼尾/整鳄入框
+  'lx-caviar-quota': 'sealed glass jar of black caviar with a gold lid, mother of pearl spoon laid beside it, on grey stone',
+  'lx-chenghua-chickencup': 'small shallow antique doucai porcelain wine cup, palm-size, delicate underglaze blue with overglaze enamel', // 实测画成农舍高杯+卡通公鸡
+  'lx-jadeite-cabbage': 'small jadeite carving of a bok choy, translucent green and white stone, on a carved wooden stand inside a glass museum vitrine', // 实测画成一颗挂墙的真白菜
+  'lx-renaissance-madonna': 'aged renaissance tempera panel painting in a giltwood frame, muted earth pigments, gold leaf halos, hung on a museum wall', // 实测画成浮雕且嘴唇红渍如血
+  'lx-nautilus-blue': 'luxury sports wristwatch with integrated steel link bracelet and plain unmarked blue dial, single crown', // 实测三表冠+伪字标+皮带
 }
 
 /** 这件商品该不该生成配图。 */
@@ -210,10 +219,28 @@ export function captionsFor(category) {
 }
 
 /** 完整提示词：视角打头 + 主体 + 布景 + 图录尾巴。 */
+/** 游艇航空共用一片海，但飞机停在海面上是超现实事故（实测：三款公务机全员浮海）。
+ * 机类改停湿沥青停机坪；真水上飞机留在海面，那是它们的对。 */
+const TARMAC_SCENE = 'parked alone on wet dark tarmac under flat overcast silver light, desaturated, no buildings'
+const AIRCRAFT_RE = /jet|heli|turboprop|evtol|tiltrotor|gyro|biplane|airship|balloon|aircraft|aviation|plane/i
+const SEA_AIRCRAFT = new Set(['lx-amphib-flyingboat', 'lx-water-bomber'])
+
+function sceneOf(product) {
+  const dir = DIRECTION[product.category] ?? FALLBACK
+  if (
+    product.category === '游艇航空' &&
+    !SEA_AIRCRAFT.has(product.id) &&
+    AIRCRAFT_RE.test(`${product.id} ${product.name}`)
+  ) {
+    return TARMAC_SCENE
+  }
+  return dir.scene
+}
+
 export function promptFor(product, view) {
   const dir = DIRECTION[product.category] ?? FALLBACK
   const v = dir.views[view - 1] ?? dir.views[0]
-  return `${v.lead} ${subjectOf(product)}, ${dir.scene}, ${CATALOGUE_TAIL}`
+  return `${v.lead} ${subjectOf(product)}, ${sceneOf(product)}, ${CATALOGUE_TAIL}`
 }
 
 export const VIEWS_PER_PRODUCT = 3
