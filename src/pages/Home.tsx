@@ -30,7 +30,7 @@ const FEATURED_IDS = [
   'lx-ostrich-tote',
   'lx-pink-diamond-ring',
   'lx-v12-coupe',
-  'lx-gigayacht-110',
+  'lx-superyacht-95',
   'lx-skyflat-duplex',
   'lx-gpu-cluster',
   'lx-triple-crown-colt',

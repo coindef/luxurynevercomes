@@ -149,6 +149,10 @@ const SUBJECT_OVERRIDES = {
   'lx-jadeite-cabbage': 'small jadeite carving of a bok choy, translucent green and white stone, on a carved wooden stand inside a glass museum vitrine', // 实测画成一颗挂墙的真白菜
   'lx-renaissance-madonna': 'aged renaissance tempera panel painting in a giltwood frame, muted earth pigments, gold leaf halos, hung on a museum wall', // 实测画成浮雕且嘴唇红渍如血
   'lx-nautilus-blue': 'luxury sports wristwatch with integrated steel link bracelet and plain unmarked blue dial, single crown', // 实测三表冠+伪字标+皮带
+  'lx-emerald-garden': 'suite of Colombian emerald jewellery, a necklace, earrings and a ring with deep green emeralds, arranged on dark stone', // 实测把 Suite 画成了绿宝石质感的 Polo 衫
+  'lx-grande-sonnerie': 'vintage gold chiming wristwatch, plain white enamel dial with roman numerals, brown leather strap, single crown', // 实测椭圆表壳+乱码盘面
+  'lx-underwater-suite': 'circular underwater hotel room with a large acrylic viewport, deep blue water outside, soft interior light', // 实测画成海面漂床垫
+  'lx-supercar-key': 'sculpted carbon and titanium car key fob on dark stone', // 原图两只真人手在交接钥匙
 }
 
 /** 这件商品该不该生成配图。 */
@@ -223,7 +227,7 @@ export function captionsFor(category) {
  * 机类改停湿沥青停机坪；真水上飞机留在海面，那是它们的对。 */
 const TARMAC_SCENE = 'parked alone on wet dark tarmac under flat overcast silver light, desaturated, no buildings'
 const AIRCRAFT_RE = /jet|heli|turboprop|evtol|tiltrotor|gyro|biplane|airship|balloon|aircraft|aviation|plane/i
-const SEA_AIRCRAFT = new Set(['lx-amphib-flyingboat', 'lx-water-bomber'])
+const SEA_AIRCRAFT = new Set(['lx-amphib-flyingboat', 'lx-water-bomber', 'lx-seaplane-single', 'lx-seaplane-terminal', 'lx-flying-clipper'])
 
 function sceneOf(product) {
   const dir = DIRECTION[product.category] ?? FALLBACK
