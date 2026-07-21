@@ -12,6 +12,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "images": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --breadth",
+    "images:openai": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --provider openai --breadth",
     "images:fal": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --provider fal --breadth",
     "images:plan": "node --import ./scripts/ts-resolve.mjs scripts/gen-images.mjs --plan",
     "images:manifest": "node --import ./scripts/ts-resolve.mjs scripts/build-image-manifest.mjs",

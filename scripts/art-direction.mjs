@@ -149,6 +149,10 @@ const SUBJECT_OVERRIDES = {
   'lx-jadeite-cabbage': 'small jadeite carving of a bok choy, translucent green and white stone, on a carved wooden stand inside a glass museum vitrine', // 实测画成一颗挂墙的真白菜
   'lx-renaissance-madonna': 'aged renaissance tempera panel painting in a giltwood frame, muted earth pigments, gold leaf halos, hung on a museum wall', // 实测画成浮雕且嘴唇红渍如血
   'lx-nautilus-blue': 'luxury sports wristwatch with integrated steel link bracelet and plain unmarked blue dial, single crown', // 实测三表冠+伪字标+皮带
+  'lx-fugu-tenure': 'whole dried pufferfish, inflated and spined, displayed on a black lacquer stand', // 实测画了一只活老虎（Tiger Fugu 的虎）
+  'lx-cave-birdnest': "dried edible bird's nest, translucent golden strands formed into a shallow cup, on dark stone", // 实测画了一只红雀
+  'lx-pop-silkscreen-canvas': 'framed pop-art silkscreen print of bold flat colour blocks and abstract halftone dots', // 实测画成名人肖像（真人肖像权红线）
+  'lx-egypt-papyrus': 'fragment of ancient egyptian papyrus manuscript, faded pigment figures and illegible hieratic markings, mounted between glass', // 实测画成木雕板
   'lx-emerald-garden': 'suite of Colombian emerald jewellery, a necklace, earrings and a ring with deep green emeralds, arranged on dark stone', // 实测把 Suite 画成了绿宝石质感的 Polo 衫
   'lx-grande-sonnerie': 'vintage gold chiming wristwatch, plain white enamel dial with roman numerals, brown leather strap, single crown', // 实测椭圆表壳+乱码盘面
   'lx-underwater-suite': 'circular underwater hotel room with a large acrylic viewport, deep blue water outside, soft interior light', // 实测画成海面漂床垫

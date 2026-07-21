@@ -4,6 +4,9 @@
  *   - **pollinations**（默认，免费无 key）：匿名档每 IP 只允许 1 并发，越跑越慢（~40s→几分钟/张），
  *     所以严格串行 + 自适应退避。跑不完是常态，随时 Ctrl-C，重跑续上。
  *   - **fal**（付费，快几十倍）：同样是 Flux，可并发；key 从 .env 的 FAL_KEY 读。
+ *   - **openai**（付费，质感最好）：gpt-image-2。主图 t2i；**2/3 视角把主图喂回去 img2img**，
+ *     同一件东西换角度重拍——跨视角一致性从「同 seed 的表亲」升级为「同一个实物」。
+ *     ~$0.06/张（medium 竖幅），跑前会打印预估费用。key 从 .env 的 OPENAI_API_KEY 读。
  *
  * 续跑为什么不会画风走样：seed 只由商品 id 决定（见 art-direction.mjs 第 1 条），
  * 换通道也一样——fal 和 pollinations 同 seed 出的是同一件东西，可以混着补。
@@ -55,7 +58,9 @@ const BREADTH = has('breadth')
  * 同样是 Flux，出图风格与免费通道一致。key 从 .env 的 FAL_KEY 读。
  */
 const PROVIDER = flag('provider', 'pollinations')
-const CONCURRENCY = PROVIDER === 'fal' ? Math.max(1, Number(flag('concurrency', 6))) : 1
+/** --only id1,id2：只补这些商品（点名重画用） */
+const ONLY_IDS = (flag('only', '') || '').split(',').filter(Boolean)
+const CONCURRENCY = PROVIDER === 'fal' ? Math.max(1, Number(flag('concurrency', 6))) : PROVIDER === 'openai' ? Math.max(1, Number(flag('concurrency', 4))) : 1
 const PLAN_ONLY = has('plan')
 
 const MIN_BYTES = 25_000
@@ -116,8 +121,9 @@ const push = (tier, p, view, overwrite = false) => {
 const aiProducts = PRODUCTS.filter((p) => aiSourced.has(p.id) && shouldGenerate(p)).sort(byVisibility)
 const openProducts = PRODUCTS.filter((p) => !isProtected(p) && !aiSourced.has(p.id) && shouldGenerate(p)).sort(byVisibility)
 
-// tier 1：主图也重画（overwrite），三张同 seed 才配得上叫「同一件的三个视角」
-for (const p of aiProducts) for (let v = 1; v <= VIEWS_PER_PRODUCT; v++) push(1, p, v, v === 1 && !hasView(p.id, 2))
+// tier 1：seed 通道下主图要陪着重画（三张同 seed 才叫同一件）；
+// openai 通道恰恰相反——主图是 2/3 视角的参照物，**绝不能**重画
+for (const p of aiProducts) for (let v = 1; v <= VIEWS_PER_PRODUCT; v++) push(1, p, v, PROVIDER !== 'openai' && v === 1 && !hasView(p.id, 2))
 for (const p of openProducts.filter((p) => visibility(p) > 0)) for (let v = 1; v <= VIEWS_PER_PRODUCT; v++) push(2, p, v)
 for (const p of openProducts.filter((p) => visibility(p) === 0)) push(3, p, 1)
 for (const p of openProducts.filter((p) => visibility(p) === 0)) for (const v of [2, 3]) push(4, p, v)
@@ -130,6 +136,7 @@ for (const p of openProducts.filter((p) => visibility(p) === 0)) for (const v of
  * 每一格先有一张图，画廊留到最后补。免费通道下这是让目录「看起来齐了」最快的排法。
  */
 let ordered = ONLY_TIER ? queue.filter((j) => j.tier === Number(ONLY_TIER)) : queue
+if (ONLY_IDS.length) ordered = ordered.filter((j) => ONLY_IDS.includes(j.id))
 if (BREADTH) {
   ordered = [...ordered].sort((a, b) => a.view - b.view || a.tier - b.tier)
 }
@@ -150,6 +157,13 @@ if (PLAN_ONLY) {
 if (PROVIDER === 'fal' && !process.env.FAL_KEY) {
   console.error('缺 FAL_KEY：把 fal.ai 的 key 写进 .env（FAL_KEY=xxx），或换 --provider pollinations')
   process.exit(1)
+}
+if (PROVIDER === 'openai') {
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('缺 OPENAI_API_KEY：把 platform.openai.com 的 key 写进 .env，或换 --provider pollinations')
+    process.exit(1)
+  }
+  console.log(`openai 通道预估费用：${work.length} 张 × ~$0.06 ≈ $${(work.length * 0.06).toFixed(2)}（medium 竖幅；用 --limit 控制批量）`)
 }
 
 /* ---------------------------------------------------------------- 抓取 */
@@ -179,6 +193,41 @@ const pollUrl = (job) =>
  * fal：POST 提示词拿到 json 里的图 url，再下一次；付费、可并发、同样 Flux。
  */
 async function rawImage(job, signal) {
+  if (PROVIDER === 'openai') {
+    const mainPath = pathFor(job.id, 1)
+    // 2/3 视角且主图在手：把主图喂回去，同一件实物换角度重拍（一致性的正解）
+    if (job.view > 1 && existsSync(mainPath)) {
+      const form = new FormData()
+      form.append('model', 'gpt-image-2')
+      form.append('image[]', new Blob([readFileSync(mainPath)], { type: 'image/jpeg' }), 'ref.jpg')
+      form.append('prompt', `Photograph the SAME object shown in the reference image, unchanged in shape, material and colour, from a new angle: ${job.prompt}`)
+      form.append('n', '1')
+      form.append('size', '1024x1536')
+      form.append('quality', 'medium')
+      const res = await fetch('https://api.openai.com/v1/images/edits', {
+        method: 'POST',
+        headers: { authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+        body: form,
+        signal,
+      })
+      if (!res.ok) throw new Error(`openai edits HTTP ${res.status}`)
+      const data = await res.json()
+      const b64 = data?.data?.[0]?.b64_json
+      if (!b64) throw new Error('openai edits: no image')
+      return Buffer.from(b64, 'base64')
+    }
+    const res = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: 'gpt-image-2', prompt: job.prompt, n: 1, size: '1024x1536', quality: 'medium' }),
+      signal,
+    })
+    if (!res.ok) throw new Error(`openai HTTP ${res.status}`)
+    const data = await res.json()
+    const b64 = data?.data?.[0]?.b64_json
+    if (!b64) throw new Error('openai: no image')
+    return Buffer.from(b64, 'base64')
+  }
   if (PROVIDER === 'fal') {
     const res = await fetch('https://fal.run/fal-ai/flux/schnell', {
       method: 'POST',
@@ -233,6 +282,10 @@ async function fetchOne(job) {
       if (!jpg && !png) throw new Error('not an image')
 
       writeFileSync(tmp, buf)
+      if (PROVIDER === 'openai') {
+        // 2:3 → 居中裁 3:4（sips -c 恰好是中心裁切；见 normalise-aspect 的教训——这里要的就是中心）
+        execFileSync('sips', ['-c', '1365', '1024', tmp], { stdio: 'ignore' })
+      }
       execFileSync('sips', ['-Z', '700', '-s', 'format', 'jpeg', tmp, '--out', dest], { stdio: 'ignore' })
       if (existsSync(tmp)) unlinkSync(tmp)
       if (statSync(dest).size < MIN_BYTES / 3) throw new Error('degenerate after resize')
