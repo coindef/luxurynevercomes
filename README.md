@@ -83,9 +83,10 @@ and a spec row exists only where its logic is real, so a yacht has a yard, a gem
 1691 oil is not "Made in Germany".
 
 **Photographed at 3:4, or not at all.** Images are real photographs (Unsplash, CC0/CC BY, credited
-at `/about`) where a brand-free, catalogue-grade one exists, otherwise generated with Flux on a free,
-one-request-at-a-time lane; 570 of 1,009 pieces are photographed at the time of writing and the rest
-show an auction-catalogue placard rather than a broken image. The prompt rules in
+at `/about`) where a brand-free, catalogue-grade one exists, otherwise generated through the image
+pipeline, with an OpenAI Image 2 realism pass available for AI-sourced frames; 570 of 1,009 pieces are
+photographed at the time of writing and the rest show an auction-catalogue placard rather than a
+broken image. The prompt rules in
 [scripts/art-direction.mjs](scripts/art-direction.mjs) are scar tissue, one failure each: one seed
 per piece, or three views draw three different bags; never write "hand", because diffusion renders
 instead of negating; whole objects only, or the model paints the detail and loses the product. Every
@@ -103,6 +104,7 @@ npm run dev        # develop
 npm run build      # type-check + production build → dist/
 npm run lint       # oxlint
 npm run images     # resume the photography pipeline; Ctrl-C safe
+npm run images:openai:optimize -- --limit 12  # paid; use --openai-model if the API model changes
 ```
 
 Vite, React 19, TypeScript, Tailwind CSS v4. State lives entirely in localStorage: no backend, no

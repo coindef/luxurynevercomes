@@ -4,15 +4,18 @@
  *   - **pollinations**（默认，免费无 key）：匿名档每 IP 只允许 1 并发，越跑越慢（~40s→几分钟/张），
  *     所以严格串行 + 自适应退避。跑不完是常态，随时 Ctrl-C，重跑续上。
  *   - **fal**（付费，快几十倍）：同样是 Flux，可并发；key 从 .env 的 FAL_KEY 读。
- *   - **openai**（付费，质感最好）：gpt-image-2。主图 t2i；**2/3 视角把主图喂回去 img2img**，
+ *   - **openai**（付费，质感最好）：默认请求 gpt-image-2，可用 --openai-model 覆盖。
+ *     主图 t2i；**2/3 视角把主图喂回去 img2img**，
  *     同一件东西换角度重拍——跨视角一致性从「同 seed 的表亲」升级为「同一个实物」。
- *     ~$0.06/张（medium 竖幅），跑前会打印预估费用。key 从 .env 的 OPENAI_API_KEY 读。
+ *     加 --optimize-ai 时，只重拍/修正 ai-sourced 里的现有 AI 图，真人照片仍不碰。
+ *     key 从 .env 的 OPENAI_API_KEY 读。
  *
  * 续跑为什么不会画风走样：seed 只由商品 id 决定（见 art-direction.mjs 第 1 条），
  * 换通道也一样——fal 和 pollinations 同 seed 出的是同一件东西，可以混着补。
  *
  * 用法（都可加 --breadth：先把每件的主图铺满，再回头补 2、3 视角）：
  *   npm run images                    # 免费通道，广度优先
+ *   npm run images:openai:optimize    # 给现有 AI 图做真实摄影重拍/修正（付费，用 --limit 控制）
  *   npm run images:fal                # fal 付费通道，6 并发（需 .env 里的 FAL_KEY）
  *   ... --provider fal --concurrency 10   # 调并发
  *   ... --limit 100 / --tier 1 / --plan   # 限量 / 单档 / 只看计划不联网
@@ -61,7 +64,11 @@ const PROVIDER = flag('provider', 'pollinations')
 /** --only id1,id2：只补这些商品（点名重画用）；配 --redraw 强制重画已存在的 */
 const ONLY_IDS = (flag('only', '') || '').split(',').filter(Boolean)
 const REDRAW = argv.includes('--redraw')
-const CONCURRENCY = PROVIDER === 'fal' ? Math.max(1, Number(flag('concurrency', 6))) : PROVIDER === 'openai' ? Math.max(1, Number(flag('concurrency', 4))) : 1
+const OPTIMIZE_AI = PROVIDER === 'openai' && has('optimize-ai')
+const OPENAI_MODEL = flag('openai-model', 'gpt-image-2')
+const OPENAI_QUALITY = flag('quality', OPTIMIZE_AI ? 'high' : 'medium')
+const DEFAULT_CONCURRENCY = PROVIDER === 'fal' ? 6 : PROVIDER === 'openai' ? (OPTIMIZE_AI ? 1 : 4) : 1
+const CONCURRENCY = Math.max(1, Number(flag('concurrency', DEFAULT_CONCURRENCY)))
 const PLAN_ONLY = has('plan')
 
 const MIN_BYTES = 25_000
@@ -123,12 +130,18 @@ const push = (tier, p, view, overwrite = false) => {
 const aiProducts = PRODUCTS.filter((p) => aiSourced.has(p.id) && shouldGenerate(p)).sort(byVisibility)
 const openProducts = PRODUCTS.filter((p) => !isProtected(p) && !aiSourced.has(p.id) && shouldGenerate(p)).sort(byVisibility)
 
-// tier 1：seed 通道下主图要陪着重画（三张同 seed 才叫同一件）；
-// openai 通道恰恰相反——主图是 2/3 视角的参照物，**绝不能**重画
-for (const p of aiProducts) for (let v = 1; v <= VIEWS_PER_PRODUCT; v++) push(1, p, v, PROVIDER !== 'openai' && v === 1 && !hasView(p.id, 2))
-for (const p of openProducts.filter((p) => visibility(p) > 0)) for (let v = 1; v <= VIEWS_PER_PRODUCT; v++) push(2, p, v)
-for (const p of openProducts.filter((p) => visibility(p) === 0)) push(3, p, 1)
-for (const p of openProducts.filter((p) => visibility(p) === 0)) for (const v of [2, 3]) push(4, p, v)
+if (OPTIMIZE_AI) {
+  // gpt-image-2 修复现有 AI 图：只碰 ai-sourced，真实照片靠 isProtected 继续锁住。
+  // 主图先重拍，2/3 视角再以重拍后的主图为参照；默认串行，避免视角引用到旧主图。
+  for (const p of aiProducts) for (let v = 1; v <= VIEWS_PER_PRODUCT; v++) push(1, p, v, true)
+} else {
+  // tier 1：seed 通道下主图要陪着重画（三张同 seed 才叫同一件）；
+  // openai 通道恰恰相反——主图是 2/3 视角的参照物，**绝不能**重画
+  for (const p of aiProducts) for (let v = 1; v <= VIEWS_PER_PRODUCT; v++) push(1, p, v, PROVIDER !== 'openai' && v === 1 && !hasView(p.id, 2))
+  for (const p of openProducts.filter((p) => visibility(p) > 0)) for (let v = 1; v <= VIEWS_PER_PRODUCT; v++) push(2, p, v)
+  for (const p of openProducts.filter((p) => visibility(p) === 0)) push(3, p, 1)
+  for (const p of openProducts.filter((p) => visibility(p) === 0)) for (const v of [2, 3]) push(4, p, v)
+}
 
 /**
  * --breadth：先把**每一件**的主图铺满，再回头补第 2、3 视角。
@@ -150,7 +163,7 @@ console.log(`catalogue       ${PRODUCTS.length} pieces, ${onDisk} view files on 
 console.log(`protected       ${PRODUCTS.filter(isProtected).length} pieces have real photography (left alone, single view)`)
 console.log(`ai-sourced      ${aiProducts.length} pieces re-generatable`)
 console.log(`queue           tier1 ${tierCount(1)} · tier2 ${tierCount(2)} · tier3 ${tierCount(3)} · tier4 ${tierCount(4)} = ${queue.length} images to make`)
-console.log(`this run        ${work.length} images · provider=${PROVIDER}${PROVIDER === 'fal' ? ` · ${CONCURRENCY} concurrent` : ' · serial (免费单并发)'}`)
+console.log(`this run        ${work.length} images · provider=${PROVIDER}${PROVIDER === 'pollinations' ? ' · serial (免费单并发)' : ` · ${CONCURRENCY} concurrent`}${PROVIDER === 'openai' ? ` · model=${OPENAI_MODEL}` : ''}${OPTIMIZE_AI ? ` · optimize-ai · quality=${OPENAI_QUALITY}` : ''}`)
 if (PLAN_ONLY) {
   for (const j of work.slice(0, 6)) console.log(`  [t${j.tier}] ${j.id} v${j.view}${j.overwrite ? ' (redraw)' : ''}\n      ${j.prompt.slice(0, 140)}…`)
   process.exit(0)
@@ -165,7 +178,7 @@ if (PROVIDER === 'openai') {
     console.error('缺 OPENAI_API_KEY：把 platform.openai.com 的 key 写进 .env，或换 --provider pollinations')
     process.exit(1)
   }
-  console.log(`openai 通道预估费用：${work.length} 张 × ~$0.06 ≈ $${(work.length * 0.06).toFixed(2)}（medium 竖幅；用 --limit 控制批量）`)
+  console.log(`openai 通道会调用 ${OPENAI_MODEL} 生成 ${work.length} 张；这是付费请求，用 --limit 控制批量`)
 }
 
 /* ---------------------------------------------------------------- 抓取 */
@@ -189,6 +202,19 @@ const pollUrl = (job) =>
   `https://image.pollinations.ai/prompt/${encodeURIComponent(job.prompt)}` +
   `?width=768&height=1024&nologo=true&model=${MODEL}&seed=${job.seed}`
 
+const openaiPhotographPrompt = (job, mode) =>
+  [
+    'Create a realistic auction-catalogue product photograph.',
+    mode === 'optimize'
+      ? 'Use the reference image as the exact object to rephotograph; preserve its identity, proportions, material, colour, and visible design.'
+      : mode === 'angle'
+        ? 'Photograph the exact same object shown in the reference image from the requested new angle; preserve its shape, material, colour, and visible design.'
+      : 'Make the subject look photographed as a physical object in a real studio.',
+    'Use natural lens behavior, believable shadow penumbra, material micro-texture, slight sensor noise in the shadows, and restrained edge wear where appropriate.',
+    'Keep a single complete subject with generous negative space and no readable lettering.',
+    job.prompt,
+  ].join(' ')
+
 /**
  * 取原始图字节。
  * pollinations：GET，响应体本身就是图；429 抛出带标记，交给退避。
@@ -197,22 +223,46 @@ const pollUrl = (job) =>
 async function rawImage(job, signal) {
   if (PROVIDER === 'openai') {
     const mainPath = pathFor(job.id, 1)
-    // 2/3 视角且主图在手：把主图喂回去，同一件实物换角度重拍（一致性的正解）
-    if (job.view > 1 && existsSync(mainPath)) {
+    const destPath = pathFor(job.id, job.view)
+    if (OPTIMIZE_AI && existsSync(destPath)) {
       const form = new FormData()
-      form.append('model', 'gpt-image-2')
-      form.append('image[]', new Blob([readFileSync(mainPath)], { type: 'image/jpeg' }), 'ref.jpg')
-      form.append('prompt', `Photograph the SAME object shown in the reference image, unchanged in shape, material and colour, from a new angle: ${job.prompt}`)
+      form.append('model', OPENAI_MODEL)
+      form.append('image[]', new Blob([readFileSync(destPath)], { type: 'image/jpeg' }), 'source.jpg')
+      if (job.view > 1 && existsSync(mainPath) && mainPath !== destPath) {
+        form.append('image[]', new Blob([readFileSync(mainPath)], { type: 'image/jpeg' }), 'main.jpg')
+      }
+      form.append('prompt', openaiPhotographPrompt(job, 'optimize'))
       form.append('n', '1')
       form.append('size', '1024x1536')
-      form.append('quality', 'medium')
+      form.append('quality', OPENAI_QUALITY)
       const res = await fetch('https://api.openai.com/v1/images/edits', {
         method: 'POST',
         headers: { authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
         body: form,
         signal,
       })
-      if (!res.ok) throw new Error(`openai edits HTTP ${res.status}`)
+      if (!res.ok) throw new Error(`openai optimize HTTP ${res.status}: ${await res.text()}`)
+      const data = await res.json()
+      const b64 = data?.data?.[0]?.b64_json
+      if (!b64) throw new Error('openai optimize: no image')
+      return Buffer.from(b64, 'base64')
+    }
+    // 2/3 视角且主图在手：把主图喂回去，同一件实物换角度重拍（一致性的正解）
+    if (job.view > 1 && existsSync(mainPath)) {
+      const form = new FormData()
+      form.append('model', OPENAI_MODEL)
+      form.append('image[]', new Blob([readFileSync(mainPath)], { type: 'image/jpeg' }), 'ref.jpg')
+      form.append('prompt', openaiPhotographPrompt(job, 'angle'))
+      form.append('n', '1')
+      form.append('size', '1024x1536')
+      form.append('quality', OPENAI_QUALITY)
+      const res = await fetch('https://api.openai.com/v1/images/edits', {
+        method: 'POST',
+        headers: { authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+        body: form,
+        signal,
+      })
+      if (!res.ok) throw new Error(`openai edits HTTP ${res.status}: ${await res.text()}`)
       const data = await res.json()
       const b64 = data?.data?.[0]?.b64_json
       if (!b64) throw new Error('openai edits: no image')
@@ -221,10 +271,10 @@ async function rawImage(job, signal) {
     const res = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: { authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ model: 'gpt-image-2', prompt: job.prompt, n: 1, size: '1024x1536', quality: 'medium' }),
+      body: JSON.stringify({ model: OPENAI_MODEL, prompt: openaiPhotographPrompt(job, 'generate'), n: 1, size: '1024x1536', quality: OPENAI_QUALITY }),
       signal,
     })
-    if (!res.ok) throw new Error(`openai HTTP ${res.status}`)
+    if (!res.ok) throw new Error(`openai HTTP ${res.status}: ${await res.text()}`)
     const data = await res.json()
     const b64 = data?.data?.[0]?.b64_json
     if (!b64) throw new Error('openai: no image')

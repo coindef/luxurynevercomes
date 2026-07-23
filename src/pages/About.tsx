@@ -97,7 +97,7 @@ export default function About() {
         <p className="mt-5 max-w-xl text-[11px] leading-loose text-fog">
           The photography is of two kinds, and both are inspected by eye, one frame at a time: real photographs
           (Unsplash, CC0, CC BY / CC BY-SA) where a brand-free, catalogue-grade image exists, and images generated
-          with Flux where none does. No readable brand mark may appear in either. Pieces still waiting for their
+          by the catalogue pipeline where none does. No readable brand mark may appear in either. Pieces still waiting for their
           sitting show an auction catalogue placard instead, because even a placeholder deserves some poise.
           The photographs requiring attribution are listed below; nothing generated requires any.
         </p>
